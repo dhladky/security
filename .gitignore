@@ -2,7 +2,10 @@
 */.settings/
 */.project
 */.classpath
+*/.DS_Store
+.DS_Store
 .project
 .settings/
 .classpath
 target/
+security-realms/security-xml-realm/test-output/
