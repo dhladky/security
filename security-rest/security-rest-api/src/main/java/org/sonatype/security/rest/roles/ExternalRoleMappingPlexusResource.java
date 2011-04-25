@@ -12,12 +12,10 @@
  */
 package org.sonatype.security.rest.roles;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.enterprise.inject.Typed;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -27,25 +25,26 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import org.codehaus.enunciate.contract.jaxrs.ResourceMethodSignature;
-import org.codehaus.plexus.util.StringUtils;
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
+import org.sonatype.configuration.validation.InvalidConfigurationException;
 import org.sonatype.plexus.rest.resource.PathProtectionDescriptor;
 import org.sonatype.plexus.rest.resource.PlexusResource;
-import org.sonatype.security.authorization.NoSuchAuthorizationManagerException;
-import org.sonatype.security.authorization.Role;
 import org.sonatype.security.rest.model.ExternalRoleMappingResource;
 import org.sonatype.security.rest.model.ExternalRoleMappingResourceResponse;
+import org.sonatype.security.usermanagement.RoleIdentifier;
+import org.sonatype.security.usermanagement.RoleMapping;
+import org.sonatype.security.usermanagement.UserManager;
 import org.sonatype.security.usermanagement.xml.SecurityXmlUserManager;
 
 /**
- *  REST resource for listing external role mappings.  An external role mapping, maps a role of an external 
- *  source to one of managed by the system, giving a user all the privileges contained in this system role.
- *  
+ * REST resource for listing external role mappings. An external role mapping, maps a role of an external source to one
+ * of managed by the system, giving a user all the privileges contained in this system role.
+ * 
  * @author bdemers
  */
 @Singleton
@@ -59,9 +58,17 @@ public class ExternalRoleMappingPlexusResource
 {
 
     public static final String SOURCE_ID_KEY = "sourceId";
-    
+
     public static final String RESOURCE_URI = "/external_role_map/{" + SOURCE_ID_KEY + "}";
-    
+
+    private SecurityXmlUserManager xmlManager;
+
+    @Inject
+    public ExternalRoleMappingPlexusResource( UserManager manager )
+    {
+        xmlManager = (SecurityXmlUserManager) manager;
+    }
+
     @Override
     public Object getPayloadInstance()
     {
@@ -81,14 +88,14 @@ public class ExternalRoleMappingPlexusResource
     }
 
     /**
-    * Retrieves the list of external role mappings.
-    * 
-     * @param sourceId The Id of the source.  A source specifies where the users/roles came from, 
-     * for example the source Id of 'LDAP' identifies the users/roles as coming from an LDAP source.
-    */
+     * Retrieves the list of external role mappings.
+     * 
+     * @param sourceId The Id of the source. A source specifies where the users/roles came from, for example the source
+     *            Id of 'LDAP' identifies the users/roles as coming from an LDAP source.
+     */
     @Override
     @GET
-    @ResourceMethodSignature( output = ExternalRoleMappingResourceResponse.class, pathParams = { @PathParam(value = "sourceId") }  )
+    @ResourceMethodSignature( output = ExternalRoleMappingResourceResponse.class, pathParams = { @PathParam( value = "sourceId" ) } )
     public Object get( Context context, Request request, Response response, Variant variant )
         throws ResourceException
     {
@@ -96,58 +103,23 @@ public class ExternalRoleMappingPlexusResource
 
         try
         {
-            // get roles for the source
-            Set<Role> roles = this.getSecuritySystem().listRoles( source );
-
-            if ( roles == null )
-            {
-                throw new ResourceException( Status.CLIENT_ERROR_NOT_FOUND, "Role Source '" + source
-                    + "' could not be found." );
-            }
-
-            Set<Role> defaultRoles = this.getSecuritySystem().listRoles( SecurityXmlUserManager.SOURCE );
-
-            Map<Role, Set<Role>> roleMap = new HashMap<Role, Set<Role>>();
-
-            for ( Role defaultRole : defaultRoles )
-            {
-                for ( Role role : roles )
-                {
-                    // if the roleId matches (and the source doesn't)
-                    if ( !StringUtils.equals( defaultRole.getSource(), role.getSource() )
-                        && StringUtils.equals( defaultRole.getRoleId(), role.getRoleId() ) )
-                    {
-                        Set<Role> mappedRoles = roleMap.get( defaultRole );
-                        // if we don't have any currently mapped roles, add it to the map,
-                        // if we do then just add to the set
-
-                        if ( mappedRoles == null )
-                        {
-                            mappedRoles = new HashSet<Role>();
-                            mappedRoles.add( role );
-                            roleMap.put( defaultRole, mappedRoles );
-                        }
-                        else
-                        {
-                            // just add this new role to the current set
-                            mappedRoles.add( role );
-                        }
-
-                        roleMap.put( defaultRole, mappedRoles );
-                    }
-                }
-            }
+            Set<RoleMapping> roleMap = xmlManager.getRoleMappings();
 
             // now put this in a resource
             ExternalRoleMappingResourceResponse result = new ExternalRoleMappingResourceResponse();
 
-            for ( Role defaultRole : roleMap.keySet() )
+            for ( RoleMapping map : roleMap )
             {
+                if ( !source.equals( map.getSource() ) )
+                {
+                    continue;
+                }
+
                 ExternalRoleMappingResource resource = new ExternalRoleMappingResource();
                 result.addData( resource );
-                resource.setDefaultRole( this.securityToRestModel( defaultRole ) );
+                resource.setDefaultRole( this.securityToRestModel( map.getRoleId() ) );
 
-                for ( Role mappedRole : roleMap.get( defaultRole ) )
+                for ( RoleIdentifier mappedRole : map.getRoles() )
                 {
                     resource.addMappedRole( this.securityToRestModel( mappedRole ) );
                 }
@@ -156,7 +128,7 @@ public class ExternalRoleMappingPlexusResource
             return result;
 
         }
-        catch ( NoSuchAuthorizationManagerException e )
+        catch ( InvalidConfigurationException e )
         {
             throw new ResourceException( Status.CLIENT_ERROR_NOT_FOUND, "Role Source '" + source
                 + "' could not be found." );

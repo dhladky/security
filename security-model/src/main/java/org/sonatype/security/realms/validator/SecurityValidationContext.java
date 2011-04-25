@@ -34,7 +34,7 @@ public class SecurityValidationContext implements ValidationContext
     private Map<String, String> existingRoleNameMap;
     
     private Map<String, List<String>> existingUserRoleMap;
-   
+
     public void addExistingPrivilegeIds()
     {
         if ( this.existingPrivilegeIds == null )
@@ -113,6 +113,5 @@ public class SecurityValidationContext implements ValidationContext
     {
         return existingUserRoleMap;
     }
-    
-    
+
 }

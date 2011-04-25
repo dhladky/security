@@ -29,6 +29,7 @@ import org.sonatype.security.authorization.NoSuchPrivilegeException;
 import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CRole;
+import org.sonatype.security.model.CRoleMapping;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.model.Configuration;
@@ -58,6 +59,7 @@ public class ResourceMergingConfigurationManager
     @Inject
     private List<DynamicSecurityResource> dynamicResources;
 
+    @Override
     public synchronized void clearCache()
     {
         super.clearCache();
@@ -205,7 +207,7 @@ public class ResourceMergingConfigurationManager
     {
         List<CPrivilege> list = new ArrayList<CPrivilege>( manager.listPrivileges() );
 
-        for ( CPrivilege item : (List<CPrivilege>) getConfiguration().getPrivileges() )
+        for ( CPrivilege item : getConfiguration().getPrivileges() )
         {
             // ALL privileges that come from StaticSecurityResources are NOT editable
             // only roles defined in the security.xml can be updated.
@@ -220,7 +222,7 @@ public class ResourceMergingConfigurationManager
     {
         List<CRole> list = new ArrayList<CRole>( manager.listRoles() );
 
-        for ( CRole item : (List<CRole>) getConfiguration().getRoles() )
+        for ( CRole item : getConfiguration().getRoles() )
         {
             CRole role = item;
             // ALL roles that come from StaticSecurityResources are NOT editable
@@ -472,6 +474,7 @@ public class ResourceMergingConfigurationManager
 
     // ==
 
+    @Override
     protected EnhancedConfiguration getConfiguration()
     {
         for ( DynamicSecurityResource resource : dynamicResources )
@@ -489,6 +492,7 @@ public class ResourceMergingConfigurationManager
         return super.getConfiguration();
     }
 
+    @Override
     protected Configuration doGetConfiguration()
     {
         final Configuration configuration = new Configuration();
@@ -518,7 +522,7 @@ public class ResourceMergingConfigurationManager
 
     private Configuration appendConfig( final Configuration configuration, final Configuration config )
     {
-        for ( CPrivilege privilege : (List<CPrivilege>) config.getPrivileges() )
+        for ( CPrivilege privilege : config.getPrivileges() )
         {
             configuration.addPrivilege( privilege );
         }
@@ -541,11 +545,52 @@ public class ResourceMergingConfigurationManager
             configuration.addRole( role );
         }
 
-        for ( CUser user : (List<CUser>) config.getUsers() )
+        for ( CUser user : config.getUsers() )
         {
             configuration.addUser( user );
         }
 
         return configuration;
+    }
+
+    @Override
+    public void createRoleMapping( CRoleMapping mapping )
+        throws InvalidConfigurationException
+    {
+        manager.createRoleMapping( mapping );
+    }
+
+    @Override
+    public void updateRoleMapping( CRoleMapping mapping )
+        throws InvalidConfigurationException
+    {
+        manager.updateRoleMapping( mapping );
+    }
+
+    @Override
+    public CRoleMapping readRoleMapping( String roleId, String source )
+        throws NoSuchRoleMappingException
+    {
+        return manager.readRoleMapping( roleId, source );
+    }
+
+    @Override
+    public List<CRoleMapping> listRoleMappings()
+    {
+        return manager.listRoleMappings();
+    }
+
+    @Override
+    public void deleteRoleMapping( CRoleMapping mapping )
+        throws NoSuchRoleMappingException
+    {
+        manager.deleteRoleMapping( mapping );
+    }
+
+    @Override
+    public void deleteRoleMapping( String roleId, String source )
+        throws NoSuchRoleMappingException
+    {
+        manager.deleteRoleMapping( roleId, source );
     }
 }

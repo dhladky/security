@@ -84,6 +84,18 @@
                     </association>
                     <required>false</required>
                 </field>
+                <field>
+                    <name>roleMappings</name>
+                    <version>2.4+</version>
+                    <description>
+                        List of role mappings. 
+                    </description>
+                    <association>
+                        <type>CRoleMapping</type>
+                        <multiplicity>*</multiplicity>
+                    </association>
+                    <required>false</required>
+                </field>
                 
             </fields>
             <codeSegments>
@@ -115,6 +127,12 @@
                     <version>2.0.4</version>
                     <code><![CDATA[
     public static final String MODEL_VERSION = "2.0.4";
+]]></code>
+                </codeSegment>
+                <codeSegment>
+                    <version>2.4</version>
+                    <code><![CDATA[
+    public static final String MODEL_VERSION = "2.4";
 ]]></code>
                 </codeSegment>
             </codeSegments>
@@ -382,6 +400,38 @@
                     </association>
                     <required>true</required>
                     <description>List of the users roles.</description>
+                </field>
+            </fields>
+        </class>
+
+		<class>
+            <name>CRoleMapping</name>
+            <version>2.4+</version>
+            <description>Defines the mapping between internal and external roles.</description>
+            <fields>
+                <field>
+                    <name>sourceRoleId</name>
+                    <version>2.4+</version>
+                    <type>String</type>
+                    <required>true</required>
+                    <description>Role ID on the source realm.</description>
+                </field>
+                <field>
+                    <name>source</name>
+                    <version>2.4+</version>
+                    <type>String</type>
+                    <required>false</required>
+                    <description>The source or realm id, of the user.  For example an CROWD realm might have a source id of CROWD.</description>
+                </field>
+                 <field>
+                    <name>xmlRoles</name>
+                    <version>2.4+</version>
+                    <association>
+                        <type>String</type>
+                        <multiplicity>*</multiplicity>
+                    </association>
+                    <required>true</required>
+                    <description>List of the xml roles.</description>
                 </field>
             </fields>
         </class>

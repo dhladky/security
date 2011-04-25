@@ -20,6 +20,7 @@ import org.sonatype.security.authorization.NoSuchPrivilegeException;
 import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CRole;
+import org.sonatype.security.model.CRoleMapping;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.realms.privileges.PrivilegeDescriptor;
@@ -286,4 +287,21 @@ public interface ConfigurationManager
     void cleanRemovedRole( String roleId );
 
     void cleanRemovedPrivilege( String privilegeId );
+
+    void createRoleMapping( CRoleMapping mapping )
+        throws InvalidConfigurationException;
+
+    void updateRoleMapping( CRoleMapping mapping )
+        throws InvalidConfigurationException;
+
+    CRoleMapping readRoleMapping( String roleId, String source )
+        throws NoSuchRoleMappingException;
+
+    List<CRoleMapping> listRoleMappings();
+
+    void deleteRoleMapping( CRoleMapping mapping )
+        throws NoSuchRoleMappingException;
+
+    void deleteRoleMapping( String roleId, String source )
+        throws NoSuchRoleMappingException;
 }

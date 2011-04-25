@@ -27,6 +27,7 @@ public class DefaultSecurityConfigurationUpgraderTest
 
     protected SecurityConfigurationUpgrader configurationUpgrader;
 
+    @Override
     public void setUp()
         throws Exception
     {
@@ -34,7 +35,7 @@ public class DefaultSecurityConfigurationUpgraderTest
 
         FileUtils.cleanDirectory( new File( getSecurityConfiguration() ).getParentFile() );
 
-        this.configurationUpgrader = (SecurityConfigurationUpgrader) lookup( SecurityConfigurationUpgrader.class );
+        this.configurationUpgrader = lookup( SecurityConfigurationUpgrader.class );
     }
 
     protected void resultIsFine( String path, Configuration configuration )

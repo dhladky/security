@@ -37,4 +37,10 @@ public interface RoleMappingUserManager
     void setUsersRoles( String userId, String userSource, Set<RoleIdentifier> roleIdentifiers )
         throws UserNotFoundException, InvalidConfigurationException;
 
+    void setRoleMapping( String roleId, String source, Set<RoleIdentifier> roleIdentifiers )
+        throws InvalidConfigurationException;
+
+    Set<RoleMapping> getRoleMappings()
+        throws InvalidConfigurationException;
+
 }

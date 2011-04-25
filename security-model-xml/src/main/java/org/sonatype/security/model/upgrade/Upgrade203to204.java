@@ -25,8 +25,8 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.sonatype.configuration.upgrade.ConfigurationIsCorruptedException;
 import org.sonatype.configuration.upgrade.UpgradeMessage;
-import org.sonatype.security.model.CUser;
 import org.sonatype.security.model.v2_0_3.io.xpp3.SecurityConfigurationXpp3Reader;
+import org.sonatype.security.model.v2_0_4.Configuration;
 import org.sonatype.security.model.v2_0_4.upgrade.BasicVersionUpgrade;
 
 @Singleton
@@ -73,10 +73,10 @@ public class Upgrade203to204
     {
         org.sonatype.security.model.v2_0_3.Configuration oldc = ( org.sonatype.security.model.v2_0_3.Configuration ) message.getConfiguration();
 
-        org.sonatype.security.model.Configuration newc = new SecurityVersionUpgrade().upgradeConfiguration( oldc );
+        Configuration newc = new SecurityVersionUpgrade().upgradeConfiguration( oldc );
         
-        newc.setVersion( org.sonatype.security.model.Configuration.MODEL_VERSION );
-        message.setModelVersion( org.sonatype.security.model.Configuration.MODEL_VERSION );
+        newc.setVersion( Configuration.MODEL_VERSION );
+        message.setModelVersion( Configuration.MODEL_VERSION );
         message.setConfiguration( newc );
     }
     
@@ -84,9 +84,10 @@ public class Upgrade203to204
     {
 
         @Override
-        public CUser upgradeCUser( org.sonatype.security.model.v2_0_3.CUser cUser, CUser value )
+        public org.sonatype.security.model.v2_0_4.CUser upgradeCUser( org.sonatype.security.model.v2_0_3.CUser cUser,
+                                                                      org.sonatype.security.model.v2_0_4.CUser value )
         {
-            CUser upgradedUser =  super.upgradeCUser( cUser, value );
+            org.sonatype.security.model.v2_0_4.CUser upgradedUser = super.upgradeCUser( cUser, value );
             
             // get the old users name
             String name = cUser.getName();

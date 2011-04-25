@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CRole;
+import org.sonatype.security.model.CRoleMapping;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.model.Configuration;
@@ -23,11 +24,13 @@ public class EnhancedConfiguration
         rebuildId2UsersLookupMap();
         rebuildId2RolesLookupMap();
         rebuildId2PrivilegesLookupMap();
-        rebuildId2RoleMappingsLookupMap();
+        rebuildId2UserRoleMappingsLookupMap();
+        rebuildId2roleMappingsLookupMap();
     }
 
     // ==
 
+    @Override
     public void addPrivilege( CPrivilege cPrivilege )
     {
         delegate.addPrivilege( cPrivilege );
@@ -35,6 +38,7 @@ public class EnhancedConfiguration
         id2privileges.put( cPrivilege.getId(), cPrivilege );
     }
 
+    @Override
     public void addRole( CRole cRole )
     {
         delegate.addRole( cRole );
@@ -42,6 +46,7 @@ public class EnhancedConfiguration
         id2roles.put( cRole.getId(), cRole );
     }
 
+    @Override
     public void addUser( CUser cUser )
     {
         delegate.addUser( cUser );
@@ -49,19 +54,22 @@ public class EnhancedConfiguration
         id2users.put( cUser.getId(), cUser );
     }
 
+    @Override
     public void addUserRoleMapping( CUserRoleMapping cUserRoleMapping )
     {
         delegate.addUserRoleMapping( cUserRoleMapping );
 
-        id2roleMappings.put( getUserRoleMappingKey( cUserRoleMapping.getUserId(), cUserRoleMapping.getSource() ),
+        id2userRoleMappings.put( getUserRoleMappingKey( cUserRoleMapping.getUserId(), cUserRoleMapping.getSource() ),
             cUserRoleMapping );
     }
 
+    @Override
     public String getModelEncoding()
     {
         return delegate.getModelEncoding();
     }
 
+    @Override
     public List<CPrivilege> getPrivileges()
     {
         // we are intentionally breaking code that will try to _modify_ the list
@@ -69,6 +77,7 @@ public class EnhancedConfiguration
         return Collections.unmodifiableList( delegate.getPrivileges() );
     }
 
+    @Override
     public List<CRole> getRoles()
     {
         // we are intentionally breaking code that will try to _modify_ the list
@@ -76,6 +85,7 @@ public class EnhancedConfiguration
         return Collections.unmodifiableList( delegate.getRoles() );
     }
 
+    @Override
     public List<CUserRoleMapping> getUserRoleMappings()
     {
         // we are intentionally breaking code that will try to _modify_ the list
@@ -83,6 +93,7 @@ public class EnhancedConfiguration
         return Collections.unmodifiableList( delegate.getUserRoleMappings() );
     }
 
+    @Override
     public List<CUser> getUsers()
     {
         // we are intentionally breaking code that will try to _modify_ the list
@@ -90,11 +101,13 @@ public class EnhancedConfiguration
         return Collections.unmodifiableList( delegate.getUsers() );
     }
 
+    @Override
     public String getVersion()
     {
         return delegate.getVersion();
     }
 
+    @Override
     public void removePrivilege( CPrivilege cPrivilege )
     {
         id2privileges.remove( cPrivilege.getId() );
@@ -102,6 +115,7 @@ public class EnhancedConfiguration
         delegate.removePrivilege( cPrivilege );
     }
 
+    @Override
     public void removeRole( CRole cRole )
     {
         id2roles.remove( cRole.getId() );
@@ -109,6 +123,7 @@ public class EnhancedConfiguration
         delegate.removeRole( cRole );
     }
 
+    @Override
     public void removeUser( CUser cUser )
     {
         id2users.remove( cUser.getId() );
@@ -116,18 +131,21 @@ public class EnhancedConfiguration
         delegate.removeUser( cUser );
     }
 
+    @Override
     public void removeUserRoleMapping( CUserRoleMapping cUserRoleMapping )
     {
-        id2roleMappings.remove( getUserRoleMappingKey( cUserRoleMapping.getUserId(), cUserRoleMapping.getSource() ) );
+        id2userRoleMappings.remove( getUserRoleMappingKey( cUserRoleMapping.getUserId(), cUserRoleMapping.getSource() ) );
 
         delegate.removeUserRoleMapping( cUserRoleMapping );
     }
 
+    @Override
     public void setModelEncoding( String modelEncoding )
     {
         delegate.setModelEncoding( modelEncoding );
     }
 
+    @Override
     public void setPrivileges( List<CPrivilege> privileges )
     {
         delegate.setPrivileges( privileges );
@@ -135,6 +153,7 @@ public class EnhancedConfiguration
         rebuildId2PrivilegesLookupMap();
     }
 
+    @Override
     public void setRoles( List<CRole> roles )
     {
         delegate.setRoles( roles );
@@ -142,13 +161,15 @@ public class EnhancedConfiguration
         rebuildId2RolesLookupMap();
     }
 
+    @Override
     public void setUserRoleMappings( List<CUserRoleMapping> userRoleMappings )
     {
         delegate.setUserRoleMappings( userRoleMappings );
 
-        rebuildId2RoleMappingsLookupMap();
+        rebuildId2UserRoleMappingsLookupMap();
     }
 
+    @Override
     public void setUsers( List<CUser> users )
     {
         delegate.setUsers( users );
@@ -156,11 +177,13 @@ public class EnhancedConfiguration
         rebuildId2UsersLookupMap();
     }
 
+    @Override
     public void setVersion( String version )
     {
         delegate.setVersion( version );
     }
 
+    @Override
     public String toString()
     {
         return super.toString() + " delegating to " + delegate.toString();
@@ -231,7 +254,7 @@ public class EnhancedConfiguration
 
     public CUserRoleMapping getUserRoleMappingByUserId( final String id, final String source )
     {
-        return id2roleMappings.get( getUserRoleMappingKey( id, source ) );
+        return id2userRoleMappings.get( getUserRoleMappingKey( id, source ) );
     }
 
     public boolean removeUserRoleMappingByUserId( final String id, final String source )
@@ -241,7 +264,7 @@ public class EnhancedConfiguration
         if ( mapping != null )
         {
             delegate.removeUserRoleMapping( mapping );
-            return id2roleMappings.remove( getUserRoleMappingKey( id, source ) ) != null;
+            return id2userRoleMappings.remove( getUserRoleMappingKey( id, source ) ) != null;
         }
         else
         {
@@ -257,7 +280,9 @@ public class EnhancedConfiguration
 
     private HashMap<String, CPrivilege> id2privileges = new HashMap<String, CPrivilege>();
 
-    private HashMap<String, CUserRoleMapping> id2roleMappings = new HashMap<String, CUserRoleMapping>();
+    private HashMap<String, CUserRoleMapping> id2userRoleMappings = new HashMap<String, CUserRoleMapping>();
+
+    private HashMap<String, CRoleMapping> id2RoleMappings = new HashMap<String, CRoleMapping>();
 
     protected void rebuildId2UsersLookupMap()
     {
@@ -289,13 +314,23 @@ public class EnhancedConfiguration
         }
     }
 
-    protected void rebuildId2RoleMappingsLookupMap()
+    protected void rebuildId2UserRoleMappingsLookupMap()
     {
-        id2roleMappings.clear();
+        id2userRoleMappings.clear();
 
         for ( CUserRoleMapping user2role : getUserRoleMappings() )
         {
-            id2roleMappings.put( getUserRoleMappingKey( user2role.getUserId(), user2role.getSource() ), user2role );
+            id2userRoleMappings.put( getUserRoleMappingKey( user2role.getUserId(), user2role.getSource() ), user2role );
+        }
+    }
+
+    protected void rebuildId2roleMappingsLookupMap()
+    {
+        id2RoleMappings.clear();
+
+        for ( CRoleMapping role2role : getRoleMappings() )
+        {
+            id2RoleMappings.put( getUserRoleMappingKey( role2role.getSourceRoleId(), role2role.getSource() ), role2role );
         }
     }
 
@@ -304,5 +339,33 @@ public class EnhancedConfiguration
     protected String getUserRoleMappingKey( final String userId, final String source )
     {
         return userId.toLowerCase() + "|" + source;
+    }
+
+    @Override
+    public void addRoleMapping( CRoleMapping mapping )
+    {
+        delegate.addRoleMapping( mapping );
+
+        id2RoleMappings.put( getUserRoleMappingKey( mapping.getSourceRoleId(), mapping.getSource() ), mapping );
+    }
+
+    public CRoleMapping getRoleMapping( String roleId, String source )
+    {
+        return id2RoleMappings.get( getUserRoleMappingKey( roleId, source ) );
+    }
+
+    public boolean removeRoleMapping( String roleId, String source )
+    {
+        CRoleMapping mapping = getRoleMapping( roleId, source );
+
+        if ( mapping != null )
+        {
+            delegate.removeRoleMapping( mapping );
+            return id2RoleMappings.remove( getRoleMapping( roleId, source ) ) != null;
+        }
+        else
+        {
+            return false;
+        }
     }
 }

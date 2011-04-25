@@ -31,6 +31,7 @@ import org.sonatype.configuration.validation.ValidationRequest;
 import org.sonatype.configuration.validation.ValidationResponse;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CRole;
+import org.sonatype.security.model.CRoleMapping;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.model.Configuration;
@@ -58,7 +59,7 @@ public class DefaultConfigurationValidator
         ValidationResponse response = new ValidationResponse();
         response.setContext( new SecurityValidationContext() );
 
-        Configuration model = (Configuration) request.getConfiguration();
+        Configuration model = request.getConfiguration();
 
         SecurityValidationContext context = (SecurityValidationContext) response.getContext();
 
@@ -91,7 +92,7 @@ public class DefaultConfigurationValidator
             for ( CUser user : users )
             {
                 Set<String> roleIds = new HashSet<String>();
-                for ( CUserRoleMapping userRoleMapping : (List<CUserRoleMapping>) model.getUserRoleMappings() )
+                for ( CUserRoleMapping userRoleMapping : model.getUserRoleMappings() )
                 {
                     if ( userRoleMapping.getUserId() != null && userRoleMapping.getUserId().equals( user.getId() )
                         && ( DEFAULT_SOURCE.equals( userRoleMapping.getSource() ) ) )
@@ -553,6 +554,53 @@ public class DefaultConfigurationValidator
                             new ValidationMessage( "roles", "User Role Mapping for user '"
                                 + userRoleMapping.getUserId() + "' Invalid role id '" + roleId + "' found.",
                                                    "User cannot contain invalid role ID '" + roleId + "'." );
+                        response.addValidationError( message );
+                    }
+                }
+            }
+        }
+
+        return response;
+    }
+
+    @Override
+    public ValidationResponse validateRoleMapping( SecurityValidationContext context, CRoleMapping mapping, boolean b )
+    {
+        ValidationResponse response = new ValidationResponse();
+
+        // ID must be not empty
+        if ( StringUtils.isEmpty( mapping.getSourceRoleId() ) )
+        {
+            ValidationMessage message =
+                new ValidationMessage( "sourceRoleId", "mapping has no sourceRoleId." + "  This is a required field.",
+                    "SourceRoleId is required." );
+            response.addValidationError( message );
+        }
+
+        // source must be not empty
+        if ( StringUtils.isEmpty( mapping.getSource() ) )
+        {
+            ValidationMessage message =
+                new ValidationMessage( "source", "Role Mapping for role '" + mapping.getSource()
+                    + "' has no source.  This is a required field.", "Source is required." );
+            response.addValidationError( message );
+        }
+
+        List<String> roles = mapping.getXmlRoles();
+        // all roles must be real
+        if ( context.getExistingRoleIds() != null  )
+        {
+
+            if ( roles != null && roles.size() > 0 )
+            {
+                for ( String roleId : roles )
+                {
+                    if ( !context.getExistingRoleIds().contains( roleId ) )
+                    {
+                        ValidationMessage message =
+                            new ValidationMessage( "roles", "User Role Mapping for user '" + mapping.getSourceRoleId()
+                                + "' Invalid role id '" + roleId + "' found.", "User cannot contain invalid role ID '"
+                                + roleId + "'." );
                         response.addValidationError( message );
                     }
                 }

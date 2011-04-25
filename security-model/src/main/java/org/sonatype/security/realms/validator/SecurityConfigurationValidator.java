@@ -18,6 +18,7 @@ import org.sonatype.configuration.validation.ValidationRequest;
 import org.sonatype.configuration.validation.ValidationResponse;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CRole;
+import org.sonatype.security.model.CRoleMapping;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.model.Configuration;
@@ -35,4 +36,6 @@ public interface SecurityConfigurationValidator
     ValidationResponse validateUser( SecurityValidationContext ctx, CUser user, Set<String> roles, boolean update );
     
     ValidationResponse validateUserRoleMapping( SecurityValidationContext ctx, CUserRoleMapping userRoleMapping, boolean update );
+
+    ValidationResponse validateRoleMapping( SecurityValidationContext context, CRoleMapping mapping, boolean b );
 }
