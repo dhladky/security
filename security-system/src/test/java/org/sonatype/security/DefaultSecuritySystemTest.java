@@ -13,8 +13,8 @@ import org.apache.shiro.subject.Subject;
 import org.sonatype.security.authentication.AuthenticationException;
 import org.sonatype.security.authorization.AuthorizationException;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.usermanagement.DefaultUser;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserStatus;
 
@@ -123,16 +123,16 @@ public class DefaultSecuritySystemTest
         Set<Role> roles = securitySystem.listRoles( "sourceB" );
         Assert.assertEquals( 2, roles.size() );
 
-        Map<String, Role> roleMap = new HashMap<String, Role>();
+        Map<RoleKey, Role> roleMap = new HashMap<RoleKey, Role>();
         for ( Role role : roles )
         {
-            roleMap.put( role.getRoleId(), role );
+            roleMap.put( role.getKey(), role );
         }
 
-        Assert.assertTrue( roleMap.containsKey( "test-role1" ) );
-        Assert.assertTrue( roleMap.containsKey( "test-role2" ) );
+        Assert.assertTrue( roleMap.containsKey( new RoleKey( "test-role1", "default" ) ) );
+        Assert.assertTrue( roleMap.containsKey( new RoleKey( "test-role2", "default" ) ) );
 
-        Role role1 = roleMap.get( "test-role1" );
+        Role role1 = roleMap.get( new RoleKey( "test-role1", "default" ) );
         Assert.assertEquals( "Role 1", role1.getName() );
 
         Assert.assertTrue( role1.getPrivileges().contains( "from-role1:read" ) );
@@ -152,7 +152,7 @@ public class DefaultSecuritySystemTest
         user.setStatus( UserStatus.active );
         user.setUserId( "testAddUser" );
 
-        user.addRole( new RoleIdentifier( "default", "test-role1" ) );
+        user.addRole( new RoleKey( "test-role1", "default" ) );
 
         Assert.assertNotNull( securitySystem.addUser( user ) );
     }

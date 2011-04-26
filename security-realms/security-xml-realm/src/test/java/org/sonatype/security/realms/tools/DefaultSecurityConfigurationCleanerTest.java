@@ -64,7 +64,7 @@ public class DefaultSecurityConfigurationCleanerTest
         
         configuration.removeRole( role );
         
-        cleaner.roleRemoved( configuration, role.getId() );
+        cleaner.roleRemoved( configuration, role.getId(), source );
         
         for ( CRole crole : ( List<CRole> ) configuration.getRoles() )
         {

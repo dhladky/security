@@ -86,7 +86,7 @@ public class AuthorizationManagerTest
     {
         AuthorizationManager authzManager = this.getAuthorizationManager();
 
-        Role role1 = authzManager.getRole( "role1" );
+        Role role1 = authzManager.getRole( "role1", source );
 
         Assert.assertEquals( "role1", role1.getRoleId() );
         Assert.assertEquals( "RoleOne", role1.getName() );
@@ -126,7 +126,7 @@ public class AuthorizationManagerTest
     {
         AuthorizationManager authzManager = this.getAuthorizationManager();
 
-        Role role2 = authzManager.getRole( "role2" );
+        Role role2 = authzManager.getRole( "role2", source );
         role2.setDescription( "new description" );
         role2.setName( "new name" );
 
@@ -175,7 +175,7 @@ public class AuthorizationManagerTest
 
         try
         {
-            authzManager.getRole( "role2" );
+            authzManager.getRole( "role2", source );
             Assert.fail( "Expected NoSuchRoleException" );
         }
         catch ( NoSuchRoleException e )

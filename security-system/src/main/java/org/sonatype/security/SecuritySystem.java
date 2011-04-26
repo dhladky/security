@@ -15,9 +15,9 @@ import org.sonatype.security.authorization.AuthorizationManager;
 import org.sonatype.security.authorization.NoSuchAuthorizationManagerException;
 import org.sonatype.security.authorization.Privilege;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.usermanagement.InvalidCredentialsException;
 import org.sonatype.security.usermanagement.NoSuchUserManagerException;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserNotFoundException;
 import org.sonatype.security.usermanagement.UserSearchCriteria;
@@ -257,7 +257,7 @@ public interface SecuritySystem
      * @throws UserNotFoundException
      * @throws NoSuchUserManagerException
      */
-    Set<RoleIdentifier> getUsersRoles( String userId, String sourceId )
+    Set<RoleKey> getUsersRoles( String userId, String sourceId )
         throws UserNotFoundException, NoSuchUserManagerException;
 
     /**
@@ -269,7 +269,7 @@ public interface SecuritySystem
      * @throws InvalidConfigurationException
      * @throws UserNotFoundException
      */
-    void setUsersRoles( String userId, String sourceId, Set<RoleIdentifier> roleIdentifiers )
+    void setUsersRoles( String userId, String sourceId, Set<RoleKey> roleIdentifiers )
         throws InvalidConfigurationException, UserNotFoundException;
 
     /**

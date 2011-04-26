@@ -12,6 +12,7 @@
  */
 package org.sonatype.security.realms.tools;
 
+import org.sonatype.security.model.CRoleKey;
 import org.sonatype.security.model.Configuration;
 
 /**
@@ -23,8 +24,9 @@ public interface SecurityConfigurationCleaner
      * Called when a role is removed so additional cleanup logic can be done.
      * @param configuration
      * @param roleId
+     * @param source TODO
      */
-    void roleRemoved( Configuration configuration, String roleId );
+    void roleRemoved( Configuration configuration, CRoleKey key );
     
     /**
      * Called when a privilege isremoved so additional cleanup logic can be done.

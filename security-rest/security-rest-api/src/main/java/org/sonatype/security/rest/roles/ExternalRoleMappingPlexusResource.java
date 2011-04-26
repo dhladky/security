@@ -12,6 +12,8 @@
  */
 package org.sonatype.security.rest.roles;
 
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.enterprise.inject.Typed;
@@ -20,6 +22,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -36,6 +39,7 @@ import org.sonatype.plexus.rest.resource.PathProtectionDescriptor;
 import org.sonatype.plexus.rest.resource.PlexusResource;
 import org.sonatype.security.rest.model.ExternalRoleMappingResource;
 import org.sonatype.security.rest.model.ExternalRoleMappingResourceResponse;
+import org.sonatype.security.rest.model.PlexusRoleResource;
 import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.RoleMapping;
 import org.sonatype.security.usermanagement.UserManager;
@@ -59,32 +63,34 @@ public class ExternalRoleMappingPlexusResource
 
     public static final String SOURCE_ID_KEY = "sourceId";
 
-    public static final String RESOURCE_URI = "/external_role_map/{" + SOURCE_ID_KEY + "}";
+    public static final String ROLE_ID_KEY = "roleId";
 
-    private SecurityXmlUserManager xmlManager;
+    public static final String RESOURCE_URI = "/external_role_map/{" + SOURCE_ID_KEY + "}/{" + ROLE_ID_KEY + "}";
 
     @Inject
-    public ExternalRoleMappingPlexusResource( UserManager manager )
-    {
-        xmlManager = (SecurityXmlUserManager) manager;
-    }
+    private UserManager xmlManager;
 
     @Override
     public Object getPayloadInstance()
     {
-        return null;
+        return new ExternalRoleMappingResourceResponse();
     }
 
     @Override
     public PathProtectionDescriptor getResourceProtection()
     {
-        return new PathProtectionDescriptor( "/external_role_map/*", "authcBasic,perms[security:roles]" );
+        return new PathProtectionDescriptor( "/external_role_map/**", "authcBasic,perms[security:roles]" );
     }
 
     @Override
     public String getResourceUri()
     {
         return RESOURCE_URI;
+    }
+
+    public ExternalRoleMappingPlexusResource()
+    {
+        super.setModifiable( true );
     }
 
     /**
@@ -95,15 +101,18 @@ public class ExternalRoleMappingPlexusResource
      */
     @Override
     @GET
-    @ResourceMethodSignature( output = ExternalRoleMappingResourceResponse.class, pathParams = { @PathParam( value = "sourceId" ) } )
+    @ResourceMethodSignature( output = ExternalRoleMappingResourceResponse.class, pathParams = {
+        @PathParam( value = ExternalRoleMappingPlexusResource.SOURCE_ID_KEY ),
+        @PathParam( value = ExternalRoleMappingPlexusResource.ROLE_ID_KEY ) } )
     public Object get( Context context, Request request, Response response, Variant variant )
         throws ResourceException
     {
         String source = this.getSourceId( request );
+        String role = this.getRoleId( request );
 
         try
         {
-            Set<RoleMapping> roleMap = xmlManager.getRoleMappings();
+            Set<RoleMapping> roleMap = ( (SecurityXmlUserManager) xmlManager ).getRoleMappings();
 
             // now put this in a resource
             ExternalRoleMappingResourceResponse result = new ExternalRoleMappingResourceResponse();
@@ -111,6 +120,10 @@ public class ExternalRoleMappingPlexusResource
             for ( RoleMapping map : roleMap )
             {
                 if ( !source.equals( map.getSource() ) )
+                {
+                    continue;
+                }
+                if ( !role.equals( map.getRoleId().getRoleId() ) )
                 {
                     continue;
                 }
@@ -133,11 +146,55 @@ public class ExternalRoleMappingPlexusResource
             throw new ResourceException( Status.CLIENT_ERROR_NOT_FOUND, "Role Source '" + source
                 + "' could not be found." );
         }
+    }
 
+    @PUT
+    @ResourceMethodSignature( input = ExternalRoleMappingResourceResponse.class, output = Status.class )
+    @Override
+    public Object post( Context context, Request request, Response response, Object payload )
+        throws ResourceException
+    {
+        String source = this.getSourceId( request );
+
+        ExternalRoleMappingResource map = (ExternalRoleMappingResource) payload;
+
+        try
+        {
+            ( (SecurityXmlUserManager) xmlManager ).setRoleMapping( map.getDefaultRole().getRoleId(), map.getSource(),
+                getIds( map.getMappedRoles() ) );
+        }
+        catch ( InvalidConfigurationException e )
+        {
+            throw new ResourceException( Status.CLIENT_ERROR_NOT_FOUND, "Error validating role '" + source
+                + "' could not be found." );
+        }
+
+        return Status.SUCCESS_CREATED;
+    }
+
+    private RoleIdentifier restToSecurityModel( PlexusRoleResource plexusRoleResource )
+    {
+        RoleIdentifier ri = new RoleIdentifier( plexusRoleResource.getSource(), plexusRoleResource.getRoleId() );
+        return ri;
+    }
+
+    private Set<RoleIdentifier> getIds( List<PlexusRoleResource> mappedRoles )
+    {
+        Set<RoleIdentifier> roles = new LinkedHashSet<RoleIdentifier>();
+        for ( PlexusRoleResource plexusRoleResource : mappedRoles )
+        {
+            roles.add( restToSecurityModel( plexusRoleResource ) );
+        }
+        return roles;
     }
 
     protected String getSourceId( Request request )
     {
         return getRequestAttribute( request, SOURCE_ID_KEY );
+    }
+
+    protected String getRoleId( Request request )
+    {
+        return getRequestAttribute( request, ROLE_ID_KEY );
     }
 }

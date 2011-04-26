@@ -14,26 +14,28 @@ package org.sonatype.security.realms.validator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.sonatype.configuration.validation.ValidationContext;
+import org.sonatype.security.model.CRoleKey;
 
 public class SecurityValidationContext implements ValidationContext
 {
     private List<String> existingPrivilegeIds;
 
-    private List<String> existingRoleIds;
+    private Map<String, List<String>> existingRoleIds;
 
     private List<String> existingUserIds;
 
     private Map<String, String> existingEmailMap;
 
-    private Map<String, List<String>> roleContainmentMap;
+    private Map<CRoleKey, List<CRoleKey>> roleContainmentMap;
     
-    private Map<String, String> existingRoleNameMap;
+    private Map<CRoleKey, String> existingRoleNameMap;
     
-    private Map<String, List<String>> existingUserRoleMap;
+    private Map<String, List<CRoleKey>> existingUserRoleMap;
 
     public void addExistingPrivilegeIds()
     {
@@ -47,22 +49,22 @@ public class SecurityValidationContext implements ValidationContext
     {
         if ( this.existingRoleIds == null )
         {
-            this.existingRoleIds = new ArrayList<String>();
+            this.existingRoleIds = new LinkedHashMap<String, List<String>>();
         }
 
         if ( this.roleContainmentMap == null )
         {
-            this.roleContainmentMap = new HashMap<String, List<String>>();
+            this.roleContainmentMap = new HashMap<CRoleKey, List<CRoleKey>>();
         }
         
         if ( this.existingRoleNameMap == null)
         {
-            this.existingRoleNameMap = new HashMap<String, String>();
+            this.existingRoleNameMap = new HashMap<CRoleKey, String>();
         }
         
         if ( this.existingUserRoleMap == null)
         {
-            this.existingUserRoleMap = new HashMap<String, List<String>>();
+            this.existingUserRoleMap = new HashMap<String, List<CRoleKey>>();
         }
     }
 
@@ -84,7 +86,7 @@ public class SecurityValidationContext implements ValidationContext
         return existingPrivilegeIds;
     }
 
-    public List<String> getExistingRoleIds()
+    public Map<String, List<String>> getExistingRoleIds()
     {
         return existingRoleIds;
     }
@@ -99,17 +101,17 @@ public class SecurityValidationContext implements ValidationContext
         return existingEmailMap;
     }
 
-    public Map<String, List<String>> getRoleContainmentMap()
+    public Map<CRoleKey, List<CRoleKey>> getRoleContainmentMap()
     {
         return roleContainmentMap;
     }
 
-    public Map<String, String> getExistingRoleNameMap()
+    public Map<CRoleKey, String> getExistingRoleNameMap()
     {
         return existingRoleNameMap;
     }
 
-    public Map<String, List<String>> getExistingUserRoleMap()
+    public Map<String, List<CRoleKey>> getExistingUserRoleMap()
     {
         return existingUserRoleMap;
     }

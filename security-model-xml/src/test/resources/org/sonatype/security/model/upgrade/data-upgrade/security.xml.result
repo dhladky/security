@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <security>
-  <version>2.4</version>
+  <version>2.4.0</version>
   <users>
     <user>
       <id>admin</id>
@@ -28,7 +28,10 @@
   </users>
   <roles>
     <role>
-      <id>deployment-customized</id>
+      <key>
+        <id>deployment-customized</id>
+        <source>default</source>
+      </key>
       <name>Nexus Deployment Role (Customized)</name>
       <description>Deployment role for Nexus</description>
       <sessionTimeout>60</sessionTimeout>
@@ -45,11 +48,17 @@
         <privilege>2</privilege>
       </privileges>
       <roles>
-        <role>anonymous-customized</role>
+        <role>
+          <id>anonymous-customized</id>
+          <source>default</source>
+        </role>
       </roles>
     </role>
     <role>
-      <id>anonymous-customized</id>
+      <key>
+        <id>anonymous-customized</id>
+        <source>default</source>
+      </key>
       <name>Nexus Anonymous Role (Customized)</name>
       <description>Anonymous role for Nexus</description>
       <sessionTimeout>60</sessionTimeout>
@@ -72,7 +81,10 @@
       </privileges>
     </role>
     <role>
-      <id>developer-customized</id>
+      <key>
+        <id>developer-customized</id>
+        <source>default</source>
+      </key>
       <name>Nexus Developer Role (Customized)</name>
       <description>Developer role for Nexus</description>
       <sessionTimeout>30</sessionTimeout>
@@ -81,8 +93,14 @@
         <privilege>64</privilege>
       </privileges>
       <roles>
-        <role>anonymous-customized</role>
-        <role>deployment-customized</role>
+        <role>
+          <id>anonymous-customized</id>
+          <source>default</source>
+        </role>
+        <role>
+          <id>deployment-customized</id>
+          <source>default</source>
+        </role>
       </roles>
     </role>
   </roles>
@@ -91,21 +109,30 @@
       <userId>admin</userId>
       <source>default</source>
       <roles>
-        <role>admin</role>
+        <role>
+          <id>admin</id>
+          <source>default</source>
+        </role>
       </roles>
     </userRoleMapping>
     <userRoleMapping>
       <userId>deployment</userId>
       <source>default</source>
       <roles>
-        <role>deployment-customized</role>
+        <role>
+          <id>deployment-customized</id>
+          <source>default</source>
+        </role>
       </roles>
     </userRoleMapping>
     <userRoleMapping>
       <userId>anonymous</userId>
       <source>default</source>
       <roles>
-        <role>anonymous-customized</role>
+        <role>
+          <id>anonymous-customized</id>
+          <source>default</source>
+        </role>
       </roles>
     </userRoleMapping>
   </userRoleMappings>

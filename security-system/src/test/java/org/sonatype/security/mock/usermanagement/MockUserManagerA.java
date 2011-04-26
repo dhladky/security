@@ -4,8 +4,8 @@ import javax.enterprise.inject.Typed;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.usermanagement.DefaultUser;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.UserManager;
 
 @Singleton
@@ -23,18 +23,18 @@ public class MockUserManagerA
         a.setEmailAddress( "jcoder@sonatype.org" );
         a.setSource( this.getSource() );
         a.setUserId( "jcoder" );
-        a.addRole( new RoleIdentifier( this.getSource(), "RoleA" ) );
-        a.addRole( new RoleIdentifier( this.getSource(), "RoleB" ) );
-        a.addRole( new RoleIdentifier( this.getSource(), "RoleC" ) );
+        a.addRole( new RoleKey( "RoleA", getSource() ) );
+        a.addRole( new RoleKey( "RoleB", getSource() ) );
+        a.addRole( new RoleKey( "RoleC", getSource() ) );
 
         DefaultUser b = new DefaultUser();
         b.setName( "Christine H. Dugas" );
         b.setEmailAddress( "cdugas@sonatype.org" );
         b.setSource( this.getSource() );
         b.setUserId( "cdugas" );
-        b.addRole( new RoleIdentifier( this.getSource(), "RoleA" ) );
-        b.addRole( new RoleIdentifier( this.getSource(), "RoleB" ) );
-        b.addRole( new RoleIdentifier( this.getSource(), "Role1" ) );
+        b.addRole( new RoleKey( "RoleA", getSource() ) );
+        b.addRole( new RoleKey( "RoleB", getSource() ) );
+        b.addRole( new RoleKey( "Role1", getSource() ) );
 
         DefaultUser c = new DefaultUser();
         c.setName( "Patricia P. Peralez" );

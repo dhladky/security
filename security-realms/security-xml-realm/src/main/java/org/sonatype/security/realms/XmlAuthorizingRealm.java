@@ -35,7 +35,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.sonatype.inject.Description;
 import org.sonatype.security.SecuritySystem;
-import org.sonatype.security.usermanagement.RoleIdentifier;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.usermanagement.RoleMappingUserManager;
 import org.sonatype.security.usermanagement.UserManager;
 import org.sonatype.security.usermanagement.UserNotFoundException;
@@ -136,7 +136,7 @@ public class XmlAuthorizingRealm
             {
                 try
                 {   
-                    for ( RoleIdentifier roleIdentifier : ( (RoleMappingUserManager) userManager ).getUsersRoles( username,
+                    for ( RoleKey roleIdentifier : ( (RoleMappingUserManager) userManager ).getUsersRoles( username,
                                                                                                                   realmName ) )
                     {
                         roles.add( roleIdentifier.getRoleId() );
@@ -156,7 +156,7 @@ public class XmlAuthorizingRealm
         {
             try
             {
-                for ( RoleIdentifier roleIdentifier : userManager.getUser( username ).getRoles() )
+                for ( RoleKey roleIdentifier : userManager.getUser( username ).getRoles() )
                 {
                     roles.add( roleIdentifier.getRoleId() );
                 }

@@ -1,5 +1,7 @@
 package org.sonatype.security.realms;
 
+import static org.sonatype.security.util.ModelConversion.toRoleKey;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -17,12 +19,13 @@ import org.apache.shiro.authz.permission.RolePermissionResolver;
 import org.apache.shiro.authz.permission.WildcardPermission;
 import org.sonatype.security.authorization.NoSuchPrivilegeException;
 import org.sonatype.security.authorization.NoSuchRoleException;
+import org.sonatype.security.authorization.RoleKey;
+import org.sonatype.security.authorization.xml.SecurityXmlAuthorizationManager;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CRole;
 import org.sonatype.security.realms.privileges.PrivilegeDescriptor;
 import org.sonatype.security.realms.tools.ConfigurationManager;
 import org.sonatype.security.realms.tools.StaticSecurityResource;
-
 /**
  * The default implementation of the RolePermissionResolver which reads roles from {@link StaticSecurityResource}s to
  * resolve a role into a collection of permissions. This class allows Realm implementations to no know what/how there
@@ -47,25 +50,25 @@ public class XmlRolePermissionResolver
     public Collection<Permission> resolvePermissionsInRole( String roleString )
     {
 
-        LinkedList<String> rolesToProcess = new LinkedList<String>();
+        LinkedList<RoleKey> rolesToProcess = new LinkedList<RoleKey>();
 
-        rolesToProcess.add( roleString ); // inital role
+        rolesToProcess.add( new RoleKey( roleString, SecurityXmlAuthorizationManager.SOURCE ) ); // inital role
 
-        Set<String> roleIds = new LinkedHashSet<String>();
+        Set<RoleKey> roleIds = new LinkedHashSet<RoleKey>();
         Set<Permission> permissions = new LinkedHashSet<Permission>();
         while ( !rolesToProcess.isEmpty() )
         {
-            String roleId = rolesToProcess.removeFirst();
-            if ( !roleIds.contains( roleId ) )
+            RoleKey roleKey = rolesToProcess.removeFirst();
+            if ( !roleIds.contains( roleKey ) )
             {
                 CRole role;
                 try
                 {
-                    role = configuration.readRole( roleId );
-                    roleIds.add( roleId );
+                    role = configuration.readRole( roleKey.getRoleId(), roleKey.getSource() );
+                    roleIds.add( roleKey );
 
                     // process the roles this role has
-                    rolesToProcess.addAll( role.getRoles() );
+                    rolesToProcess.addAll( toRoleKey( role.getRoles() ) );
 
                     // add the permissions this role has
                     List<String> privilegeIds = role.getPrivileges();

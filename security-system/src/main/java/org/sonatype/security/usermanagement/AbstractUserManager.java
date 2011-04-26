@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.codehaus.plexus.util.CollectionUtils;
 import org.codehaus.plexus.util.StringUtils;
+import org.sonatype.security.authorization.RoleKey;
 
 /**
  * An abstract UserManager that handles filtering UserSearchCriteria in memory, this can be used in addition to an
@@ -35,19 +36,19 @@ public abstract class AbstractUserManager
 
     protected boolean userMatchesCriteria( User user, UserSearchCriteria criteria )
     {
-        Set<String> userRoles = new HashSet<String>();
+        Set<RoleKey> userRoles = new HashSet<RoleKey>();
         if ( user.getRoles() != null )
         {
-            for ( RoleIdentifier roleIdentifier : user.getRoles() )
+            for ( RoleKey roleIdentifier : user.getRoles() )
             {
-                userRoles.add( roleIdentifier.getRoleId() );
+                userRoles.add( roleIdentifier );
             }
         }
 
         return matchesCriteria( user.getUserId(), user.getSource(), userRoles, criteria );
     }
 
-    protected boolean matchesCriteria( String userId, String userSource, Collection<String> usersRoles,
+    protected boolean matchesCriteria( String userId, String userSource, Collection<RoleKey> roles,
                                        UserSearchCriteria criteria )
     {
         if ( StringUtils.isNotEmpty( criteria.getUserId() )
@@ -63,10 +64,10 @@ public abstract class AbstractUserManager
 
         if ( criteria.getOneOfRoleIds() != null && !criteria.getOneOfRoleIds().isEmpty() )
         {
-            Set<String> userRoles = new HashSet<String>();
-            if ( usersRoles != null )
+            Set<RoleKey> userRoles = new HashSet<RoleKey>();
+            if ( roles != null )
             {
-                userRoles.addAll( usersRoles );
+                userRoles.addAll( roles );
             }
 
             // check the intersection of the roles

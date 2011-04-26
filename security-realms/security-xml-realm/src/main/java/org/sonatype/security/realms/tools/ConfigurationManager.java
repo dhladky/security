@@ -12,15 +12,15 @@
  */
 package org.sonatype.security.realms.tools;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.sonatype.configuration.validation.InvalidConfigurationException;
 import org.sonatype.security.authorization.NoSuchPrivilegeException;
 import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CRole;
-import org.sonatype.security.model.CRoleMapping;
+import org.sonatype.security.model.CRoleKey;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.realms.privileges.PrivilegeDescriptor;
@@ -68,7 +68,7 @@ public interface ConfigurationManager
      * 
      * @param user
      */
-    void createUser( CUser user, Set<String> roles )
+    void createUser( CUser user, Collection<CRoleKey> roles )
         throws InvalidConfigurationException;
 
     /**
@@ -77,7 +77,7 @@ public interface ConfigurationManager
      * @param user
      * @param password
      */
-    void createUser( CUser user, String password, Set<String> roles )
+    void createUser( CUser user, String password, Collection<CRoleKey> roles )
         throws InvalidConfigurationException;
 
     /**
@@ -85,7 +85,7 @@ public interface ConfigurationManager
      * 
      * @param user
      */
-    void createUser( CUser user, Set<String> roles, SecurityValidationContext context )
+    void createUser( CUser user, Collection<CRoleKey> roles, SecurityValidationContext context )
         throws InvalidConfigurationException;
 
     /**
@@ -94,7 +94,7 @@ public interface ConfigurationManager
      * @param user
      * @param password
      */
-    void createUser( CUser user, String password, Set<String> roles, SecurityValidationContext context )
+    void createUser( CUser user, String password, Collection<CRoleKey> roles, SecurityValidationContext context )
         throws InvalidConfigurationException;
 
     /**
@@ -142,9 +142,10 @@ public interface ConfigurationManager
      * Retrieve an existing role
      * 
      * @param id
+     * @param source
      * @return
      */
-    CRole readRole( String id )
+    CRole readRole( String id, String source )
         throws NoSuchRoleException;
 
     /**
@@ -161,7 +162,7 @@ public interface ConfigurationManager
      * 
      * @param user
      */
-    void updateUser( CUser user, Set<String> roles )
+    void updateUser( CUser user, Collection<CRoleKey> roles )
         throws InvalidConfigurationException, UserNotFoundException;
 
     /**
@@ -169,7 +170,7 @@ public interface ConfigurationManager
      * 
      * @param user
      */
-    void updateUser( CUser user, Set<String> roles, SecurityValidationContext context )
+    void updateUser( CUser user, Collection<CRoleKey> roles, SecurityValidationContext context )
         throws InvalidConfigurationException, UserNotFoundException;
 
     /**
@@ -236,8 +237,9 @@ public interface ConfigurationManager
      * Delete an existing role
      * 
      * @param id
+     * @param source TODO
      */
-    void deleteRole( String id )
+    void deleteRole( String id, String source )
         throws NoSuchRoleException;
 
     /**
@@ -284,24 +286,8 @@ public interface ConfigurationManager
      */
     SecurityValidationContext initializeContext();
 
-    void cleanRemovedRole( String roleId );
+    void cleanRemovedRole( CRoleKey key );
 
     void cleanRemovedPrivilege( String privilegeId );
 
-    void createRoleMapping( CRoleMapping mapping )
-        throws InvalidConfigurationException;
-
-    void updateRoleMapping( CRoleMapping mapping )
-        throws InvalidConfigurationException;
-
-    CRoleMapping readRoleMapping( String roleId, String source )
-        throws NoSuchRoleMappingException;
-
-    List<CRoleMapping> listRoleMappings();
-
-    void deleteRoleMapping( CRoleMapping mapping )
-        throws NoSuchRoleMappingException;
-
-    void deleteRoleMapping( String roleId, String source )
-        throws NoSuchRoleMappingException;
 }

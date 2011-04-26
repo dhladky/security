@@ -37,7 +37,7 @@ public abstract class AbstractReadOnlyAuthorizationManager
         this.throwException();
     }
 
-    public void deleteRole( String roleId )
+    public void deleteRole( String roleId, String source )
         throws NoSuchRoleException
     {
         this.throwException();

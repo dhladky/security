@@ -11,7 +11,6 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 package org.sonatype.security.realms.tools;
-
 import java.util.List;
 
 import javax.enterprise.inject.Typed;
@@ -21,6 +20,7 @@ import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.sonatype.security.model.CRole;
+import org.sonatype.security.model.CRoleKey;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.model.Configuration;
 
@@ -49,23 +49,23 @@ public class DefaultSecurityConfigurationCleaner
         {
             if ( role.getPrivileges().contains( privilegeId ) )
             {
-                logger.debug( "removing from role " + role.getId() );
+                logger.debug( "removing from role " + role.getKey().getId() );
                 role.getPrivileges().remove( privilegeId );
             }
         }
     }
 
-    public void roleRemoved( Configuration configuration, String roleId )
+    public void roleRemoved( Configuration configuration, CRoleKey key )
     {
-        logger.debug( "Cleaning role id " + roleId + " from users and roles." );
+        logger.debug( "Cleaning role id " + key + " from users and roles." );
         List<CRole> roles = configuration.getRoles();
 
         for ( CRole role : roles )
         {
-            if ( role.getRoles().contains( roleId ) )
+            if ( role.getRoles().contains( key ) )
             {
-                logger.debug( "removing from role " + role.getId() );
-                role.getRoles().remove( roleId );
+                logger.debug( "removing from role " + role.getKey().getId() );
+                role.getRoles().remove( key );
             }
         }
 
@@ -73,10 +73,10 @@ public class DefaultSecurityConfigurationCleaner
 
         for ( CUserRoleMapping mapping : mappings )
         {
-            if ( mapping.getRoles().contains( roleId ) )
+            if ( mapping.getRoles().contains( key ) )
             {
                 logger.debug( "removing from user " + mapping.getUserId() );
-                mapping.removeRole( roleId );
+                mapping.removeRole( key );
             }
         }
     }

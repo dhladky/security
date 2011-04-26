@@ -84,19 +84,6 @@
                     </association>
                     <required>false</required>
                 </field>
-                <field>
-                    <name>roleMappings</name>
-                    <version>2.4+</version>
-                    <description>
-                        List of role mappings. 
-                    </description>
-                    <association>
-                        <type>CRoleMapping</type>
-                        <multiplicity>*</multiplicity>
-                    </association>
-                    <required>false</required>
-                </field>
-                
             </fields>
             <codeSegments>
                 <codeSegment>
@@ -130,9 +117,9 @@
 ]]></code>
                 </codeSegment>
                 <codeSegment>
-                    <version>2.4</version>
+                    <version>2.4.0</version>
                     <code><![CDATA[
-    public static final String MODEL_VERSION = "2.4";
+    public static final String MODEL_VERSION = "2.4.0";
 ]]></code>
                 </codeSegment>
             </codeSegments>
@@ -225,16 +212,46 @@
         
         <!-- Roles -->
         <class>
+            <name>CRoleKey</name>
+            <version>2.4.0+</version>
+            <description>Role key represented by roleId + source realm</description>
+            <fields>
+                <field>
+                    <name>id</name>
+                    <version>2.4.0+</version>
+                    <type>String</type>
+                    <required>true</required>
+                    <description>The ID used to reference this role</description>
+                </field>
+                <field>
+                    <name>source</name>
+                    <version>2.4.0+</version>
+                    <type>String</type>
+                    <required>true</required>
+                    <description>The source or realm id, of the user.  For example an CROWD realm might have a source id of CROWD.</description>
+                </field>
+            </fields>
+            </class>
+        <class>
             <name>CRole</name>
             <version>2.0.0+</version>
             <description>A Role is a bucket for privileges, can also contain other roles.</description>
             <fields>
                 <field>
                     <name>id</name>
-                    <version>2.0.0+</version>
+                    <version>2.0.0/2.0.4</version>
                     <type>String</type>
                     <required>true</required>
                     <description>The ID used to reference this role</description>
+                </field>
+                <field>
+                    <name>key</name>
+                    <version>2.4.0+</version>
+                    <association>
+                      <type>CRoleKey</type>
+                    </association>
+                    <required>true</required>
+                    <description>The compound key used to reference this role</description>
                 </field>
                 <field>
                     <name>name</name>
@@ -271,12 +288,24 @@
                 </field>
                 <field>
                     <name>roles</name>
-                    <version>2.0.0+</version>
+                    <version>2.0.0/2.0.4</version>
                     <description>
                         List of role ids, whose contents, will also define this role. 
                     </description>
                     <association>
                         <type>String</type>
+                        <multiplicity>*</multiplicity>
+                    </association>
+                    <required>false</required>
+                </field>
+                <field>
+                    <name>roles</name>
+                    <version>2.4.0+</version>
+                    <description>
+                        List of role ids, whose contents, will also define this role. 
+                    </description>
+                    <association>
+                        <type>CRoleKey</type>
                         <multiplicity>*</multiplicity>
                     </association>
                     <required>false</required>
@@ -393,7 +422,7 @@
                 </field>
                  <field>
                     <name>roles</name>
-                    <version>2.0.2+</version>
+                    <version>2.0.2/2.0.4</version>
                     <association>
                         <type>String</type>
                         <multiplicity>*</multiplicity>
@@ -401,37 +430,15 @@
                     <required>true</required>
                     <description>List of the users roles.</description>
                 </field>
-            </fields>
-        </class>
-
-		<class>
-            <name>CRoleMapping</name>
-            <version>2.4+</version>
-            <description>Defines the mapping between internal and external roles.</description>
-            <fields>
-                <field>
-                    <name>sourceRoleId</name>
-                    <version>2.4+</version>
-                    <type>String</type>
-                    <required>true</required>
-                    <description>Role ID on the source realm.</description>
-                </field>
-                <field>
-                    <name>source</name>
-                    <version>2.4+</version>
-                    <type>String</type>
-                    <required>false</required>
-                    <description>The source or realm id, of the user.  For example an CROWD realm might have a source id of CROWD.</description>
-                </field>
                  <field>
-                    <name>xmlRoles</name>
-                    <version>2.4+</version>
+                    <name>roles</name>
+                    <version>2.4.0+</version>
                     <association>
-                        <type>String</type>
+                        <type>CRoleKey</type>
                         <multiplicity>*</multiplicity>
                     </association>
                     <required>true</required>
-                    <description>List of the xml roles.</description>
+                    <description>List of the users roles.</description>
                 </field>
             </fields>
         </class>

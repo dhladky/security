@@ -40,10 +40,11 @@ public interface AuthorizationManager
      * Returns a Role base on an Id.
      * 
      * @param roleId
+     * @param source TODO
      * @return
      * @throws NoSuchRoleException
      */
-    public Role getRole( String roleId )
+    public Role getRole( String roleId, String source )
         throws NoSuchRoleException;
 
     /**
@@ -73,7 +74,7 @@ public interface AuthorizationManager
      * @param roleId
      * @throws NoSuchRoleException
      */
-    public void deleteRole( String roleId )
+    public void deleteRole( String roleId, String source )
         throws NoSuchRoleException;
 
     // Privilege CRUDS

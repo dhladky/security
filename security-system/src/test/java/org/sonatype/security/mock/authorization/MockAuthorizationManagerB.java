@@ -13,6 +13,7 @@ import org.sonatype.security.authorization.NoSuchPrivilegeException;
 import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.authorization.Privilege;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 
 @Singleton
 @Typed( value = AuthorizationManager.class )
@@ -41,16 +42,14 @@ public class MockAuthorizationManagerB
         Set<Role> roles = new HashSet<Role>();
 
         Role role1 = new Role();
-        role1.setSource( this.getSource() );
         role1.setName( "Role 1" );
-        role1.setRoleId( "test-role1" );
+        role1.setKey( new RoleKey( "test-role-1", getSource() ) );
         role1.addPrivilege( "from-role1:read" );
         role1.addPrivilege( "from-role1:delete" );
 
         Role role2 = new Role();
-        role2.setSource( this.getSource() );
         role2.setName( "Role 2" );
-        role2.setRoleId( "test-role2" );
+        role1.setKey( new RoleKey( "test-role-2", getSource() ) );
         role2.addPrivilege( "from-role2:read" );
         role2.addPrivilege( "from-role2:delete" );
 
@@ -66,7 +65,7 @@ public class MockAuthorizationManagerB
         return null;
     }
 
-    public Role getRole( String roleId )
+    public Role getRole( String roleId, String source )
         throws NoSuchRoleException
     {
         return null;

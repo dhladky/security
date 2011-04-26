@@ -36,7 +36,7 @@ public class MockAuthorizationManager extends AbstractReadOnlyAuthorizationManag
         return roles;
     }
 
-    public Role getRole( String roleId )
+    public Role getRole( String roleId, String source )
         throws NoSuchRoleException
     {
         for ( Role role : this.listRoles() )

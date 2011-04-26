@@ -3,6 +3,8 @@ package org.sonatype.security.usermanagement;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.sonatype.security.authorization.RoleKey;
+
 /**
  * A UserSearchCriteria defines searchble fields. Null or empty fields will be ignored.
  * 
@@ -12,7 +14,7 @@ public class UserSearchCriteria
 {
     private String userId;
 
-    private Set<String> oneOfRoleIds = new HashSet<String>();
+    private Set<RoleKey> oneOfRoleIds = new HashSet<RoleKey>();
 
     private String source;
 
@@ -27,7 +29,7 @@ public class UserSearchCriteria
         this.userId = userId;
     }
 
-    public UserSearchCriteria( String userId, Set<String> oneOfRoleIds, String source )
+    public UserSearchCriteria( String userId, Set<RoleKey> oneOfRoleIds, String source )
     {
         this.userId = userId;
         this.oneOfRoleIds = oneOfRoleIds;
@@ -44,12 +46,12 @@ public class UserSearchCriteria
         this.userId = userId;
     }
 
-    public Set<String> getOneOfRoleIds()
+    public Set<RoleKey> getOneOfRoleIds()
     {
         return oneOfRoleIds;
     }
 
-    public void setOneOfRoleIds( Set<String> oneOfRoleIds )
+    public void setOneOfRoleIds( Set<RoleKey> oneOfRoleIds )
     {
         this.oneOfRoleIds = oneOfRoleIds;
     }

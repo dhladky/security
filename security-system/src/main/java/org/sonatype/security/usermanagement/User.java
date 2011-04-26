@@ -2,6 +2,8 @@ package org.sonatype.security.usermanagement;
 
 import java.util.Set;
 
+import org.sonatype.security.authorization.RoleKey;
+
 /**
  * A user contains attributes, userId, name, email address, roles, etc.
  * 
@@ -92,7 +94,7 @@ public interface User
      * 
      * @param roleIdentifier
      */
-    public void addRole( RoleIdentifier roleIdentifier );
+    public void addRole( RoleKey roleIdentifier );
 
     /**
      * Remove a Role Identifier from the user.
@@ -100,26 +102,26 @@ public interface User
      * @param roleIdentifier
      * @return
      */
-    public boolean removeRole( RoleIdentifier roleIdentifier );
+    public boolean removeRole( RoleKey roleIdentifier );
 
     /**
      * Adds a set of RoleIdentifier to the user.
      * 
      * @param roleIdentifiers
      */
-    public void addAllRoles( Set<RoleIdentifier> roleIdentifiers );
+    public void addAllRoles( Set<RoleKey> roleIdentifiers );
 
     /**
      * @return returns all the users roles.
      */
-    public Set<RoleIdentifier> getRoles();
+    public Set<RoleKey> getRoles();
 
     /**
      * Sets the users roles.
      * 
      * @param roles
      */
-    public void setRoles( Set<RoleIdentifier> roles );
+    public void setRoles( Set<RoleKey> roles );
 
     /**
      * @return the users status.

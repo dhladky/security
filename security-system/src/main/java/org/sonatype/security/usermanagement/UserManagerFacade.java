@@ -9,6 +9,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
+import org.sonatype.security.authorization.RoleKey;
 
 @Singleton
 @Typed( value = UserManagerFacade.class )
@@ -69,7 +70,7 @@ public class UserManagerFacade
                 try
                 {
                     RoleMappingUserManager roleMappingUserManager = (RoleMappingUserManager) tmpUserManager;
-                    Set<RoleIdentifier> roleIdentifiers =
+                    Set<RoleKey> roleIdentifiers =
                         roleMappingUserManager.getUsersRoles( user.getUserId(), user.getSource() );
                     if ( roleIdentifiers != null )
                     {

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.codehaus.plexus.util.StringUtils;
+import org.sonatype.security.authorization.RoleKey;
 
 /**
  * Default implementation of a User.
@@ -29,7 +30,7 @@ public class DefaultUser
 
     private boolean readOnly;
 
-    private Set<RoleIdentifier> roleIdentifiers = new HashSet<RoleIdentifier>();
+    private Set<RoleKey> roleIdentifiers = new HashSet<RoleKey>();
 
     public String getUserId()
     {
@@ -105,27 +106,27 @@ public class DefaultUser
         this.source = source;
     }
 
-    public Set<RoleIdentifier> getRoles()
+    public Set<RoleKey> getRoles()
     {
         return Collections.unmodifiableSet( roleIdentifiers );
     }
 
-    public void addRole( RoleIdentifier roleIdentifier )
+    public void addRole( RoleKey roleIdentifier )
     {
         this.roleIdentifiers.add( roleIdentifier );
     }
 
-    public boolean removeRole( RoleIdentifier roleIdentifier )
+    public boolean removeRole( RoleKey roleIdentifier )
     {
         return this.roleIdentifiers.remove( roleIdentifier );
     }
 
-    public void addAllRoles( Set<RoleIdentifier> roleIdentifiers )
+    public void addAllRoles( Set<RoleKey> roleIdentifiers )
     {
         this.roleIdentifiers.addAll( roleIdentifiers );
     }
 
-    public void setRoles( Set<RoleIdentifier> roles )
+    public void setRoles( Set<RoleKey> roles )
     {
         this.roleIdentifiers = roles;
     }
@@ -163,23 +164,35 @@ public class DefaultUser
         final int after = 1;
 
         if ( this == o )
+        {
             return equal;
+        }
 
         if ( o == null )
+        {
             return after;
+        }
 
         if ( getUserId() == null && o.getUserId() != null )
+        {
             return before;
+        }
         else if ( getUserId() != null && o.getUserId() == null )
+        {
             return after;
+        }
 
         // the userIds are not null
         int result = getUserId().compareTo( o.getUserId() );
         if ( result != equal )
+        {
             return result;
+        }
 
         if ( getSource() == null )
+        {
             return before;
+        }
 
         // if we are all the way to this point, the userIds are equal and this.getSource != null, so just return a
         // compareTo on the source
@@ -200,26 +213,40 @@ public class DefaultUser
     public boolean equals( Object obj )
     {
         if ( this == obj )
+        {
             return true;
+        }
         if ( obj == null )
+        {
             return false;
+        }
         if ( getClass() != obj.getClass() )
+        {
             return false;
+        }
         final User other = (User) obj;
         if ( source == null )
         {
             if ( other.getSource() != null )
+            {
                 return false;
+            }
         }
         else if ( !source.equals( other.getSource() ) )
+        {
             return false;
+        }
         if ( userId == null )
         {
             if ( other.getUserId() != null )
+            {
                 return false;
+            }
         }
         else if ( !userId.equals( other.getUserId() ) )
+        {
             return false;
+        }
         return true;
     }
 

@@ -38,6 +38,7 @@ import org.sonatype.security.authorization.AuthorizationManager;
 import org.sonatype.security.authorization.NoSuchAuthorizationManagerException;
 import org.sonatype.security.authorization.Privilege;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.configuration.SecurityConfigurationManager;
 import org.sonatype.security.email.NullSecurityEmailer;
 import org.sonatype.security.email.SecurityEmailer;
@@ -46,7 +47,6 @@ import org.sonatype.security.events.SecurityConfigurationChangedEvent;
 import org.sonatype.security.usermanagement.InvalidCredentialsException;
 import org.sonatype.security.usermanagement.NoSuchUserManagerException;
 import org.sonatype.security.usermanagement.PasswordGenerator;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.RoleMappingUserManager;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserManager;
@@ -325,9 +325,7 @@ public class DefaultSecuritySystem
                 try
                 {
                     RoleMappingUserManager roleMappingUserManager = (RoleMappingUserManager) tmpUserManager;
-                    roleMappingUserManager.setUsersRoles( user.getUserId(), user.getSource(),
-                                                          RoleIdentifier.getRoleIdentifiersForSource( user.getSource(),
-                                                                                                      user.getRoles() ) );
+                    roleMappingUserManager.setUsersRoles( user.getUserId(), user.getSource(), user.getRoles() );
                 }
                 catch ( UserNotFoundException e )
                 {
@@ -372,9 +370,7 @@ public class DefaultSecuritySystem
                 try
                 {
                     RoleMappingUserManager roleMappingUserManager = (RoleMappingUserManager) tmpUserManager;
-                    roleMappingUserManager.setUsersRoles( user.getUserId(), user.getSource(),
-                                                          RoleIdentifier.getRoleIdentifiersForSource( user.getSource(),
-                                                                                                      user.getRoles() ) );
+                    roleMappingUserManager.setUsersRoles( user.getUserId(), user.getSource(), user.getRoles() );
                 }
                 catch ( UserNotFoundException e )
                 {
@@ -412,14 +408,14 @@ public class DefaultSecuritySystem
         userManager.deleteUser( userId );
     }
 
-    public Set<RoleIdentifier> getUsersRoles( String userId, String source )
+    public Set<RoleKey> getUsersRoles( String userId, String source )
         throws UserNotFoundException, NoSuchUserManagerException
     {
         User user = this.getUser( userId, source );
         return user.getRoles();
     }
 
-    public void setUsersRoles( String userId, String source, Set<RoleIdentifier> roleIdentifiers )
+    public void setUsersRoles( String userId, String source, Set<RoleKey> roleIdentifiers )
         throws InvalidConfigurationException, UserNotFoundException
     {
         // TODO: this is a bit sticky, what we really want to do is just expose the RoleMappingUserManagers this way (i
@@ -435,10 +431,7 @@ public class DefaultSecuritySystem
                 try
                 {
                     foundUser = true;
-                    roleMappingUserManager.setUsersRoles( userId,
-                                                          source,
-                                                          RoleIdentifier.getRoleIdentifiersForSource( tmpUserManager.getSource(),
-                                                                                                      roleIdentifiers ) );
+                    roleMappingUserManager.setUsersRoles( userId, source, roleIdentifiers );
                 }
                 catch ( UserNotFoundException e )
                 {
@@ -614,7 +607,7 @@ public class DefaultSecuritySystem
                 try
                 {
                     RoleMappingUserManager roleMappingUserManager = (RoleMappingUserManager) tmpUserManager;
-                    Set<RoleIdentifier> roleIdentifiers =
+                    Set<RoleKey> roleIdentifiers =
                         roleMappingUserManager.getUsersRoles( user.getUserId(), user.getSource() );
                     if ( roleIdentifiers != null )
                     {

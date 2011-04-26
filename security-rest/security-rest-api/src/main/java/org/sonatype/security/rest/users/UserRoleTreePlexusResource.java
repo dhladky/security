@@ -83,7 +83,7 @@ public class UserRoleTreePlexusResource
 
             if ( Boolean.parseBoolean( request.getResourceRef().getQueryAsForm().getFirstValue( "isRole" ) ) )
             {
-                Role role = authzManager.getRole( userId );
+                Role role = authzManager.getRole( userId, source );
 
                 handleRole( role, authzManager, responseResource, null );
             }
@@ -116,7 +116,7 @@ public class UserRoleTreePlexusResource
         {
             try
             {
-                Role role = authzManager.getRole( roleIdentifier.getRoleId() );
+                Role role = authzManager.getRole( roleIdentifier.getRoleId(), source );
 
                 RoleTreeResource resource = new RoleTreeResource();
                 resource.setId( role.getRoleId() );
@@ -142,7 +142,7 @@ public class UserRoleTreePlexusResource
         {
             try
             {
-                Role childRole = authzManager.getRole( roleId );
+                Role childRole = authzManager.getRole( roleId, source );
                 RoleTreeResource childResource = new RoleTreeResource();
                 childResource.setId( childRole.getRoleId() );
                 childResource.setName( childRole.getName() );

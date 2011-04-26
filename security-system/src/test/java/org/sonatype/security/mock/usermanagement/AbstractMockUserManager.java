@@ -4,9 +4,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.sonatype.configuration.validation.InvalidConfigurationException;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.usermanagement.AbstractUserManager;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserNotFoundException;
 import org.sonatype.security.usermanagement.UserSearchCriteria;
@@ -99,7 +98,7 @@ public abstract class AbstractMockUserManager
         this.users = users;
     }
    
-    public Set<RoleIdentifier> getUsersRoles( String userId, String source )
+    public Set<RoleKey> getUsersRoles( String userId, String source )
         throws UserNotFoundException
     {
         return null;

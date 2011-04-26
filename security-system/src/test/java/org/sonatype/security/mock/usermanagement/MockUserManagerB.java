@@ -4,8 +4,8 @@ import javax.enterprise.inject.Typed;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.usermanagement.DefaultUser;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.UserManager;
 import org.sonatype.security.usermanagement.UserStatus;
 
@@ -25,9 +25,9 @@ public class MockUserManagerB
         a.setSource( this.getSource() );
         a.setUserId( "bburton" );
         a.setStatus( UserStatus.active );
-        a.addRole( new RoleIdentifier( this.getSource(), "RoleA" ) );
-        a.addRole( new RoleIdentifier( this.getSource(), "RoleB" ) );
-        a.addRole( new RoleIdentifier( this.getSource(), "RoleC" ) );
+        a.addRole( new RoleKey( "RoleA", getSource() ) );
+        a.addRole( new RoleKey( "RoleB", getSource() ) );
+        a.addRole( new RoleKey( "RoleC", getSource() ) );
 
         DefaultUser b = new DefaultUser();
         b.setName( "Julian R. Blevins" );
@@ -35,8 +35,8 @@ public class MockUserManagerB
         b.setSource( this.getSource() );
         b.setUserId( "jblevins" );
         b.setStatus( UserStatus.active );
-        b.addRole( new RoleIdentifier( this.getSource(), "RoleA" ) );
-        b.addRole( new RoleIdentifier( this.getSource(), "RoleB" ) );
+        b.addRole( new RoleKey( "RoleA", getSource() ) );
+        b.addRole( new RoleKey( "RoleB", getSource() ) );
 
         DefaultUser c = new DefaultUser();
         c.setName( "Kathryn J. Simmons" );
@@ -44,8 +44,8 @@ public class MockUserManagerB
         c.setSource( this.getSource() );
         c.setUserId( "ksimmons" );
         c.setStatus( UserStatus.active );
-        c.addRole( new RoleIdentifier( this.getSource(), "RoleA" ) );
-        c.addRole( new RoleIdentifier( this.getSource(), "RoleB" ) );
+        c.addRole( new RoleKey( "RoleA", getSource() ) );
+        c.addRole( new RoleKey( "RoleB", getSource() ) );
 
         DefaultUser d = new DefaultUser();
         d.setName( "Florence T. Dahmen" );
@@ -53,8 +53,8 @@ public class MockUserManagerB
         d.setSource( this.getSource() );
         d.setUserId( "fdahmen" );
         d.setStatus( UserStatus.active );
-        d.addRole( new RoleIdentifier( this.getSource(), "RoleA" ) );
-        d.addRole( new RoleIdentifier( this.getSource(), "RoleB" ) );
+        d.addRole( new RoleKey( "RoleA", getSource() ) );
+        d.addRole( new RoleKey( "RoleB", getSource() ) );
 
         DefaultUser e = new DefaultUser();
         e.setName( "Jill  Codar" );
@@ -69,9 +69,9 @@ public class MockUserManagerB
         f.setSource( this.getSource() );
         f.setUserId( "jcoder" );
         f.setStatus( UserStatus.active );
-        f.addRole( new RoleIdentifier( this.getSource(), "Role1" ) );
-        f.addRole( new RoleIdentifier( this.getSource(), "Role2" ) );
-        f.addRole( new RoleIdentifier( this.getSource(), "Role3" ) );
+        f.addRole( new RoleKey( "Role1", getSource() ) );
+        f.addRole( new RoleKey( "Role2", getSource() ) );
+        f.addRole( new RoleKey( "Role3", getSource() ) );
 
         this.addUser( a, a.getUserId() );
         this.addUser( b, b.getUserId() );

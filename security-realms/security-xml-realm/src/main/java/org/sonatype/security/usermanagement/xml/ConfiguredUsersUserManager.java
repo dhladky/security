@@ -27,6 +27,7 @@ import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.sonatype.inject.Description;
 import org.sonatype.security.SecuritySystem;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.realms.tools.ConfigurationManager;
 import org.sonatype.security.usermanagement.AbstractReadOnlyUserManager;
@@ -153,7 +154,8 @@ public class ConfiguredUsersUserManager
      * @see org.sonatype.security.usermanagement.AbstractUserManager#matchesCriteria(java.lang.String, java.lang.String,
      * java.util.Collection, org.sonatype.security.usermanagement.UserSearchCriteria)
      */
-    protected boolean matchesCriteria( String userId, String userSource, Collection<String> usersRoles,
+    @Override
+    protected boolean matchesCriteria( String userId, String userSource, Collection<RoleKey> usersRoles,
                                        UserSearchCriteria criteria )
     {
         // basically the same as the super, but we don't want to check the source
@@ -165,7 +167,7 @@ public class ConfiguredUsersUserManager
 
         if ( criteria.getOneOfRoleIds() != null && !criteria.getOneOfRoleIds().isEmpty() )
         {
-            Set<String> userRoles = new HashSet<String>();
+            Set<RoleKey> userRoles = new HashSet<RoleKey>();
             if ( usersRoles != null )
             {
                 userRoles.addAll( usersRoles );

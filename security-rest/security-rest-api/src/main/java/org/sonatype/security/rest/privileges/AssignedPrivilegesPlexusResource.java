@@ -92,7 +92,7 @@ public class AssignedPrivilegesPlexusResource
             {
                 try
                 {
-                    handleRole( authzManager.getRole( roleIdentifier.getRoleId() ), null, authzManager,
+                    handleRole( authzManager.getRole( roleIdentifier.getRoleId(), source ), null, authzManager,
                         responseResource );
                 }
                 catch ( NoSuchRoleException e )
@@ -130,7 +130,7 @@ public class AssignedPrivilegesPlexusResource
         {
             try
             {
-                handleRole( authzManager.getRole( roleId ), newParentList, authzManager, response );
+                handleRole( authzManager.getRole( roleId, source ), newParentList, authzManager, response );
             }
             catch ( NoSuchRoleException e )
             {

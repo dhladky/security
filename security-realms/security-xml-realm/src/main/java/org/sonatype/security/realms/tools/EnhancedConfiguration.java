@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CRole;
-import org.sonatype.security.model.CRoleMapping;
+import org.sonatype.security.model.CRoleKey;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.model.Configuration;
@@ -25,7 +25,6 @@ public class EnhancedConfiguration
         rebuildId2RolesLookupMap();
         rebuildId2PrivilegesLookupMap();
         rebuildId2UserRoleMappingsLookupMap();
-        rebuildId2roleMappingsLookupMap();
     }
 
     // ==
@@ -43,7 +42,7 @@ public class EnhancedConfiguration
     {
         delegate.addRole( cRole );
 
-        id2roles.put( cRole.getId(), cRole );
+        id2roles.put( cRole.getKey(), cRole );
     }
 
     @Override
@@ -118,7 +117,7 @@ public class EnhancedConfiguration
     @Override
     public void removeRole( CRole cRole )
     {
-        id2roles.remove( cRole.getId() );
+        id2roles.remove( cRole.getKey() );
 
         delegate.removeRole( cRole );
     }
@@ -212,12 +211,12 @@ public class EnhancedConfiguration
         }
     }
 
-    public CRole getRoleById( final String id )
+    public CRole getRoleById( final CRoleKey id )
     {
         return id2roles.get( id );
     }
 
-    public boolean removeRoleById( final String id )
+    public boolean removeRoleById( final CRoleKey id )
     {
         CRole role = getRoleById( id );
 
@@ -276,13 +275,12 @@ public class EnhancedConfiguration
 
     private HashMap<String, CUser> id2users = new HashMap<String, CUser>();
 
-    private HashMap<String, CRole> id2roles = new HashMap<String, CRole>();
+    private HashMap<CRoleKey, CRole> id2roles = new HashMap<CRoleKey, CRole>();
 
     private HashMap<String, CPrivilege> id2privileges = new HashMap<String, CPrivilege>();
 
     private HashMap<String, CUserRoleMapping> id2userRoleMappings = new HashMap<String, CUserRoleMapping>();
 
-    private HashMap<String, CRoleMapping> id2RoleMappings = new HashMap<String, CRoleMapping>();
 
     protected void rebuildId2UsersLookupMap()
     {
@@ -300,7 +298,7 @@ public class EnhancedConfiguration
 
         for ( CRole role : getRoles() )
         {
-            id2roles.put( role.getId(), role );
+            id2roles.put( role.getKey(), role );
         }
     }
 
@@ -324,15 +322,6 @@ public class EnhancedConfiguration
         }
     }
 
-    protected void rebuildId2roleMappingsLookupMap()
-    {
-        id2RoleMappings.clear();
-
-        for ( CRoleMapping role2role : getRoleMappings() )
-        {
-            id2RoleMappings.put( getUserRoleMappingKey( role2role.getSourceRoleId(), role2role.getSource() ), role2role );
-        }
-    }
 
     // ==
 
@@ -341,31 +330,4 @@ public class EnhancedConfiguration
         return userId.toLowerCase() + "|" + source;
     }
 
-    @Override
-    public void addRoleMapping( CRoleMapping mapping )
-    {
-        delegate.addRoleMapping( mapping );
-
-        id2RoleMappings.put( getUserRoleMappingKey( mapping.getSourceRoleId(), mapping.getSource() ), mapping );
-    }
-
-    public CRoleMapping getRoleMapping( String roleId, String source )
-    {
-        return id2RoleMappings.get( getUserRoleMappingKey( roleId, source ) );
-    }
-
-    public boolean removeRoleMapping( String roleId, String source )
-    {
-        CRoleMapping mapping = getRoleMapping( roleId, source );
-
-        if ( mapping != null )
-        {
-            delegate.removeRoleMapping( mapping );
-            return id2RoleMappings.remove( getRoleMapping( roleId, source ) ) != null;
-        }
-        else
-        {
-            return false;
-        }
-    }
 }

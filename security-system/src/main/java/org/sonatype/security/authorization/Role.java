@@ -1,6 +1,6 @@
 package org.sonatype.security.authorization;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -10,47 +10,46 @@ import java.util.Set;
  */
 public class Role implements Comparable<Role>
 {
-    private String roleId;
+    private RoleKey key;
+
+    public RoleKey getKey()
+    {
+        return key;
+    }
+
+    public void setKey( RoleKey key )
+    {
+        this.key = key;
+    }
 
     private String name;
 
     private String description;
 
-    private String source;
-
     private boolean readOnly;
 
-    private Set<String> roles = new HashSet<String>();
+    private Set<RoleKey> roles;
     
-    private Set<String> privileges = new HashSet<String>();
+    private Set<String> privileges;
     
     public Role()
     {
-        
+        super();
     }
     
-    public Role( String roleId, String name, String description, String source, boolean readOnly, Set<String> roles,
+    public Role( RoleKey key, String name, String description, boolean readOnly, Set<RoleKey> roles,
                  Set<String> privileges )
     {
-        super();
-        this.roleId = roleId;
+        this();
+        this.key = key;
         this.name = name;
         this.description = description;
-        this.source = source;
         this.readOnly = readOnly;
         this.roles = roles;
         this.privileges = privileges;
     }
 
-    public String getRoleId()
-    {
-        return roleId;
-    }
 
-    public void setRoleId( String roleId )
-    {
-        this.roleId = roleId;
-    }
 
     public String getName()
     {
@@ -62,27 +61,21 @@ public class Role implements Comparable<Role>
         this.name = name;
     }
 
-    public String getSource()
+    public Set<RoleKey> getRoles()
     {
-        return source;
-    }
-
-    public void setSource( String source )
-    {
-        this.source = source;
-    }
-
-    public Set<String> getRoles()
-    {
+        if ( roles == null )
+        {
+            roles = new LinkedHashSet<RoleKey>();
+        }
         return roles;
     }
 
-    public void addRole( String role )
+    public void addRole( RoleKey role )
     {
         this.roles.add( role );
     }
     
-    public void setRoles( Set<String> roles )
+    public void setRoles( Set<RoleKey> roles )
     {
         this.roles = roles;
     }
@@ -118,30 +111,25 @@ public class Role implements Comparable<Role>
             return after;
         }
 
-        if ( getRoleId() == null && o.getRoleId() != null )
+        if ( key == null && o.key != null )
         {
             return before;
         }
-        else if ( getRoleId() != null && o.getRoleId() == null )
+        else if ( key != null && o.key == null )
         {
             return after;
         }
 
         // the roleIds are not null
-        int result = getRoleId().compareTo( o.getRoleId() );
+        int result = key.compareTo( o.key );
         if ( result != equal )
         {
             return result;
         }
 
-        if ( getSource() == null )
-        {
-            return before;
-        }
-
         // if we are all the way to this point, the RoleIds are equal and this.getSource != null, so just return a
         // compareTo on the source
-        return getSource().compareTo( o.getSource() );
+        return result;
     }
 
     public String getDescription()
@@ -173,9 +161,8 @@ public class Role implements Comparable<Role>
         result = prime * result + ( ( name == null ) ? 0 : name.hashCode() );
         result = prime * result + ( ( privileges == null ) ? 0 : privileges.hashCode() );
         result = prime * result + ( readOnly ? 1231 : 1237 );
-        result = prime * result + ( ( roleId == null ) ? 0 : roleId.hashCode() );
+        result = prime * result + ( ( key == null ) ? 0 : key.hashCode() );
         result = prime * result + ( ( roles == null ) ? 0 : roles.hashCode() );
-        result = prime * result + ( ( source == null ) ? 0 : source.hashCode() );
         return result;
     }
 
@@ -232,14 +219,14 @@ public class Role implements Comparable<Role>
         {
             return false;
         }
-        if ( roleId == null )
+        if ( key == null )
         {
-            if ( other.roleId != null )
+            if ( other.key != null )
             {
                 return false;
             }
         }
-        else if ( !roleId.equals( other.roleId ) )
+        else if ( !key.equals( other.key ) )
         {
             return false;
         }
@@ -254,17 +241,7 @@ public class Role implements Comparable<Role>
         {
             return false;
         }
-        if ( source == null )
-        {
-            if ( other.source != null )
-            {
-                return false;
-            }
-        }
-        else if ( !source.equals( other.source ) )
-        {
-            return false;
-        }
+
         return true;
     }
 

@@ -16,6 +16,7 @@ import junit.framework.Assert;
 
 import org.sonatype.guice.bean.containers.InjectedTestCase;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 
 public class RoleTest
     extends InjectedTestCase
@@ -25,13 +26,11 @@ public class RoleTest
     {
         Role roleA = new Role();
         roleA.setName( "ID1" );
-        roleA.setRoleId( "ID1" );
-        roleA.setSource( "source" );
+        roleA.setKey( new RoleKey( "ID1", "source" ) );
 
         Role roleB = new Role();
         roleB.setName( "ID2" );
-        roleB.setRoleId( "ID2" );
-        roleB.setSource( "source" );
+        roleB.setKey( new RoleKey( "ID2", "source" ) );
 
         Assert.assertEquals( -1, roleA.compareTo( roleB ) );
         Assert.assertEquals( 1, roleB.compareTo( roleA ) );
@@ -42,13 +41,11 @@ public class RoleTest
     {
         Role roleA = new Role();
         roleA.setName( "ID1" );
-        roleA.setRoleId( "ID1" );
-        roleA.setSource( "source1" );
+        roleA.setKey( new RoleKey( "ID1", "source1" ) );
 
         Role roleB = new Role();
         roleB.setName( "ID1" );
-        roleB.setRoleId( "ID1" );
-        roleB.setSource( "source2" );
+        roleB.setKey( new RoleKey( "ID1", "source2" ) );
 
         Assert.assertEquals( -1, roleA.compareTo( roleB ) );
         Assert.assertEquals( 1, roleB.compareTo( roleA ) );

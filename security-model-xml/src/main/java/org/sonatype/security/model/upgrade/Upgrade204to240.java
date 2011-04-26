@@ -15,6 +15,7 @@ package org.sonatype.security.model.upgrade;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Named;
@@ -23,6 +24,9 @@ import javax.inject.Singleton;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.configuration.upgrade.ConfigurationIsCorruptedException;
 import org.sonatype.configuration.upgrade.UpgradeMessage;
+import org.sonatype.security.model.CRole;
+import org.sonatype.security.model.CRoleKey;
+import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.model.v2_0_4.io.xpp3.SecurityConfigurationXpp3Reader;
 import org.sonatype.security.model.v2_4_0.upgrade.BasicVersionUpgrade;
 
@@ -67,11 +71,55 @@ public class Upgrade204to240
         org.sonatype.security.model.v2_0_4.Configuration oldc =
             (org.sonatype.security.model.v2_0_4.Configuration) message.getConfiguration();
 
-        org.sonatype.security.model.Configuration newc = new BasicVersionUpgrade().upgradeConfiguration( oldc );
+        org.sonatype.security.model.Configuration newc = new SecurityVersionUpgrade().upgradeConfiguration( oldc );
         
         newc.setVersion( org.sonatype.security.model.Configuration.MODEL_VERSION );
         message.setModelVersion( org.sonatype.security.model.Configuration.MODEL_VERSION );
         message.setConfiguration( newc );
+    }
+
+    class SecurityVersionUpgrade
+        extends BasicVersionUpgrade
+    {
+        @Override
+        public CRole upgradeCRole( org.sonatype.security.model.v2_0_4.CRole cRole )
+        {
+            CRole role = super.upgradeCRole( cRole );
+            role.setKey( toKey( cRole.getId() ) );
+
+            List<String> roles = cRole.getRoles();
+            for ( String roleId : roles )
+            {
+                role.addRole( toKey( roleId ) );
+            }
+            return role;
+        }
+
+        private CRoleKey toKey( String roleId )
+        {
+            CRoleKey key = new CRoleKey();
+            key.setId( roleId );
+            key.setSource( getSource( roleId ) );
+            return key;
+        }
+
+        @Override
+        public CUserRoleMapping upgradeCUserRoleMapping( org.sonatype.security.model.v2_0_4.CUserRoleMapping cUserRoleMapping )
+        {
+            final CUserRoleMapping userMapping = super.upgradeCUserRoleMapping( cUserRoleMapping );
+            List<String> roles = cUserRoleMapping.getRoles();
+            for ( String roleId : roles )
+            {
+                userMapping.addRole( toKey( roleId ) );
+            }
+            return userMapping;
+        }
+
+        private String getSource( String roleId )
+        {
+            // TODO Auto-generated method stub
+            return "default";
+        }
     }
 
 }

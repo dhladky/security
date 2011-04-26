@@ -18,7 +18,7 @@ import org.apache.shiro.authz.Permission;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.sonatype.security.usermanagement.RoleIdentifier;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserManager;
 import org.sonatype.security.usermanagement.UserNotFoundException;
@@ -117,7 +117,7 @@ public class MockRealmA
         try
         {
             User user = this.userManager.getUser( subjectPrincipal.oneByType( String.class ) );
-            for ( RoleIdentifier eachRoleIdentifier : user.getRoles() )
+            for ( RoleKey eachRoleIdentifier : user.getRoles() )
             {
                 if( eachRoleIdentifier.getRoleId().equals( roleIdentifier ) )
                 {

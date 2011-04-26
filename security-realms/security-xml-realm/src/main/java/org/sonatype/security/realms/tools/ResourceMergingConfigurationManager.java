@@ -11,8 +11,10 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 package org.sonatype.security.realms.tools;
+import static org.sonatype.security.util.ModelConversion.toRoleKey;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +31,7 @@ import org.sonatype.security.authorization.NoSuchPrivilegeException;
 import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CRole;
-import org.sonatype.security.model.CRoleMapping;
+import org.sonatype.security.model.CRoleKey;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.model.Configuration;
@@ -102,25 +104,25 @@ public class ResourceMergingConfigurationManager
         manager.createRole( role, context );
     }
 
-    public void createUser( CUser user, Set<String> roles )
+    public void createUser( CUser user, Collection<CRoleKey> roles )
         throws InvalidConfigurationException
     {
         manager.createUser( user, roles, initializeContext() );
     }
 
-    public void createUser( CUser user, String password, Set<String> roles )
+    public void createUser( CUser user, String password, Collection<CRoleKey> roles )
         throws InvalidConfigurationException
     {
         manager.createUser( user, password, roles, initializeContext() );
     }
 
-    public void createUser( CUser user, Set<String> roles, SecurityValidationContext context )
+    public void createUser( CUser user, Collection<CRoleKey> roles, SecurityValidationContext context )
         throws InvalidConfigurationException
     {
         createUser( user, null, roles, context );
     }
 
-    public void createUser( CUser user, String password, Set<String> roles, SecurityValidationContext context )
+    public void createUser( CUser user, String password, Collection<CRoleKey> roles, SecurityValidationContext context )
         throws InvalidConfigurationException
     {
         if ( context == null )
@@ -139,11 +141,11 @@ public class ResourceMergingConfigurationManager
         manager.deletePrivilege( id );
     }
 
-    public void deleteRole( String id )
+    public void deleteRole( String id, String source )
         throws NoSuchRoleException
     {
         // The static config can't be updated, so delegate to xml file
-        manager.deleteRole( id );
+        manager.deleteRole( id, source );
     }
 
     public void deleteUser( String id )
@@ -183,15 +185,20 @@ public class ResourceMergingConfigurationManager
         List<CRole> roles = new ArrayList<CRole>( listRoles() );
         for ( CRole role : roles )
         {
-            context.getExistingRoleIds().add( role.getId() );
+            CRoleKey key = role.getKey();
+            if ( context.getExistingRoleIds().containsKey( key.getSource() ) )
+            {
+                context.getExistingRoleIds().put( key.getSource(), new ArrayList<String>() );
+            }
+            context.getExistingRoleIds().get( key.getSource() ).add( key.getId() );
 
-            ArrayList<String> containedRoles = new ArrayList<String>();
+            ArrayList<CRoleKey> containedRoles = new ArrayList<CRoleKey>();
 
             containedRoles.addAll( role.getRoles() );
 
-            context.getRoleContainmentMap().put( role.getId(), containedRoles );
+            context.getRoleContainmentMap().put( key, containedRoles );
 
-            context.getExistingRoleNameMap().put( role.getId(), role.getName() );
+            context.getExistingRoleNameMap().put( key, role.getName() );
         }
 
         List<CPrivilege> privs = new ArrayList<CPrivilege>( listPrivileges() );
@@ -237,7 +244,7 @@ public class ResourceMergingConfigurationManager
     private CRole mergeRolesContents( CRole roleA, CRole roleB )
     {
         // ROLES
-        Set<String> roles = new HashSet<String>();
+        Set<CRoleKey> roles = new HashSet<CRoleKey>();
         // make sure they are not empty
         if ( roleA.getRoles() != null )
         {
@@ -261,8 +268,8 @@ public class ResourceMergingConfigurationManager
         }
 
         CRole newRole = new CRole();
-        newRole.setId( roleA.getId() );
-        newRole.setRoles( new ArrayList<String>( roles ) );
+        newRole.setKey( roleA.getKey() );
+        newRole.setRoles( new ArrayList<CRoleKey>( roles ) );
         newRole.setPrivileges( new ArrayList<String>( privs ) );
 
         // now for the name and description
@@ -319,10 +326,10 @@ public class ResourceMergingConfigurationManager
         }
     }
 
-    public CRole readRole( String id )
+    public CRole readRole( String id, String source )
         throws NoSuchRoleException
     {
-        final CRole role = getConfiguration().getRoleById( id );
+        final CRole role = getConfiguration().getRoleById( toRoleKey( id, source ) );
 
         if ( role != null )
         {
@@ -333,7 +340,7 @@ public class ResourceMergingConfigurationManager
         else
         {
             // nothing found in static, try the original source, will throw if nothing is found
-            return manager.readRole( id );
+            return manager.readRole( id, source );
         }
     }
 
@@ -431,13 +438,13 @@ public class ResourceMergingConfigurationManager
         manager.updateRole( role, context );
     }
 
-    public void updateUser( CUser user, Set<String> roles )
+    public void updateUser( CUser user, Collection<CRoleKey> roles )
         throws InvalidConfigurationException, UserNotFoundException
     {
         manager.updateUser( user, roles, initializeContext() );
     }
 
-    public void updateUser( CUser user, Set<String> roles, SecurityValidationContext context )
+    public void updateUser( CUser user, Collection<CRoleKey> roles, SecurityValidationContext context )
         throws InvalidConfigurationException, UserNotFoundException
     {
         if ( context == null )
@@ -459,9 +466,9 @@ public class ResourceMergingConfigurationManager
         manager.cleanRemovedPrivilege( privilegeId );
     }
 
-    public void cleanRemovedRole( String roleId )
+    public void cleanRemovedRole( CRoleKey key )
     {
-        manager.cleanRemovedRole( roleId );
+        manager.cleanRemovedRole( key );
     }
 
     // ==
@@ -534,7 +541,7 @@ public class ResourceMergingConfigurationManager
             // need to check if we need to merge the static config
             for ( CRole eachRole : configuration.getRoles() )
             {
-                if ( eachRole.getId().equals( role.getId() ) )
+                if ( eachRole.getKey().equals( role.getKey() ) )
                 {
                     role = this.mergeRolesContents( role, eachRole );
                     configuration.removeRole( eachRole );
@@ -553,44 +560,4 @@ public class ResourceMergingConfigurationManager
         return configuration;
     }
 
-    @Override
-    public void createRoleMapping( CRoleMapping mapping )
-        throws InvalidConfigurationException
-    {
-        manager.createRoleMapping( mapping );
-    }
-
-    @Override
-    public void updateRoleMapping( CRoleMapping mapping )
-        throws InvalidConfigurationException
-    {
-        manager.updateRoleMapping( mapping );
-    }
-
-    @Override
-    public CRoleMapping readRoleMapping( String roleId, String source )
-        throws NoSuchRoleMappingException
-    {
-        return manager.readRoleMapping( roleId, source );
-    }
-
-    @Override
-    public List<CRoleMapping> listRoleMappings()
-    {
-        return manager.listRoleMappings();
-    }
-
-    @Override
-    public void deleteRoleMapping( CRoleMapping mapping )
-        throws NoSuchRoleMappingException
-    {
-        manager.deleteRoleMapping( mapping );
-    }
-
-    @Override
-    public void deleteRoleMapping( String roleId, String source )
-        throws NoSuchRoleMappingException
-    {
-        manager.deleteRoleMapping( roleId, source );
-    }
 }

@@ -210,7 +210,7 @@ public abstract class AbstractSecurityPlexusResource
         try
         {
             AuthorizationManager authzManager = securitySystem.getAuthorizationManager( DEFAULT_SOURCE );
-            roleName = authzManager.getRole( role.getRoleId() ).getName();
+            roleName = authzManager.getRole( role.getRoleId(), source ).getName();
         }
         catch ( NoSuchAuthorizationManagerException e )
         {

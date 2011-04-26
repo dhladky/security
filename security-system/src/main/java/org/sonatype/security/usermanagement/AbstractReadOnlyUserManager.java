@@ -3,6 +3,7 @@ package org.sonatype.security.usermanagement;
 import java.util.Set;
 
 import org.sonatype.configuration.validation.InvalidConfigurationException;
+import org.sonatype.security.authorization.RoleKey;
 
 /**
  * An abstract UserManager, that just throws exceptions for all the write methods. Any call to theses methods should be
@@ -38,7 +39,7 @@ public abstract class AbstractReadOnlyUserManager
         this.throwException();
     }
 
-    public void setUsersRoles( String userId, Set<RoleIdentifier> roleIdentifiers )
+    public void setUsersRoles( String userId, Set<RoleKey> roleIdentifiers )
         throws UserNotFoundException, InvalidConfigurationException
     {
     }

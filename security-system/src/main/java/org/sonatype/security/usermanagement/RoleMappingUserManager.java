@@ -3,6 +3,7 @@ package org.sonatype.security.usermanagement;
 import java.util.Set;
 
 import org.sonatype.configuration.validation.InvalidConfigurationException;
+import org.sonatype.security.authorization.RoleKey;
 
 /**
  * Extends the UserManager interface to allow a UserManager to add roles to users from other UserManagers. For example,
@@ -22,7 +23,7 @@ public interface RoleMappingUserManager
      * @return
      * @throws UserNotFoundException
      */
-    Set<RoleIdentifier> getUsersRoles( String userId, String userSource )
+    Set<RoleKey> getUsersRoles( String userId, String userSource )
         throws UserNotFoundException;
 
     /**
@@ -34,13 +35,9 @@ public interface RoleMappingUserManager
      * @throws UserNotFoundException
      * @throws InvalidConfigurationException
      */
-    void setUsersRoles( String userId, String userSource, Set<RoleIdentifier> roleIdentifiers )
+    void setUsersRoles( String userId, String userSource, Set<RoleKey> roleIdentifiers )
         throws UserNotFoundException, InvalidConfigurationException;
 
-    void setRoleMapping( String roleId, String source, Set<RoleIdentifier> roleIdentifiers )
-        throws InvalidConfigurationException;
 
-    Set<RoleMapping> getRoleMappings()
-        throws InvalidConfigurationException;
 
 }

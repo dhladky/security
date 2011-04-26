@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <security>
-  <version>2.4</version>
+  <version>2.4.0</version>
   <users>
     <user>
       <id>admin</id>
@@ -31,23 +31,38 @@
       <userId>admin</userId>
       <source>default</source>
       <roles>
-        <role>admin</role>
+        <role>
+          <id>admin</id>
+          <source>default</source>
+        </role>
       </roles>
     </userRoleMapping>
     <userRoleMapping>
       <userId>deployment</userId>
       <source>default</source>
       <roles>
-        <role>deployment</role>
-        <role>repo-all-full</role>
+        <role>
+          <id>deployment</id>
+          <source>default</source>
+        </role>
+        <role>
+          <id>repo-all-full</id>
+          <source>default</source>
+        </role>
       </roles>
     </userRoleMapping>
     <userRoleMapping>
       <userId>anonymous</userId>
       <source>default</source>
       <roles>
-        <role>anonymous</role>
-        <role>repo-all-read</role>
+        <role>
+          <id>anonymous</id>
+          <source>default</source>
+        </role>
+        <role>
+          <id>repo-all-read</id>
+          <source>default</source>
+        </role>
       </roles>
     </userRoleMapping>
   </userRoleMappings>

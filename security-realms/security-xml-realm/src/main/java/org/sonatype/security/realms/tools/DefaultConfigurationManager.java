@@ -11,12 +11,13 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 package org.sonatype.security.realms.tools;
+import static org.sonatype.security.util.ModelConversion.toRoleKey;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
@@ -32,7 +33,7 @@ import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CProperty;
 import org.sonatype.security.model.CRole;
-import org.sonatype.security.model.CRoleMapping;
+import org.sonatype.security.model.CRoleKey;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.model.Configuration;
@@ -130,25 +131,25 @@ public class DefaultConfigurationManager
         }
     }
 
-    public void createUser( CUser user, Set<String> roles )
+    public void createUser( CUser user, Collection<CRoleKey> roles )
         throws InvalidConfigurationException
     {
         createUser( user, null, roles, initializeContext() );
     }
 
-    public void createUser( CUser user, String password, Set<String> roles )
+    public void createUser( CUser user, String password, Collection<CRoleKey> roles )
         throws InvalidConfigurationException
     {
         createUser( user, password, roles, initializeContext() );
     }
 
-    public void createUser( CUser user, Set<String> roles, SecurityValidationContext context )
+    public void createUser( CUser user, Collection<CRoleKey> roles, SecurityValidationContext context )
         throws InvalidConfigurationException
     {
         createUser( user, null, roles, context );
     }
 
-    public void createUser( CUser user, String password, Set<String> roles, SecurityValidationContext context )
+    public void createUser( CUser user, String password, Collection<CRoleKey> roles, SecurityValidationContext context )
         throws InvalidConfigurationException
     {
         if ( context == null )
@@ -195,13 +196,13 @@ public class DefaultConfigurationManager
 
     }
 
-    private CUserRoleMapping buildUserRoleMapping( String userId, Set<String> roles )
+    private CUserRoleMapping buildUserRoleMapping( String userId, Collection<CRoleKey> roles )
     {
         CUserRoleMapping roleMapping = new CUserRoleMapping();
 
         roleMapping.setUserId( userId );
         roleMapping.setSource( SecurityXmlUserManager.SOURCE );
-        roleMapping.setRoles( new ArrayList<String>( roles ) );
+        roleMapping.setRoles( new ArrayList<CRoleKey>( roles ) );
 
         return roleMapping;
 
@@ -229,26 +230,33 @@ public class DefaultConfigurationManager
         }
     }
 
-    public void deleteRole( String id )
+    public void deleteRole( String id, String source )
         throws NoSuchRoleException
     {
-        deleteRole( id, true );
+        deleteRole( id, source, true );
     }
 
-    protected void deleteRole( String id, boolean clean )
+    protected void deleteRole( CRoleKey key, boolean clean )
         throws NoSuchRoleException
     {
-        boolean found = getConfiguration().removeRoleById( id );
+        boolean found = getConfiguration().removeRoleById( key );
 
         if ( !found )
         {
-            throw new NoSuchRoleException( id );
+            throw new NoSuchRoleException( key.getId() );
         }
 
         if ( clean )
         {
-            cleanRemovedRole( id );
+            //TODO
+            cleanRemovedRole( key );
         }
+    }
+
+    protected void deleteRole( String id, String source, boolean clean )
+        throws NoSuchRoleException
+    {
+        deleteRole( toRoleKey( id, source ), clean );
     }
 
     public void deleteUser( String id )
@@ -289,10 +297,10 @@ public class DefaultConfigurationManager
         }
     }
 
-    public CRole readRole( String id )
+    public CRole readRole( String id, String source )
         throws NoSuchRoleException
     {
-        CRole role = getConfiguration().getRoleById( id );
+        CRole role = getConfiguration().getRoleById( toRoleKey( id, source ) );
 
         if ( role != null )
         {
@@ -364,7 +372,7 @@ public class DefaultConfigurationManager
 
         if ( vr.isValid() )
         {
-            deleteRole( role.getId(), false );
+            deleteRole( role.getKey(), false );
             getConfiguration().addRole( role );
         }
         else
@@ -373,13 +381,13 @@ public class DefaultConfigurationManager
         }
     }
 
-    public void updateUser( CUser user, Set<String> roles )
+    public void updateUser( CUser user, Collection<CRoleKey> roles )
         throws InvalidConfigurationException, UserNotFoundException
     {
         updateUser( user, roles, initializeContext() );
     }
 
-    public void updateUser( CUser user, Set<String> roles, SecurityValidationContext context )
+    public void updateUser( CUser user, Collection<CRoleKey> roles, SecurityValidationContext context )
         throws InvalidConfigurationException, UserNotFoundException
     {
         if ( context == null )
@@ -586,15 +594,19 @@ public class DefaultConfigurationManager
 
         for ( CRole role : listRoles() )
         {
-            context.getExistingRoleIds().add( role.getId() );
+            if ( !context.getExistingRoleIds().containsKey( role.getKey().getSource() ) )
+            {
+                context.getExistingRoleIds().put( role.getKey().getSource(), new ArrayList<String>() );
+            }
+            context.getExistingRoleIds().get( role.getKey().getSource() ).add( role.getKey().getId() );
 
-            ArrayList<String> containedRoles = new ArrayList<String>();
+            ArrayList<CRoleKey> containedRoles = new ArrayList<CRoleKey>();
 
             containedRoles.addAll( role.getRoles() );
 
-            context.getRoleContainmentMap().put( role.getId(), containedRoles );
+            context.getRoleContainmentMap().put( role.getKey(), containedRoles );
 
-            context.getExistingRoleNameMap().put( role.getId(), role.getName() );
+            context.getExistingRoleNameMap().put( role.getKey(), role.getName() );
         }
 
         for ( CPrivilege priv : listPrivileges() )
@@ -620,122 +632,9 @@ public class DefaultConfigurationManager
         configCleaner.privilegeRemoved( getConfiguration(), privilegeId );
     }
 
-    public void cleanRemovedRole( String roleId )
+    public void cleanRemovedRole( CRoleKey key )
     {
-        configCleaner.roleRemoved( getConfiguration(), roleId );
+        configCleaner.roleRemoved( getConfiguration(), key );
     }
 
-    @Override
-    public void createRoleMapping( CRoleMapping mapping )
-        throws InvalidConfigurationException
-    {
-        SecurityValidationContext context = this.initializeContext();
-
-        try
-        {
-            // this will throw a NoSuchRoleMappingException, if there isn't one
-            readRoleMapping( mapping.getSourceRoleId(), mapping.getSource() );
-
-            ValidationResponse vr = new ValidationResponse();
-            vr.addValidationError( new ValidationMessage( "*", "Role Mapping for role '"
-                + mapping.getSourceRoleId() + "' already exists." ) );
-
-            throw new InvalidConfigurationException( vr );
-        }
-        catch ( NoSuchRoleMappingException e )
-        {
-            // expected
-        }
-
-        ValidationResponse vr = validator.validateRoleMapping( context, mapping, false );
-
-        if ( vr.getValidationErrors().size() > 0 )
-        {
-            throw new InvalidConfigurationException( vr );
-        }
-
-        getConfiguration().addRoleMapping( mapping );
-
-    }
-
-    @Override
-    public void updateRoleMapping( CRoleMapping mapping )
-        throws InvalidConfigurationException
-    {
-        SecurityValidationContext context = initializeContext();
-
-        try
-        {
-            // this will throw a NoSuchRoleMappingException, if there isn't one
-            readRoleMapping( mapping.getSourceRoleId(), mapping.getSource() );
-        }
-        catch ( NoSuchRoleMappingException e )
-        {
-            ValidationResponse vr = new ValidationResponse();
-            vr.addValidationError( new ValidationMessage( "*", "No Role Mapping found for role '"
-                + mapping.getSourceRoleId() + "'." ) );
-
-            throw new InvalidConfigurationException( vr );
-        }
-
-        ValidationResponse vr = validator.validateRoleMapping( context, mapping, true );
-
-        if ( vr.getValidationErrors().size() > 0 )
-        {
-            throw new InvalidConfigurationException( vr );
-        }
-
-        try
-        {
-            deleteRoleMapping( mapping.getSourceRoleId(), mapping.getSource() );
-        }
-        catch ( NoSuchRoleMappingException e )
-        {
-            // we already established this role do exists
-            throw new IllegalStateException( e );
-        }
-        getConfiguration().addRoleMapping( mapping );
-    }
-
-    @Override
-    public CRoleMapping readRoleMapping( String roleId, String source )
-        throws NoSuchRoleMappingException
-    {
-        CRoleMapping mapping = getConfiguration().getRoleMapping( roleId, source );
-
-        if ( mapping != null )
-        {
-            return mapping;
-        }
-        else
-        {
-            throw new NoSuchRoleMappingException( "No Role Mapping for role: " + roleId );
-        }
-    }
-
-    @Override
-    public List<CRoleMapping> listRoleMappings()
-    {
-        return Collections.unmodifiableList( getConfiguration().getRoleMappings() );
-    }
-
-    @Override
-    public void deleteRoleMapping( CRoleMapping mapping )
-        throws NoSuchRoleMappingException
-    {
-        deleteRoleMapping( mapping.getSourceRoleId(), mapping.getSource() );
-    }
-
-    @Override
-    public void deleteRoleMapping( String roleId, String source )
-        throws NoSuchRoleMappingException
-    {
-        boolean found = getConfiguration().removeRoleMapping( roleId, source );
-
-        if ( !found )
-        {
-            throw new NoSuchRoleMappingException( "No Role Mapping for role: " + roleId );
-        }
-
-    }
 }
