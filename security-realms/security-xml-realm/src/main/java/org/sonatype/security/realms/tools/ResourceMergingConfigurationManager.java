@@ -185,20 +185,15 @@ public class ResourceMergingConfigurationManager
         List<CRole> roles = new ArrayList<CRole>( listRoles() );
         for ( CRole role : roles )
         {
-            CRoleKey key = role.getKey();
-            if ( context.getExistingRoleIds().containsKey( key.getSource() ) )
-            {
-                context.getExistingRoleIds().put( key.getSource(), new ArrayList<String>() );
-            }
-            context.getExistingRoleIds().get( key.getSource() ).add( key.getId() );
+            context.addExistingRoleIds( role.getKey() );
 
             ArrayList<CRoleKey> containedRoles = new ArrayList<CRoleKey>();
 
             containedRoles.addAll( role.getRoles() );
 
-            context.getRoleContainmentMap().put( key, containedRoles );
+            context.getRoleContainmentMap().put( role.getKey(), containedRoles );
 
-            context.getExistingRoleNameMap().put( key, role.getName() );
+            context.getExistingRoleNameMap().put( role.getKey(), role.getName() );
         }
 
         List<CPrivilege> privs = new ArrayList<CPrivilege>( listPrivileges() );
@@ -324,6 +319,12 @@ public class ResourceMergingConfigurationManager
         {
             return manager.readPrivilege( id );
         }
+    }
+
+    public CRole readRole( CRoleKey key )
+        throws NoSuchRoleException
+    {
+        return readRole( key.getId(), key.getSource() );
     }
 
     public CRole readRole( String id, String source )

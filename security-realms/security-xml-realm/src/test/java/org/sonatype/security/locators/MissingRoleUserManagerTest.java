@@ -20,7 +20,7 @@ import junit.framework.Assert;
 
 import org.sonatype.security.AbstractSecurityTestCase;
 import org.sonatype.security.SecuritySystem;
-import org.sonatype.security.usermanagement.RoleIdentifier;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.usermanagement.User;
 
 public class MissingRoleUserManagerTest
@@ -48,7 +48,7 @@ public class MissingRoleUserManagerTest
     private SecuritySystem getSecuritySystem()
         throws Exception
     {
-        return (SecuritySystem) this.lookup( SecuritySystem.class );
+        return this.lookup( SecuritySystem.class );
     }
 
     public void testInvalidRoleMapping()
@@ -60,7 +60,7 @@ public class MissingRoleUserManagerTest
         Assert.assertNotNull( user );
 
         Set<String> roleIds = new HashSet<String>();
-        for ( RoleIdentifier role : user.getRoles() )
+        for ( RoleKey role : user.getRoles() )
         {
             Assert.assertNotNull( "User has null role.", role );
             roleIds.add( role.getRoleId() );

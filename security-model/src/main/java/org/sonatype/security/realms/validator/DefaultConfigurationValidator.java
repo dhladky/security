@@ -309,6 +309,13 @@ public class DefaultConfigurationValidator
             response.setContext( ctx );
         }
 
+        if ( role.getKey() == null )
+        {
+            ValidationMessage message = new ValidationMessage( "source", "Role key must be defined." );
+            response.addValidationError( message );
+            return response;
+        }
+
         if ( role.getKey().getSource() == null )
         {
             ValidationMessage message = new ValidationMessage( "source", "Role source must be defined." );

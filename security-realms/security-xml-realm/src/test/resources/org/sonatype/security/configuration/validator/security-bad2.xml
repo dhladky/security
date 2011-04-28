@@ -3,145 +3,212 @@
 <!-- This configuration will cause 3 validation warnings -->
 <!-- This configuration will cause 11 validation error -->
 <security>
-    <version>2.0.0</version>    
-    <privileges>      
-      <privilege>
-        <id>1</id>
-        <name>priv</name>
-        <type>method</type>
-        <properties>
-          <property>
-            <key>method</key>
-            <value>read</value>
-          </property>
-          <property>
-            <key>permission</key>
-            <value>/some/path/</value>
-          </property>
-        </properties>
-      </privilege>      
-    </privileges>    
-    <roles>      
-        <!-- invalid id of 0 -->
-        <!-- no session timeout --> <!-- No longer required, will be removed from model soon -->
-        <role>      
-            <id>0</id>
-            <name>name</name>
-        </role>
-        
-        <!-- no id -->
-        <!-- no name -->
-        <!-- invalid session timeout --> <!-- No longer required, will be removed from model soon -->
-        <role>
-          <sessionTimeout>0</sessionTimeout>
-          <privileges>
-            <privilege>1</privilege>
-          </privileges>
-        </role>
-        
-        <role>
-            <id>arole</id>
-            <name>name</name>
-            <sessionTimeout>25</sessionTimeout>
-            <privileges>
-              <privilege>1</privilege>
-            </privileges>
-        </role>
-        
-        <!-- Duplicate role id -->      
-        <role>
-            <id>arole</id>
-            <name>name</name>
-            <sessionTimeout>25</sessionTimeout>
-            <privileges>
-              <privilege>1</privilege>
-            </privileges>
-        </role>   
-        
-        <!-- including itself -->
+  <version>2.0.0</version>
+  <privileges>
+    <privilege>
+      <id>1</id>
+      <name>priv</name>
+      <type>method</type>
+      <properties>
+        <property>
+          <key>method</key>
+          <value>read</value>
+        </property>
+        <property>
+          <key>permission</key>
+          <value>/some/path/</value>
+        </property>
+      </properties>
+    </privilege>
+  </privileges>
+  <roles>
+    <!-- invalid id of 0 -->
+    <!-- no session timeout --> <!-- No longer required, will be removed from model soon -->
+    <role>
+      <key>
+        <id>0</id>
+        <source>default</source>
+      </key>
+      <name>name</name>
+    </role>
+
+    <!-- no id -->
+    <!-- no name -->
+    <!-- invalid session timeout --> <!-- No longer required, will be removed from model soon -->
+    <role>
+      <key>
+        <id>asd</id>
+        <source>default</source>
+      </key>
+      <sessionTimeout>0</sessionTimeout>
+      <privileges>
+        <privilege>1</privilege>
+      </privileges>
+    </role>
+
+    <role>
+      <key>
+        <id>arole</id>
+        <source>default</source>
+      </key>
+      <name>name</name>
+      <sessionTimeout>25</sessionTimeout>
+      <privileges>
+        <privilege>1</privilege>
+      </privileges>
+    </role>
+
+    <!-- Duplicate role id -->
+    <role>
+      <key>
+        <id>arole</id>
+        <source>default</source>
+      </key>
+      <name>name</name>
+      <sessionTimeout>25</sessionTimeout>
+      <privileges>
+        <privilege>1</privilege>
+      </privileges>
+    </role>
+
+    <!-- including itself -->
+    <role>
+      <key>
+        <id>recursive</id>
+        <source>default</source>
+      </key>
+      <name>recursive</name>
+      <sessionTimeout>25</sessionTimeout>
+      <roles>
         <role>
           <id>recursive</id>
-          <name>recursive</name>
-          <sessionTimeout>25</sessionTimeout>
-          <roles>
-            <role>recursive</role>
-          </roles>
+          <source>default</source>
         </role>
-        
-        <!-- including itself via another role -->
-        <role>
-          <id>recursive2</id>
-          <name>recursive2</name>
-          <sessionTimeout>25</sessionTimeout>
-          <roles>
-            <role>recursive3</role>
-          </roles>
-        </role>     
-        
-        <!-- including itself via another role -->
+      </roles>
+    </role>
+
+    <!-- including itself via another role -->
+    <role>
+      <key>
+        <id>recursive2</id>
+        <source>default</source>
+      </key>
+      <name>recursive2</name>
+      <sessionTimeout>25</sessionTimeout>
+      <roles>
         <role>
           <id>recursive3</id>
-          <name>recursive3</name>
-          <sessionTimeout>25</sessionTimeout>
-          <roles>
-            <role>recursive2</role>
-          </roles>
-        </role>          
-        
-        <!-- including itself via another role -->
-        <role>
-          <id>recursive4</id>
-          <name>recursive4</name>
-          <sessionTimeout>25</sessionTimeout>
-          <roles>
-            <role>recursive5</role>
-          </roles>
+          <source>default</source>
         </role>
-        
-        <!-- including itself via another role -->
+      </roles>
+    </role>
+
+    <!-- including itself via another role -->
+    <role>
+      <key>
+        <id>recursive3</id>
+        <source>default</source>
+      </key>
+      <name>recursive3</name>
+      <sessionTimeout>25</sessionTimeout>
+      <roles>
+        <role>
+          <id>recursive2</id>
+          <source>default</source>
+        </role>
+      </roles>
+    </role>
+
+    <!-- including itself via another role -->
+    <role>
+      <key>
+        <id>recursive4</id>
+        <source>default</source>
+      </key>
+      <name>recursive4</name>
+      <sessionTimeout>25</sessionTimeout>
+      <roles>
         <role>
           <id>recursive5</id>
-          <name>recursive5</name>
-          <sessionTimeout>25</sessionTimeout>
-          <roles>
-            <role>recursive6</role>
-          </roles>
+          <source>default</source>
         </role>
-        
-        <!-- including itself via another role -->
+      </roles>
+    </role>
+
+    <!-- including itself via another role -->
+    <role>
+      <key>
+        <id>recursive5</id>
+        <source>default</source>
+      </key>
+      <name>recursive5</name>
+      <sessionTimeout>25</sessionTimeout>
+      <roles>
         <role>
           <id>recursive6</id>
-          <name>recursive6</name>
-          <sessionTimeout>25</sessionTimeout>
-          <roles>
-            <role>recursive4</role>
-          </roles>
+          <source>default</source>
         </role>
-        
+      </roles>
+    </role>
+
+    <!-- including itself via another role -->
+    <role>
+      <key>
+        <id>recursive6</id>
+        <source>default</source>
+      </key>
+      <name>recursive6</name>
+      <sessionTimeout>25</sessionTimeout>
+      <roles>
         <role>
-          <id>errantRole1</id>
-          <name>role</name>
-          <sessionTimeout>25</sessionTimeout>
-          <roles>
-            <role>errantRole2</role>
-          </roles>
+          <id>recursive4</id>
+          <source>default</source>
         </role>
+      </roles>
+    </role>
+
+    <role>
+      <key>
+        <id>errantRole1</id>
+        <source>default</source>
+      </key>
+      <name>role</name>
+      <sessionTimeout>25</sessionTimeout>
+      <roles>
         <role>
           <id>errantRole2</id>
-          <name>role</name>
-          <sessionTimeout>25</sessionTimeout>
-          <roles>
-            <role>errantRole3</role>
-          </roles>
+          <source>default</source>
         </role>
-        <!-- Invalid roel -->
+      </roles>
+    </role>
+    <role>
+      <key>
+        <id>errantRole2</id>
+        <source>default</source>
+      </key>
+      <name>role</name>
+      <sessionTimeout>25</sessionTimeout>
+      <roles>
         <role>
           <id>errantRole3</id>
-          <name>role</name>
-          <sessionTimeout>25</sessionTimeout>
-          <roles>
-            <role>errantRoleNotValid</role>
-          </roles>
+          <source>default</source>
         </role>
-    </roles>
+      </roles>
+    </role>
+    <!-- Invalid roel -->
+    <role>
+      <key>
+        <id>errantRole3</id>
+        <source>default</source>
+      </key>
+      <name>role</name>
+      <sessionTimeout>25</sessionTimeout>
+      <roles>
+        <role>
+          <id>errantRoleNotValid</id>
+          <source>default</source>
+        </role>
+      </roles>
+    </role>
+  </roles>
 </security>

@@ -12,10 +12,10 @@
  */
 package org.sonatype.security.realms.tools;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 
 import javax.inject.Inject;
 
@@ -25,6 +25,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.sonatype.security.model.Configuration;
 import org.sonatype.security.model.io.xpp3.SecurityConfigurationXpp3Reader;
+import org.sonatype.security.model.upgrade.SecurityConfigurationUpgrader;
 
 /**
  * An abstract class that removes the boiler plate code of reading in the security configuration.
@@ -36,6 +37,9 @@ public abstract class AbstractStaticSecurityResource
 {
     @Inject
     private Logger logger;
+
+    @Inject
+    private SecurityConfigurationUpgrader configurationUpgrader;
 
     protected boolean dirty = false;
 
@@ -57,18 +61,17 @@ public abstract class AbstractStaticSecurityResource
 
         if ( StringUtils.isNotEmpty( resourcePath ) )
         {
-            Reader fr = null;
             InputStream is = null;
 
             this.logger.debug( "Loading static security config from " + resourcePath );
-
+            byte[] bytes = null;
             try
             {
                 is = getClass().getResourceAsStream( resourcePath );
+                bytes = IOUtil.toByteArray( is );
                 SecurityConfigurationXpp3Reader reader = new SecurityConfigurationXpp3Reader();
 
-                fr = new InputStreamReader( is );
-                return reader.read( fr );
+                return reader.read( new ByteArrayInputStream( bytes ) );
             }
             catch ( IOException e )
             {
@@ -76,11 +79,21 @@ public abstract class AbstractStaticSecurityResource
             }
             catch ( XmlPullParserException e )
             {
-                this.logger.error( "Invalid XML Configuration", e );
+                if ( bytes != null )
+                {
+                    try
+                    {
+                        return configurationUpgrader.loadOldConfiguration( new InputStreamReader( new ByteArrayInputStream(
+                            bytes ) ) );
+                    }
+                    catch ( Exception e1 )
+                    {
+                        this.logger.error( "Invalid XML Configuration", e );
+                    }
+                }
             }
             finally
             {
-                IOUtil.close( fr );
                 IOUtil.close( is );
             }
         }

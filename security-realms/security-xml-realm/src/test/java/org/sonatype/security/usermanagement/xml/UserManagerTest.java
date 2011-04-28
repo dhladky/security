@@ -1,4 +1,5 @@
 package org.sonatype.security.usermanagement.xml;
+import static org.sonatype.security.util.ModelConversion.toRoleKey;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +18,8 @@ import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.security.AbstractSecurityTestCase;
 import org.sonatype.security.SecuritySystem;
+import org.sonatype.security.authorization.RoleKey;
+import org.sonatype.security.model.CRoleKey;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.model.Configuration;
@@ -24,7 +27,6 @@ import org.sonatype.security.model.io.xpp3.SecurityConfigurationXpp3Reader;
 import org.sonatype.security.model.io.xpp3.SecurityConfigurationXpp3Writer;
 import org.sonatype.security.realms.tools.ConfigurationManager;
 import org.sonatype.security.usermanagement.DefaultUser;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.StringDigester;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserManager;
@@ -98,8 +100,8 @@ public class UserManagerTest
         user.setSource( user.getUserId() + "default" );
         user.setEmailAddress( "email@email" );
         user.setStatus( UserStatus.active );
-        user.addRole( new RoleIdentifier( "default", "role1" ) );
-        user.addRole( new RoleIdentifier( "default", "role3" ) );
+        user.addRole( new RoleKey( "role1", "default" ) );
+        user.addRole( new RoleKey( "role3", "default" ) );
 
         userManager.addUser( user, "my-password" );
 
@@ -116,8 +118,8 @@ public class UserManagerTest
 
         CUserRoleMapping roleMapping = config.readUserRoleMapping( "testCreateUser", "default" );
         
-        Assert.assertTrue( roleMapping.getRoles().contains( "role1" ) );
-        Assert.assertTrue( roleMapping.getRoles().contains( "role3" ) );
+        Assert.assertTrue( roleMapping.getRoles().contains( toRoleKey( "role1", "default" ) ) );
+        Assert.assertTrue( roleMapping.getRoles().contains( toRoleKey( "role3", "default" ) ) );
         Assert.assertEquals( 2, roleMapping.getRoles().size() );
     }
 
@@ -147,8 +149,8 @@ public class UserManagerTest
         user.setName( "new Name" );
         user.setEmailAddress( "newemail@foo" );
 
-        Set<RoleIdentifier> roles = new HashSet<RoleIdentifier>();
-        roles.add( new RoleIdentifier( "default", "role3" ) );
+        Set<RoleKey> roles = new HashSet<RoleKey>();
+        roles.add( new RoleKey( "role3", "default" ) );
         user.setRoles( roles );
         userManager.updateUser( user );
 
@@ -165,7 +167,7 @@ public class UserManagerTest
 
         CUserRoleMapping roleMapping = config.readUserRoleMapping( "test-user", "default" );
         
-        Assert.assertTrue( roleMapping.getRoles().contains( "role3" ) );
+        Assert.assertTrue( roleMapping.getRoles().contains( toRoleKey( "role3", "default" ) ) );
         Assert.assertEquals( "roles: " + roleMapping.getRoles(), 1, roleMapping.getRoles().size() );
     }
 
@@ -232,8 +234,8 @@ public class UserManagerTest
         user.setSource( user.getUserId() + "default" );
         user.setEmailAddress( "email@email" );
         user.setStatus( UserStatus.active );
-        user.addRole( new RoleIdentifier( "default", "role1" ) );
-        user.addRole( new RoleIdentifier( "default", "role3" ) );
+        user.addRole( new RoleKey( "role1", "default" ) );
+        user.addRole( new RoleKey( "role3", "default" ) );
 
         userManager.addUser( user, "my-password" );
 
@@ -264,8 +266,8 @@ public class UserManagerTest
     {
         SecuritySystem securitySystem = this.getSecuritySystem();
 
-        Set<RoleIdentifier> roleIdentifiers = new HashSet<RoleIdentifier>();
-        RoleIdentifier roleIdentifier = new RoleIdentifier( "default", "role2" );
+        Set<RoleKey> roleIdentifiers = new HashSet<RoleKey>();
+        RoleKey roleIdentifier = new RoleKey( "role2", "default" );
         roleIdentifiers.add( roleIdentifier );
 
         securitySystem.setUsersRoles( "admin", "default", roleIdentifiers );
@@ -280,7 +282,7 @@ public class UserManagerTest
                 found = true;
                 
                 Assert.assertEquals( 1, roleMapping.getRoles().size() );
-                Assert.assertEquals( "role2", roleMapping.getRoles().get( 0 ) );
+                Assert.assertEquals( toRoleKey( "role2", "default" ), roleMapping.getRoles().get( 0 ) );
             }
         }
         
@@ -294,9 +296,9 @@ public class UserManagerTest
 
         User anon = securitySystem.getUser( securitySystem.getAnonymousUsername(), "default" );
 
-        Set<RoleIdentifier> roles = new HashSet<RoleIdentifier>();
+        Set<RoleKey> roles = new HashSet<RoleKey>();
 
-        roles.add( new RoleIdentifier( "default", "role3" ) );
+        roles.add( new RoleKey( "role3", "default" ) );
 
         securitySystem.setUsersRoles( anon.getUserId(), anon.getSource(), roles );
 
@@ -308,7 +310,7 @@ public class UserManagerTest
                 found = true;
 
                 Assert.assertEquals( 1, roleMapping.getRoles().size() );
-                Assert.assertEquals( "role3", roleMapping.getRoles().get( 0 ) );
+                Assert.assertEquals( toRoleKey( "role3", "default" ), roleMapping.getRoles().get( 0 ) );
             }
         }
 
@@ -360,7 +362,7 @@ public class UserManagerTest
     {
         List<String> roleIds = new ArrayList<String>();
 
-        for ( RoleIdentifier role : user.getRoles() )
+        for ( RoleKey role : user.getRoles() )
         {
             roleIds.add( role.getRoleId() );
         }

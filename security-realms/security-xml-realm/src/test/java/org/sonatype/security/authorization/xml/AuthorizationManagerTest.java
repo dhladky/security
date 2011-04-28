@@ -1,9 +1,9 @@
 package org.sonatype.security.authorization.xml;
+import static org.sonatype.security.util.ModelConversion.toRoleKey;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,6 +17,7 @@ import org.sonatype.security.authorization.NoSuchPrivilegeException;
 import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.authorization.Privilege;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CProperty;
 import org.sonatype.security.model.CRole;
@@ -73,7 +74,7 @@ public class AuthorizationManagerTest
 
         Role role3 = roleMap.get( "role3" );
 
-        Assert.assertEquals( "role3", role3.getRoleId() );
+        Assert.assertEquals( "role3", role3.getKey().getRoleId() );
         Assert.assertEquals( "RoleThree", role3.getName() );
         Assert.assertEquals( "Role Three", role3.getDescription() );
         Assert.assertTrue( role3.getPrivileges().contains( "1" ) );
@@ -86,9 +87,9 @@ public class AuthorizationManagerTest
     {
         AuthorizationManager authzManager = this.getAuthorizationManager();
 
-        Role role1 = authzManager.getRole( "role1", source );
+        Role role1 = authzManager.getRole( "role1", "default" );
 
-        Assert.assertEquals( "role1", role1.getRoleId() );
+        Assert.assertEquals( "role1", role1.getKey().getRoleId() );
         Assert.assertEquals( "RoleOne", role1.getName() );
         Assert.assertEquals( "Role One", role1.getDescription() );
         Assert.assertTrue( role1.getPrivileges().contains( "1" ) );
@@ -102,7 +103,7 @@ public class AuthorizationManagerTest
         AuthorizationManager authzManager = this.getAuthorizationManager();
 
         Role role = new Role();
-        role.setRoleId( "new-role" );
+        role.setKey( new RoleKey( "new-role", "default" ) );
         role.setName( "new-name" );
         role.setDescription( "new-description" );
         role.addPrivilege( "2" );
@@ -110,9 +111,10 @@ public class AuthorizationManagerTest
 
         authzManager.addRole(role );
 
-        CRole secRole = this.getConfigurationManager().readRole( role.getRoleId() );
+        CRole secRole = this.getConfigurationManager().readRole( toRoleKey( role.getKey() ) );
 
-        Assert.assertEquals( role.getRoleId(), secRole.getId() );
+        Assert.assertEquals( role.getKey().getRoleId(), secRole.getKey().getId() );
+        Assert.assertEquals( role.getKey().getSource(), secRole.getKey().getSource() );
         Assert.assertEquals( role.getName(), secRole.getName() );
         Assert.assertEquals( role.getDescription(), secRole.getDescription() );
         Assert.assertTrue( secRole.getPrivileges().contains( "2" ) );
@@ -126,7 +128,7 @@ public class AuthorizationManagerTest
     {
         AuthorizationManager authzManager = this.getAuthorizationManager();
 
-        Role role2 = authzManager.getRole( "role2", source );
+        Role role2 = authzManager.getRole( "role2", "default" );
         role2.setDescription( "new description" );
         role2.setName( "new name" );
 
@@ -136,9 +138,10 @@ public class AuthorizationManagerTest
 
         authzManager.updateRole( role2 );
 
-        CRole secRole = this.getConfigurationManager().readRole( role2.getRoleId() );
+        CRole secRole = this.getConfigurationManager().readRole( toRoleKey( role2.getKey() ) );
 
-        Assert.assertEquals( role2.getRoleId(), secRole.getId() );
+        Assert.assertEquals( role2.getKey().getRoleId(), secRole.getKey().getId() );
+        Assert.assertEquals( role2.getKey().getSource(), secRole.getKey().getSource() );
         Assert.assertEquals( role2.getName(), secRole.getName() );
         Assert.assertEquals( role2.getDescription(), secRole.getDescription() );
         Assert.assertTrue( secRole.getPrivileges().contains( "2" ) );
@@ -151,7 +154,7 @@ public class AuthorizationManagerTest
         AuthorizationManager authzManager = this.getAuthorizationManager();
         try
         {
-            authzManager.deleteRole( "INVALID-ROLENAME" );
+            authzManager.deleteRole( "INVALID-ROLENAME", "default" );
             Assert.fail( "Expected NoSuchRoleException" );
         }
         catch ( NoSuchRoleException e )
@@ -160,12 +163,12 @@ public class AuthorizationManagerTest
         }
 
         // this one will work
-        authzManager.deleteRole( "role2" );
+        authzManager.deleteRole( "role2", "default" );
 
         // this one should fail
         try
         {
-            authzManager.deleteRole( "role2" );
+            authzManager.deleteRole( "role2", "default" );
             Assert.fail( "Expected NoSuchRoleException" );
         }
         catch ( NoSuchRoleException e )
@@ -175,7 +178,7 @@ public class AuthorizationManagerTest
 
         try
         {
-            authzManager.getRole( "role2", source );
+            authzManager.getRole( "role2", "default" );
             Assert.fail( "Expected NoSuchRoleException" );
         }
         catch ( NoSuchRoleException e )
@@ -185,7 +188,7 @@ public class AuthorizationManagerTest
 
         try
         {
-            this.getConfigurationManager().readRole( "role2" );
+            this.getConfigurationManager().readRole( "role2", "default" );
             Assert.fail( "Expected NoSuchRoleException" );
         }
         catch ( NoSuchRoleException e )
@@ -201,7 +204,7 @@ public class AuthorizationManagerTest
 
         for ( Role role : roles )
         {
-            roleMap.put( role.getRoleId(), role );
+            roleMap.put( role.getKey().getRoleId(), role );
         }
 
         return roleMap;
@@ -355,7 +358,7 @@ public class AuthorizationManagerTest
     {
         Map<String, String> props = new HashMap<String, String>();
 
-        for ( CProperty prop : (List<CProperty>) secPriv.getProperties() )
+        for ( CProperty prop : secPriv.getProperties() )
         {
             props.put( prop.getKey(), prop.getValue() );
         }

@@ -7,9 +7,9 @@ import javax.enterprise.inject.Typed;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.usermanagement.AbstractReadOnlyUserManager;
 import org.sonatype.security.usermanagement.DefaultUser;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserManager;
 import org.sonatype.security.usermanagement.UserNotFoundException;
@@ -46,7 +46,7 @@ public class MockUserManager
         jcohen.setSource( "Mock" );
         jcohen.setStatus( UserStatus.active );
         jcohen.setUserId( "jcohen" );
-        jcohen.addRole( new RoleIdentifier( "Mock", "mockrole1" ) );
+        jcohen.addRole( new RoleKey( "mockrole1", "Mock" ) );
         users.add( jcohen );
 
         return users;

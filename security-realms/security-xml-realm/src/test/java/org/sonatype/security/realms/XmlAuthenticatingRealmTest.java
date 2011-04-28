@@ -26,6 +26,7 @@ import org.sonatype.guice.bean.containers.InjectedTestCase;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CProperty;
 import org.sonatype.security.model.CRole;
+import org.sonatype.security.model.CRoleKey;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.realms.tools.ConfigurationManager;
 import org.sonatype.security.realms.tools.DefaultConfigurationManager;
@@ -94,8 +95,11 @@ public class XmlAuthenticatingRealmTest
         user.setStatus( CUser.STATUS_ACTIVE );
         user.setId( "testCreateWithPassowrdEmailUserId" );
 
-        Set<String> roles = new HashSet<String>();
-        roles.add( "role" );
+        Set<CRoleKey> roles = new HashSet<CRoleKey>();
+        CRoleKey role = new CRoleKey();
+        role.setId( "role" );
+        role.setSource( "default" );
+        roles.add( role );
 
         configurationManager.createUser( user, clearPassword, roles );
 
@@ -169,7 +173,9 @@ public class XmlAuthenticatingRealmTest
 
         CRole role = new CRole();
         role.setName( "name" );
-        role.setId( "role" );
+        role.setKey( new CRoleKey() );
+        role.getKey().setId( "role" );
+        role.getKey().setSource( "default" );
         role.setDescription( "desc" );
         role.setSessionTimeout( 50 );
         role.addPrivilege( "priv" );
@@ -184,8 +190,11 @@ public class XmlAuthenticatingRealmTest
         user.setId( "username" );
         user.setPassword( StringDigester.getSha1Digest( "password" ) );
 
-        Set<String> roles = new HashSet<String>();
-        roles.add( "role" );
+        Set<CRoleKey> roles = new HashSet<CRoleKey>();
+        CRoleKey roleKey = new CRoleKey();
+        roleKey.setId( "role" );
+        roleKey.setSource( "default" );
+        roles.add( roleKey );
 
         configurationManager.createUser( user, roles );
         configurationManager.save();

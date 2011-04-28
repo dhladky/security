@@ -12,9 +12,11 @@
  */
 package org.sonatype.security.model.upgrade;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Map;
 
@@ -23,6 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -63,26 +66,34 @@ public class DefaultSecurityConfigurationUpgrader
             ConfigurationIsCorruptedException,
             UnsupportedConfigurationVersionException
     {
+        Reader r = new FileReader( file );
+
+        return loadOldConfiguration( r );
+    }
+
+    public Configuration loadOldConfiguration( Reader reader )
+        throws IOException, ConfigurationIsCorruptedException, UnsupportedConfigurationVersionException
+    {
+        byte[] bytes = IOUtil.toByteArray( reader );
+
         // try to find out the model version
         String modelVersion = null;
 
         try
         {
-            Reader r = new FileReader( file );
-
-            Xpp3Dom dom = Xpp3DomBuilder.build( r );
+            Xpp3Dom dom = Xpp3DomBuilder.build( new InputStreamReader( new ByteArrayInputStream( bytes ) ) );
 
             modelVersion = dom.getChild( "version" ).getValue();
         }
         catch ( XmlPullParserException e )
         {
-            throw new ConfigurationIsCorruptedException( file.getAbsolutePath(), e );
+            throw new ConfigurationIsCorruptedException( reader.toString(), e );
         }
 
         if ( Configuration.MODEL_VERSION.equals( modelVersion ) )
         {
             // we have a problem here, model version is OK but we could not load it previously?
-            throw new ConfigurationIsCorruptedException( file );
+            throw new ConfigurationIsCorruptedException( reader.toString() );
         }
 
         UpgradeMessage msg = new UpgradeMessage();
@@ -92,24 +103,23 @@ public class DefaultSecurityConfigurationUpgrader
         SecurityUpgrader upgrader = upgraders.get( msg.getModelVersion() );
 
         if ( upgrader != null )
-        {
-            logger.info(
-                "Upgrading old Security configuration file (version " + msg.getModelVersion() + ") from "
-                    + file.getAbsolutePath() );
-            
-            msg.setConfiguration( upgrader.loadConfiguration( file ) );
+                    {
+            logger.info( "Upgrading old Security configuration file (version " + msg.getModelVersion() + ") from "
+                + reader.toString() );
+
+            msg.setConfiguration( upgrader.loadConfiguration( new InputStreamReader( new ByteArrayInputStream( bytes ) ) ) );
 
             while ( !Configuration.MODEL_VERSION.equals( msg.getModelVersion() ) )
             {
-                
+
                 // an application might need to upgrade content, that is NOT part of the model
                 SecurityDataUpgrader dataUpgrader = this.dataUpgraders.get( msg.getModelVersion() );
-                
+
                 if ( upgrader != null )
                 {
                     upgrader.upgrade( msg );
-                    
-                    if( dataUpgrader != null)
+
+                    if ( dataUpgrader != null )
                     {
                         dataUpgrader.upgrade( msg.getConfiguration() );
                     }
@@ -117,21 +127,23 @@ public class DefaultSecurityConfigurationUpgrader
                 else
                 {
                     // we could parse the XML but have no model version? Is this security config at all?
-                    throw new UnsupportedConfigurationVersionException( modelVersion, file );
+                    // FIXME
+                    throw new UnsupportedConfigurationVersionException( modelVersion, new File( "security.xml" ) );
                 }
 
                 upgrader = upgraders.get( msg.getModelVersion() );
             }
 
-            logger.info(
-                "Security configuration file upgraded to current version " + msg.getModelVersion() + " succesfully." );
+            logger.info( "Security configuration file upgraded to current version " + msg.getModelVersion()
+                + " succesfully." );
 
             return (Configuration) msg.getConfiguration();
         }
         else
         {
             // we could parse the XML but have no model version? Is this security config at all?
-            throw new UnsupportedConfigurationVersionException( modelVersion, file );
+            // FIXME
+            throw new UnsupportedConfigurationVersionException( modelVersion, new File( "security.xml" ) );
         }
     }
 }

@@ -28,7 +28,7 @@ import org.sonatype.guice.bean.containers.InjectedTestCase;
 import org.sonatype.security.configuration.model.SecurityConfiguration;
 import org.sonatype.security.configuration.source.SecurityConfigurationSource;
 import org.sonatype.security.model.Configuration;
-import org.sonatype.security.model.io.xpp3.SecurityConfigurationXpp3Reader;
+import org.sonatype.security.model.upgrade.SecurityConfigurationUpgrader;
 
 public abstract class AbstractSecurityTestCase
     extends InjectedTestCase
@@ -42,6 +42,8 @@ public abstract class AbstractSecurityTestCase
     
     @Inject
     Map<String,Realm> realmMap;
+
+    private SecurityConfigurationUpgrader upgrader;
 
     @Override
     public void configure( Properties properties )
@@ -68,15 +70,14 @@ public abstract class AbstractSecurityTestCase
         source.storeConfiguration();
         
         this.lookup( SecuritySystem.class ).start();
+        upgrader = lookup( SecurityConfigurationUpgrader.class );
     }
 
     protected Configuration getConfigurationFromStream( InputStream is )
         throws Exception
     {
-        SecurityConfigurationXpp3Reader reader = new SecurityConfigurationXpp3Reader();
-
         Reader fr = new InputStreamReader( is );
 
-        return reader.read( fr );
+        return upgrader.loadOldConfiguration( fr );
     }
 }

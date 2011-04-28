@@ -2,7 +2,7 @@
 
 
 <security>
-  <version>2.0.4</version>
+  <version>2.4.0</version>
   <users>
     <user>
       <id>admin</id>
@@ -13,7 +13,6 @@
       </password>
       <status>active</status>
       <email>changeme@yourcompany.com</email>
-
     </user>
     <user>
       <id>test-user</id>
@@ -25,7 +24,6 @@
       </password>
       <status>active</status>
       <email>changeme1@yourcompany.com</email>
-
     </user>
     <user>
       <id>anonymous</id>
@@ -37,13 +35,15 @@
       </password>
       <status>active</status>
       <email>changeme2@yourcompany.com</email>
-
     </user>
   </users>
-  
+
   <roles>
     <role>
-      <id>role1</id>
+      <key>
+        <id>role1</id>
+        <source>default</source>
+      </key>
       <name>RoleOne</name>
       <description>Role One</description>
       <sessionTimeout>60</sessionTimeout>
@@ -53,7 +53,10 @@
       </privileges>
     </role>
     <role>
-      <id>role2</id>
+      <key>
+        <id>role2</id>
+        <source>default</source>
+      </key>
       <name>RoleTwo</name>
       <description>Role Two</description>
       <sessionTimeout>60</sessionTimeout>
@@ -63,7 +66,10 @@
       </privileges>
     </role>
     <role>
-      <id>role3</id>
+      <key>
+        <id>role3</id>
+        <source>default</source>
+      </key>
       <name>RoleThree</name>
       <description>Role Three</description>
       <sessionTimeout>60</sessionTimeout>
@@ -73,108 +79,123 @@
       </privileges>
     </role>
   </roles>
-  
-  
-  <privileges>      
-      <privilege>
-        <id>1</id>
-        <name>1</name>
-        <type>method</type>
-        <properties>
-          <property>
-            <key>method</key>
-            <value>read</value>
-          </property>
-          <property>
-            <key>permission</key>
-            <value>/some/path/</value>
-          </property>
-        </properties>
-      </privilege>
-      <privilege>
-        <id>2</id>
-        <name>2</name>
-        <type>method</type>
-        <properties>
-          <property>
-            <key>method</key>
-            <value>read</value>
-          </property>
-          <property>
-            <key>permission</key>
-            <value>/some/path/</value>
-          </property>
-        </properties>
-      </privilege>
-      <privilege>
-        <id>3</id>
-        <name>3</name>
-        <type>method</type>
-        <properties>
-          <property>
-            <key>method</key>
-            <value>read</value>
-          </property>
-          <property>
-            <key>permission</key>
-            <value>/some/path/</value>
-          </property>
-        </properties>
-      </privilege>
-      <privilege>
-        <id>4</id>
-        <name>4</name>
-        <type>method</type>
-        <properties>
-          <property>
-            <key>method</key>
-            <value>read</value>
-          </property>
-          <property>
-            <key>permission</key>
-            <value>/some/path/</value>
-          </property>
-        </properties>
-      </privilege>      
-    </privileges>
-  
+
+  <privileges>
+    <privilege>
+      <id>1</id>
+      <name>1</name>
+      <type>method</type>
+      <properties>
+        <property>
+          <key>method</key>
+          <value>read</value>
+        </property>
+        <property>
+          <key>permission</key>
+          <value>/some/path/</value>
+        </property>
+      </properties>
+    </privilege>
+    <privilege>
+      <id>2</id>
+      <name>2</name>
+      <type>method</type>
+      <properties>
+        <property>
+          <key>method</key>
+          <value>read</value>
+        </property>
+        <property>
+          <key>permission</key>
+          <value>/some/path/</value>
+        </property>
+      </properties>
+    </privilege>
+    <privilege>
+      <id>3</id>
+      <name>3</name>
+      <type>method</type>
+      <properties>
+        <property>
+          <key>method</key>
+          <value>read</value>
+        </property>
+        <property>
+          <key>permission</key>
+          <value>/some/path/</value>
+        </property>
+      </properties>
+    </privilege>
+    <privilege>
+      <id>4</id>
+      <name>4</name>
+      <type>method</type>
+      <properties>
+        <property>
+          <key>method</key>
+          <value>read</value>
+        </property>
+        <property>
+          <key>permission</key>
+          <value>/some/path/</value>
+        </property>
+      </properties>
+    </privilege>
+  </privileges>
+
   <userRoleMappings>
     <userRoleMapping>
       <userId>other-user</userId>
       <source>default</source>
       <roles>
-        <role>role2</role>
-        <role>role3</role>
+        <role>
+          <id>role3</id>
+          <source>default</source>
+        </role>
+        <role>
+          <id>role2</id>
+          <source>default</source>
+        </role>
       </roles>
-
     </userRoleMapping>
-    
-    
+
     <userRoleMapping>
       <userId>admin</userId>
       <source>default</source>
       <roles>
-        <role>role1</role>
+        <role>
+          <id>role1</id>
+          <source>default</source>
+        </role>
       </roles>
 
     </userRoleMapping>
-    
-    
+
+
     <userRoleMapping>
       <userId>test-user</userId>
       <source>default</source>
       <roles>
-        <role>role1</role>
-        <role>role2</role>
+        <role>
+          <id>role1</id>
+          <source>default</source>
+        </role>
+        <role>
+          <id>role2</id>
+          <source>default</source>
+        </role>
       </roles>
 
     </userRoleMapping>
-    
+
     <userRoleMapping>
       <userId>anonymous</userId>
       <source>default</source>
       <roles>
-        <role>role2</role>
+        <role>
+          <id>role2</id>
+          <source>default</source>
+        </role>
       </roles>
 
     </userRoleMapping>

@@ -15,10 +15,9 @@ package org.sonatype.security.locators;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.usermanagement.AbstractReadOnlyUserManager;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.User;
-import org.sonatype.security.usermanagement.UserNotFoundException;
 import org.sonatype.security.usermanagement.UserSearchCriteria;
 
 public abstract class AbstractTestUserManager
@@ -55,9 +54,9 @@ public abstract class AbstractTestUserManager
         return this.filterListInMemeory( this.listUsers(), criteria );
     }
 
-    protected RoleIdentifier createFakeRole( String roleId )
+    protected RoleKey createFakeRole( String roleId )
     {
-        RoleIdentifier role = new RoleIdentifier(  this.getSource(), roleId );
+        RoleKey role = new RoleKey( roleId, "default" );
         return role;
     }
 }

@@ -149,6 +149,12 @@ public interface ConfigurationManager
         throws NoSuchRoleException;
 
     /**
+     * Retrieve an existing role
+     */
+    CRole readRole( CRoleKey key )
+        throws NoSuchRoleException;
+
+    /**
      * Retrieve an existing privilege
      * 
      * @param id

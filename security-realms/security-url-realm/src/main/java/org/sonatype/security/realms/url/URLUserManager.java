@@ -23,12 +23,12 @@ import javax.inject.Singleton;
 
 import org.codehaus.plexus.util.StringUtils;
 import org.sonatype.inject.Description;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.realms.tools.ConfigurationManager;
 import org.sonatype.security.realms.url.config.UrlRealmConfiguration;
 import org.sonatype.security.usermanagement.AbstractReadOnlyUserManager;
 import org.sonatype.security.usermanagement.DefaultUser;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserManager;
 import org.sonatype.security.usermanagement.UserSearchCriteria;
@@ -201,7 +201,7 @@ public class URLUserManager
 
         if ( addDefaultRole )
         {
-            user.addRole( new RoleIdentifier( SOURCE, defaultRole ) );
+            user.addRole( new RoleKey( defaultRole, SOURCE ) );
         }
 
         return user;

@@ -72,7 +72,7 @@ public class Role implements Comparable<Role>
 
     public void addRole( RoleKey role )
     {
-        this.roles.add( role );
+        getRoles().add( role );
     }
     
     public void setRoles( Set<RoleKey> roles )
@@ -82,12 +82,16 @@ public class Role implements Comparable<Role>
 
     public Set<String> getPrivileges()
     {
+        if ( privileges == null )
+        {
+            privileges = new LinkedHashSet<String>();
+        }
         return privileges;
     }
 
     public void addPrivilege( String privilege )
     {
-        this.privileges.add( privilege );
+        getPrivileges().add( privilege );
     }
 
     public void setPrivileges( Set<String> privilege )

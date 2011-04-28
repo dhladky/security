@@ -93,7 +93,7 @@ public class ModelConversion
     {
         CRoleKey ckey = new CRoleKey();
         ckey.setId( key.getRoleId() );
-        ckey.setSource( ckey.getSource() );
+        ckey.setSource( key.getSource() );
         return ckey;
     }
 

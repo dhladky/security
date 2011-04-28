@@ -297,6 +297,12 @@ public class DefaultConfigurationManager
         }
     }
 
+    public CRole readRole( CRoleKey key )
+        throws NoSuchRoleException
+    {
+        return readRole( key.getId(), key.getSource() );
+    }
+
     public CRole readRole( String id, String source )
         throws NoSuchRoleException
     {

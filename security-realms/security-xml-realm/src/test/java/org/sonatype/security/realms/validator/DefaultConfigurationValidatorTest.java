@@ -12,6 +12,8 @@
  */
 package org.sonatype.security.realms.validator;
 
+import static org.sonatype.security.util.ModelConversion.toRoleKey;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -22,20 +24,21 @@ import org.sonatype.configuration.validation.ValidationResponse;
 import org.sonatype.guice.bean.containers.InjectedTestCase;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CRole;
+import org.sonatype.security.model.CRoleKey;
 import org.sonatype.security.model.Configuration;
 import org.sonatype.security.model.io.xpp3.SecurityConfigurationXpp3Reader;
-
 public class DefaultConfigurationValidatorTest
     extends InjectedTestCase
 {
     protected SecurityConfigurationValidator configurationValidator;
 
+    @Override
     public void setUp()
         throws Exception
     {
         super.setUp();
 
-        this.configurationValidator = (SecurityConfigurationValidator) lookup( SecurityConfigurationValidator.class );
+        this.configurationValidator = lookup( SecurityConfigurationValidator.class );
     }
 
     protected Configuration getConfigurationFromStream( InputStream is )
@@ -76,7 +79,7 @@ public class DefaultConfigurationValidatorTest
 
         assertTrue( response.isModified() );
 
-        assertEquals( 2, response.getValidationWarnings().size() );
+        assertEquals( 1, response.getValidationWarnings().size() );
 
         assertEquals( 13, response.getValidationErrors().size() );
     }
@@ -110,43 +113,43 @@ public class DefaultConfigurationValidatorTest
         context.getExistingPrivilegeIds().add( "priv" );
 
         CRole role1 = new CRole();
-        role1.setId( "role1" );
+        role1.setKey( toRoleKey( "role1", "default" ) );
         role1.setName( "role1" );
         role1.setDescription( "desc" );
         role1.setSessionTimeout( 50 );
         role1.addPrivilege( priv.getId() );
-        role1.addRole( "role2" );
-        ArrayList<String> containedRoles = new ArrayList<String>();
-        containedRoles.add( "role2" );
+        role1.addRole( toRoleKey( "role2", "default" ) );
+        ArrayList<CRoleKey> containedRoles = new ArrayList<CRoleKey>();
+        containedRoles.add( toRoleKey( "role2", "default" ) );
         context.addExistingRoleIds();
-        context.getExistingRoleIds().add( "role1" );
-        context.getRoleContainmentMap().put( "role1", containedRoles );
+        context.addExistingRoleIds( role1.getKey() );
+        context.getRoleContainmentMap().put( role1.getKey(), containedRoles );
 
         CRole role2 = new CRole();
-        role2.setId( "role2" );
+        role2.setKey( toRoleKey( "role2", "default" ) );
         role2.setName( "role2" );
         role2.setDescription( "desc" );
         role2.setSessionTimeout( 50 );
         role2.addPrivilege( priv.getId() );
-        role2.addRole( "role3" );
-        containedRoles = new ArrayList<String>();
-        containedRoles.add( "role3" );
+        role2.addRole( toRoleKey( "role3", "default" ) );
+        containedRoles = new ArrayList<CRoleKey>();
+        containedRoles.add( toRoleKey( "role3", "default" ) );
         context.addExistingRoleIds();
-        context.getExistingRoleIds().add( "role2" );
-        context.getRoleContainmentMap().put( "role2", containedRoles );
+        context.addExistingRoleIds( role2.getKey() );
+        context.getRoleContainmentMap().put( role2.getKey(), containedRoles );
 
         CRole role3 = new CRole();
-        role3.setId( "role3" );
+        role3.setKey( toRoleKey( "role3", "default" ) );
         role3.setName( "role3" );
         role3.setDescription( "desc" );
         role3.setSessionTimeout( 50 );
         role3.addPrivilege( priv.getId() );
-        role3.addRole( "role1" );
-        containedRoles = new ArrayList<String>();
-        containedRoles.add( "role1" );
+        role3.addRole( role1.getKey() );
+        containedRoles = new ArrayList<CRoleKey>();
+        containedRoles.add( role1.getKey() );
         context.addExistingRoleIds();
-        context.getExistingRoleIds().add( "role3" );
-        context.getRoleContainmentMap().put( "role3", containedRoles );
+        context.addExistingRoleIds( role3.getKey() );
+        context.getRoleContainmentMap().put( role3.getKey(), containedRoles );
 
         ValidationResponse vr = configurationValidator.validateRoleContainment( context );
 

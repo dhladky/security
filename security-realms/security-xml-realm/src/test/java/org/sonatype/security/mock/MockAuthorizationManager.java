@@ -13,6 +13,7 @@ import org.sonatype.security.authorization.NoSuchPrivilegeException;
 import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.authorization.Privilege;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 
 @Singleton
 @Named( value = "Mock" )
@@ -29,9 +30,9 @@ public class MockAuthorizationManager extends AbstractReadOnlyAuthorizationManag
     {
         Set<Role> roles = new HashSet<Role>();
         
-        roles.add( new Role( "mockrole1", "MockRole1", "Mock Role1", "Mock", true, null, null ) );
-        roles.add( new Role( "mockrole2", "MockRole2", "Mock Role2", "Mock", true, null, null ) );
-        roles.add( new Role( "mockrole3", "MockRole3", "Mock Role3", "Mock", true, null, null ) );
+        roles.add( new Role( new RoleKey( "mockrole1", "MockRole1" ), "Mock Role1", "Mock", true, null, null ) );
+        roles.add( new Role( new RoleKey( "mockrole2", "MockRole2" ), "Mock Role2", "Mock", true, null, null ) );
+        roles.add( new Role( new RoleKey( "mockrole3", "MockRole3" ), "Mock Role3", "Mock", true, null, null ) );
         
         return roles;
     }
@@ -41,7 +42,7 @@ public class MockAuthorizationManager extends AbstractReadOnlyAuthorizationManag
     {
         for ( Role role : this.listRoles() )
         {
-            if( roleId.equals( role.getRoleId() ) )
+            if ( roleId.equals( role.getKey().getRoleId() ) && source.equals( role.getKey().getSource() ) )
             {
                 return role;
             }

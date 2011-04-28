@@ -15,9 +15,8 @@ package org.sonatype.security.model.upgrade;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
+import java.io.Reader;
 import java.util.List;
-import java.util.Map;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Named;
@@ -42,23 +41,14 @@ public class Upgrade201to202
     private static String DEFAULT_SOURCE = "default";
     
     public Object loadConfiguration( File file )
-        throws IOException,
-            ConfigurationIsCorruptedException
+        throws IOException, ConfigurationIsCorruptedException
     {
         FileReader fr = null;
-
+        // reading without interpolation to preserve user settings as variables
         try
         {
-            // reading without interpolation to preserve user settings as variables
             fr = new FileReader( file );
-
-            SecurityConfigurationXpp3Reader reader = new SecurityConfigurationXpp3Reader();
-
-            return reader.read( fr );
-        }
-        catch ( XmlPullParserException e )
-        {
-            throw new ConfigurationIsCorruptedException( file.getAbsolutePath(), e );
+            return loadConfiguration( fr );
         }
         finally
         {
@@ -66,6 +56,22 @@ public class Upgrade201to202
             {
                 fr.close();
             }
+        }
+    }
+
+    @Override
+    public Object loadConfiguration( Reader fr )
+        throws IOException, ConfigurationIsCorruptedException
+    {
+        try
+        {
+            SecurityConfigurationXpp3Reader reader = new SecurityConfigurationXpp3Reader();
+
+            return reader.read( fr );
+        }
+        catch ( XmlPullParserException e )
+        {
+            throw new ConfigurationIsCorruptedException( fr.toString(), e );
         }
     }
 
@@ -78,7 +84,7 @@ public class Upgrade201to202
 
         newc.setVersion( org.sonatype.security.model.Configuration.MODEL_VERSION );
 
-        for ( CUser oldu : (List<CUser>) oldc.getUsers() )
+        for ( CUser oldu : oldc.getUsers() )
         {
             org.sonatype.security.model.v2_0_2.CUser newu = new org.sonatype.security.model.v2_0_2.CUser();
 
@@ -94,9 +100,7 @@ public class Upgrade201to202
             newc.addUser( newu );
         }
 
-        Map<String, String> roleIdMap = new HashMap<String, String>();
-
-        for ( CRole oldr : (List<CRole>) oldc.getRoles() )
+        for ( CRole oldr : oldc.getRoles() )
         {
                 org.sonatype.security.model.v2_0_2.CRole newr = new org.sonatype.security.model.v2_0_2.CRole();
 
@@ -111,7 +115,7 @@ public class Upgrade201to202
 
         }
 
-        for ( CPrivilege oldp : (List<CPrivilege>) oldc.getPrivileges() )
+        for ( CPrivilege oldp : oldc.getPrivileges() )
         {
                 org.sonatype.security.model.v2_0_2.CPrivilege newp = new org.sonatype.security.model.v2_0_2.CPrivilege();
 
@@ -120,7 +124,7 @@ public class Upgrade201to202
                 newp.setName( oldp.getName() );
                 newp.setType( oldp.getType() );
 
-                for ( CProperty oldprop : (List<CProperty>) oldp.getProperties() )
+                for ( CProperty oldprop : oldp.getProperties() )
                 {
                     org.sonatype.security.model.v2_0_2.CProperty newprop = new org.sonatype.security.model.v2_0_2.CProperty();
                     newprop.setKey( oldprop.getKey() );

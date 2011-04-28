@@ -31,6 +31,7 @@ import org.sonatype.security.SecuritySystem;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CProperty;
 import org.sonatype.security.model.CRole;
+import org.sonatype.security.model.CRoleKey;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.realms.privileges.application.ApplicationPrivilegeDescriptor;
 import org.sonatype.security.realms.privileges.application.ApplicationPrivilegeMethodPropertyDescriptor;
@@ -169,7 +170,9 @@ public class XmlAuthorizingRealmTest
         configurationManager.createPrivilege( priv );
 
         CRole role = new CRole();
-        role.setId( "role" );
+        role.setKey( new CRoleKey() );
+        role.getKey().setId( "role" );
+        role.getKey().setSource( "default" );
         role.setName( "somerole" );
         role.setDescription( "somedescription" );
         role.setSessionTimeout( 60 );
@@ -185,8 +188,8 @@ public class XmlAuthorizingRealmTest
         user.setId( userId );
         user.setPassword( "password" );
 
-        Set<String> roles = new HashSet<String>();
-        roles.add( role.getId() );
+        Set<CRoleKey> roles = new HashSet<CRoleKey>();
+        roles.add( role.getKey() );
 
         configurationManager.createUser( user, roles );
 

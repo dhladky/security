@@ -12,6 +12,11 @@
  */
 package org.sonatype.security.model.upgrade;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+
+import org.sonatype.configuration.upgrade.ConfigurationIsCorruptedException;
 import org.sonatype.configuration.upgrade.SingleVersionUpgrader;
 
 
@@ -22,4 +27,11 @@ import org.sonatype.configuration.upgrade.SingleVersionUpgrader;
  */
 public interface SecurityUpgrader extends SingleVersionUpgrader
 {
+    @Deprecated
+    Object loadConfiguration( File file )
+        throws IOException, ConfigurationIsCorruptedException;
+
+    Object loadConfiguration( Reader reader )
+        throws IOException, ConfigurationIsCorruptedException;
+
 }

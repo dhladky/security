@@ -15,6 +15,7 @@ package org.sonatype.security.model.upgrade;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -41,23 +42,14 @@ public class Upgrade200to201
     implements SecurityUpgrader
 {
     public Object loadConfiguration( File file )
-        throws IOException,
-            ConfigurationIsCorruptedException
+        throws IOException, ConfigurationIsCorruptedException
     {
         FileReader fr = null;
-
+        // reading without interpolation to preserve user settings as variables
         try
         {
-            // reading without interpolation to preserve user settings as variables
             fr = new FileReader( file );
-
-            SecurityConfigurationXpp3Reader reader = new SecurityConfigurationXpp3Reader();
-
-            return reader.read( fr );
-        }
-        catch ( XmlPullParserException e )
-        {
-            throw new ConfigurationIsCorruptedException( file.getAbsolutePath(), e );
+            return loadConfiguration( fr );
         }
         finally
         {
@@ -68,7 +60,22 @@ public class Upgrade200to201
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
+    public Object loadConfiguration( Reader fr )
+        throws IOException, ConfigurationIsCorruptedException
+    {
+        try
+        {
+            SecurityConfigurationXpp3Reader reader = new SecurityConfigurationXpp3Reader();
+
+            return reader.read( fr );
+        }
+        catch ( XmlPullParserException e )
+        {
+            throw new ConfigurationIsCorruptedException( fr.toString(), e );
+        }
+    }
+
     public void upgrade( UpgradeMessage message )
         throws ConfigurationIsCorruptedException
     {
@@ -78,7 +85,7 @@ public class Upgrade200to201
 
         newc.setVersion( org.sonatype.security.model.v2_0_1.Configuration.MODEL_VERSION );
 
-        for ( CUser oldu : (List<CUser>) oldc.getUsers() )
+        for ( CUser oldu : oldc.getUsers() )
         {
             org.sonatype.security.model.v2_0_1.CUser newu = new org.sonatype.security.model.v2_0_1.CUser();
 
@@ -94,7 +101,7 @@ public class Upgrade200to201
         
         List<RoleMap> roleMapList = new ArrayList<RoleMap>();
 
-        for ( CRole oldr : (List<CRole>) oldc.getRoles() )
+        for ( CRole oldr : oldc.getRoles() )
         {
             // Simplest case, not an internal role, just copy
             if ( !getRolesToRemove().contains( oldr.getId() ) )
@@ -129,7 +136,7 @@ public class Upgrade200to201
             // else the role will be removed, if it is now internal, and the user hasn't changed it
         }
 
-        for ( CPrivilege oldp : (List<CPrivilege>) oldc.getPrivileges() )
+        for ( CPrivilege oldp : oldc.getPrivileges() )
         {
             if ( !getPrivsToRemove().contains( oldp.getId() ) )
             {
@@ -140,7 +147,7 @@ public class Upgrade200to201
                 newp.setName( oldp.getName() );
                 newp.setType( oldp.getType() );
                 
-                for ( CProperty oldprop : ( List<CProperty> ) oldp.getProperties() )
+                for ( CProperty oldprop : oldp.getProperties() )
                 {
                     org.sonatype.security.model.v2_0_1.CProperty newprop = new org.sonatype.security.model.v2_0_1.CProperty();
                     newprop.setKey( oldprop.getKey() );
@@ -164,10 +171,9 @@ public class Upgrade200to201
         message.setConfiguration( newc );
     }
     
-    @SuppressWarnings("unchecked")
     private void applyNewRepoRoles( org.sonatype.security.model.v2_0_1.Configuration config )
     {
-        for ( org.sonatype.security.model.v2_0_1.CUser user : ( List<org.sonatype.security.model.v2_0_1.CUser> )config.getUsers() )
+        for ( org.sonatype.security.model.v2_0_1.CUser user : config.getUsers() )
         {
             if ( user.getRoles().contains( "anonymous" ) )
             {
@@ -180,7 +186,7 @@ public class Upgrade200to201
             }
         }
         
-        for ( org.sonatype.security.model.v2_0_1.CRole role : ( List<org.sonatype.security.model.v2_0_1.CRole> )config.getRoles() )
+        for ( org.sonatype.security.model.v2_0_1.CRole role : config.getRoles() )
         {
             if ( role.getRoles().contains( "anonymous" ) )
             {
@@ -194,10 +200,9 @@ public class Upgrade200to201
         }
     }
     
-    @SuppressWarnings("unchecked")
     private void applyArchivedRoles( RoleMap roleMap, org.sonatype.security.model.v2_0_1.Configuration config )
     {
-        for ( org.sonatype.security.model.v2_0_1.CUser user : ( List<org.sonatype.security.model.v2_0_1.CUser> )config.getUsers() )
+        for ( org.sonatype.security.model.v2_0_1.CUser user : config.getUsers() )
         {
             if ( user.getRoles().contains( roleMap.oldId ) )
             {
@@ -207,7 +212,7 @@ public class Upgrade200to201
             }
         }
         
-        for ( org.sonatype.security.model.v2_0_1.CRole role : ( List<org.sonatype.security.model.v2_0_1.CRole> )config.getRoles() )
+        for ( org.sonatype.security.model.v2_0_1.CRole role : config.getRoles() )
         {
             if ( role.getRoles().contains( roleMap.oldId ) )
             {
@@ -560,16 +565,6 @@ public class Upgrade200to201
         {
             this.oldId = oldId;
             this.newId = newId;
-        }
-        
-        public String getNewId()
-        {
-            return newId;
-        }
-        
-        public String getOldId()
-        {
-            return oldId;
         }
     }
 }

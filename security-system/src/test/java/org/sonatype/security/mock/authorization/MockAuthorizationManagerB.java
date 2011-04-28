@@ -49,7 +49,7 @@ public class MockAuthorizationManagerB
 
         Role role2 = new Role();
         role2.setName( "Role 2" );
-        role1.setKey( new RoleKey( "test-role-2", getSource() ) );
+        role2.setKey( new RoleKey( "test-role-2", getSource() ) );
         role2.addPrivilege( "from-role2:read" );
         role2.addPrivilege( "from-role2:delete" );
 

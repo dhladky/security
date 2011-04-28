@@ -15,7 +15,7 @@ package org.sonatype.security.model.upgrade;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.List;
+import java.io.Reader;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Named;
@@ -39,23 +39,14 @@ public class Upgrade100to200
     implements SecurityUpgrader
 {
     public Object loadConfiguration( File file )
-        throws IOException,
-            ConfigurationIsCorruptedException
+        throws IOException, ConfigurationIsCorruptedException
     {
         FileReader fr = null;
-
+        // reading without interpolation to preserve user settings as variables
         try
         {
-            // reading without interpolation to preserve user settings as variables
             fr = new FileReader( file );
-
-            SecurityLegacyConfigurationXpp3Reader reader = new SecurityLegacyConfigurationXpp3Reader();
-
-            return reader.read( fr );
-        }
-        catch ( XmlPullParserException e )
-        {
-            throw new ConfigurationIsCorruptedException( file.getAbsolutePath(), e );
+            return loadConfiguration( fr );
         }
         finally
         {
@@ -63,6 +54,23 @@ public class Upgrade100to200
             {
                 fr.close();
             }
+        }
+    }
+
+    @Override
+    public Object loadConfiguration( Reader fr )
+        throws IOException, ConfigurationIsCorruptedException
+    {
+
+        try
+        {
+            SecurityLegacyConfigurationXpp3Reader reader = new SecurityLegacyConfigurationXpp3Reader();
+
+            return reader.read( fr );
+        }
+        catch ( XmlPullParserException e )
+        {
+            throw new ConfigurationIsCorruptedException( fr.toString(), e );
         }
     }
 
@@ -75,7 +83,7 @@ public class Upgrade100to200
 
         newc.setVersion( org.sonatype.security.model.v2_0_0.Configuration.MODEL_VERSION );
 
-        for ( CUser oldu : (List<CUser>) oldc.getUsers() )
+        for ( CUser oldu : oldc.getUsers() )
         {
             org.sonatype.security.model.v2_0_0.CUser newu = new org.sonatype.security.model.v2_0_0.CUser();
 
@@ -89,7 +97,7 @@ public class Upgrade100to200
             newc.addUser( newu );
         }
 
-        for ( CRole oldr : (List<CRole>) oldc.getRoles() )
+        for ( CRole oldr : oldc.getRoles() )
         {
             org.sonatype.security.model.v2_0_0.CRole newr = new org.sonatype.security.model.v2_0_0.CRole();
 
@@ -103,7 +111,7 @@ public class Upgrade100to200
             newc.addRole( newr );
         }
 
-        for ( CRepoTargetPrivilege oldp : (List<CRepoTargetPrivilege>) oldc.getRepositoryTargetPrivileges() )
+        for ( CRepoTargetPrivilege oldp : oldc.getRepositoryTargetPrivileges() )
         {
             org.sonatype.security.model.v2_0_0.CPrivilege newp = new org.sonatype.security.model.v2_0_0.CPrivilege();
 
@@ -141,7 +149,7 @@ public class Upgrade100to200
             newc.addPrivilege( newp );
         }
 
-        for ( CApplicationPrivilege oldp : (List<CApplicationPrivilege>) oldc.getApplicationPrivileges() )
+        for ( CApplicationPrivilege oldp : oldc.getApplicationPrivileges() )
         {
             org.sonatype.security.model.v2_0_0.CPrivilege newp = new org.sonatype.security.model.v2_0_0.CPrivilege();
 

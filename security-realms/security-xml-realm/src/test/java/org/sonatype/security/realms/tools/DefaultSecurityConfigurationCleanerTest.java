@@ -12,21 +12,17 @@
  */
 package org.sonatype.security.realms.tools;
 
-import java.util.List;
-
 import org.sonatype.security.AbstractSecurityTestCase;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CRole;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.model.Configuration;
-import org.sonatype.security.realms.tools.DefaultSecurityConfigurationCleaner;
-import org.sonatype.security.realms.tools.SecurityConfigurationCleaner;
 
 public class DefaultSecurityConfigurationCleanerTest
     extends AbstractSecurityTestCase
 {
     private DefaultSecurityConfigurationCleaner cleaner;
-    
+
     @Override
     protected void setUp()
         throws Exception
@@ -42,13 +38,13 @@ public class DefaultSecurityConfigurationCleanerTest
         Configuration configuration = getConfigurationFromStream( getClass().getResourceAsStream(
         "/org/sonatype/security/realms/tools/cleaner-security.xml" ) );
         
-        CPrivilege priv = ( CPrivilege ) configuration.getPrivileges().get(0);
+        CPrivilege priv = configuration.getPrivileges().get(0);
         
         configuration.removePrivilege( priv );
         
         cleaner.privilegeRemoved( configuration, priv.getId() );
         
-        for ( CRole role : ( List<CRole> ) configuration.getRoles() )
+        for ( CRole role : configuration.getRoles() )
         {
             assertFalse( role.getPrivileges().contains( priv.getId() ) );
         }
@@ -60,20 +56,20 @@ public class DefaultSecurityConfigurationCleanerTest
         Configuration configuration = getConfigurationFromStream( getClass().getResourceAsStream(
         "/org/sonatype/security/realms/tools/cleaner-security.xml" ) );
         
-        CRole role = ( CRole ) configuration.getRoles().get( 0 );
+        CRole role = configuration.getRoles().get( 0 );
         
         configuration.removeRole( role );
         
-        cleaner.roleRemoved( configuration, role.getId(), source );
+        cleaner.roleRemoved( configuration, role.getKey() );
         
-        for ( CRole crole : ( List<CRole> ) configuration.getRoles() )
+        for ( CRole crole : configuration.getRoles() )
         {
-            assertFalse( crole.getPrivileges().contains( role.getId() ) );
+            assertFalse( crole.getPrivileges().contains( role.getKey().getId() ) );
         }
         
-        for ( CUserRoleMapping mapping : ( List<CUserRoleMapping> ) configuration.getUserRoleMappings() )
+        for ( CUserRoleMapping mapping : configuration.getUserRoleMappings() )
         {
-            assertFalse( mapping.getRoles().contains( role.getId() ) );
+            assertFalse( mapping.getRoles().contains( role.getKey().getId() ) );
         }
     }
 }

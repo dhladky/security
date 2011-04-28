@@ -116,4 +116,13 @@ public class SecurityValidationContext implements ValidationContext
         return existingUserRoleMap;
     }
 
+    public void addExistingRoleIds( CRoleKey roleKey )
+    {
+        if ( !existingRoleIds.containsKey( roleKey.getSource() ) )
+        {
+            existingRoleIds.put( roleKey.getSource(), new ArrayList<String>() );
+        }
+        existingRoleIds.get( roleKey.getSource() ).add( roleKey.getId() );
+    }
+
 }

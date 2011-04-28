@@ -21,8 +21,7 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
-import org.sonatype.security.authorization.AuthorizationException;
-import org.sonatype.security.usermanagement.RoleIdentifier;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.usermanagement.UserManager;
 import org.sonatype.security.usermanagement.UserNotFoundException;
 
@@ -44,7 +43,7 @@ public class MockRealm extends AuthorizingRealm
         Set<String> roles = new HashSet<String>();
         try
         {
-            for ( RoleIdentifier roleIdentifier : userManager.getUser( userId ).getRoles() )
+            for ( RoleKey roleIdentifier : userManager.getUser( userId ).getRoles() )
             {
                 roles.add( roleIdentifier.getRoleId() );
             }

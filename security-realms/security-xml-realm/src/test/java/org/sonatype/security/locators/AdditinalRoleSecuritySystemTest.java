@@ -12,6 +12,8 @@
  */
 package org.sonatype.security.locators;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -20,12 +22,13 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
+import org.hamcrest.MatcherAssert;
 import org.sonatype.security.AbstractSecurityTestCase;
 import org.sonatype.security.SecuritySystem;
 import org.sonatype.security.authorization.AuthorizationManager;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.realms.tools.StaticSecurityResource;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserSearchCriteria;
 
@@ -54,15 +57,15 @@ public class AdditinalRoleSecuritySystemTest
         binder.bind( StaticSecurityResource.class ).annotatedWith( Names.named( "mock" ) ).to( MockStaticSecurityResource.class );
     }
 
-    private Set<String> getXMLRoles()
+    private Set<RoleKey> getXMLRoles()
         throws Exception
     {
         AuthorizationManager authzManager = this.lookup( AuthorizationManager.class );
 
-        Set<String> roles = new HashSet<String>();
+        Set<RoleKey> roles = new HashSet<RoleKey>();
         for ( Role role : authzManager.listRoles() )
         {
-            roles.add( role.getRoleId() );
+            roles.add( role.getKey() );
         }
 
         return roles;
@@ -88,12 +91,8 @@ public class AdditinalRoleSecuritySystemTest
 
         // A,B,C,1
         Set<String> roleIds = this.toRoleIdSet( user.getRoles() );
-        Assert.assertTrue( roleIds.contains( "RoleA" ) );
-        Assert.assertTrue( roleIds.contains( "RoleB" ) );
-        Assert.assertTrue( roleIds.contains( "RoleC" ) );
-        Assert.assertTrue( "roles: " + this.toRoleIdSet( user.getRoles() ), roleIds.contains( "Role1" ) );
-
         Assert.assertEquals( "roles: " + this.toRoleIdSet( user.getRoles() ), 4, user.getRoles().size() );
+        MatcherAssert.assertThat( roleIds, containsInAnyOrder( "RoleA", "RoleB", "RoleC", "Role1" ) );
 
         user = userMap.get( "dknudsen" );
         Assert.assertNotNull( user );
@@ -206,7 +205,7 @@ public class AdditinalRoleSecuritySystemTest
         throws Exception
     {
         UserSearchCriteria criteria = new UserSearchCriteria();
-        criteria.getOneOfRoleIds().add( "Role1" );
+        criteria.getOneOfRoleIds().add( new RoleKey( "Role1", "default" ) );
 
         Set<User> result = this.getSecuritySystem().searchUsers( criteria );
 
@@ -248,10 +247,10 @@ public class AdditinalRoleSecuritySystemTest
         return map;
     }
 
-    private Set<String> toRoleIdSet( Set<RoleIdentifier> roles )
+    private Set<String> toRoleIdSet( Set<RoleKey> roles )
     {
         Set<String> roleIds = new HashSet<String>();
-        for ( RoleIdentifier role : roles )
+        for ( RoleKey role : roles )
         {
             roleIds.add( role.getRoleId() );
         }

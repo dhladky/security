@@ -12,7 +12,13 @@
  */
 package org.sonatype.security.model.upgrade;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+
+import org.sonatype.configuration.upgrade.ConfigurationIsCorruptedException;
 import org.sonatype.configuration.upgrade.ConfigurationUpgrader;
+import org.sonatype.configuration.upgrade.UnsupportedConfigurationVersionException;
 import org.sonatype.security.model.Configuration;
 
 /**
@@ -23,5 +29,11 @@ import org.sonatype.security.model.Configuration;
  */
 public interface SecurityConfigurationUpgrader extends ConfigurationUpgrader<Configuration>
 {
+    @Deprecated
+    public Configuration loadOldConfiguration( File file )
+        throws IOException, ConfigurationIsCorruptedException, UnsupportedConfigurationVersionException;
+
+    Configuration loadOldConfiguration( Reader reader )
+        throws IOException, ConfigurationIsCorruptedException, UnsupportedConfigurationVersionException;
 
 }

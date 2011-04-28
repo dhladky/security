@@ -20,8 +20,8 @@ import java.util.Set;
 import junit.framework.Assert;
 
 import org.sonatype.security.AbstractSecurityTestCase;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.realms.tools.StaticSecurityResource;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserManager;
 import org.sonatype.security.usermanagement.UserSearchCriteria;
@@ -41,7 +41,7 @@ public class SecurityXmlUserLocatorTest
     public UserManager getUserManager()
         throws Exception
     {
-        return (UserManager) this.lookup( UserManager.class );
+        return this.lookup( UserManager.class );
     }
 
     public void testListUserIds()
@@ -83,7 +83,7 @@ public class SecurityXmlUserLocatorTest
         Assert.assertEquals( "changeme1@yourcompany.com", testUser.getEmailAddress() );
 
         // test roles
-        Map<String, RoleIdentifier> roleMap = this.toRoleMap( testUser.getRoles() );
+        Map<String, RoleKey> roleMap = this.toRoleMap( testUser.getRoles() );
 
         Assert.assertTrue( roleMap.containsKey( "role1" ) );
         Assert.assertTrue( roleMap.containsKey( "role2" ) );
@@ -103,11 +103,11 @@ public class SecurityXmlUserLocatorTest
         Assert.assertEquals( 1, users.size() );
     }
 
-    private Map<String, RoleIdentifier> toRoleMap( Set<RoleIdentifier> roles )
+    private Map<String, RoleKey> toRoleMap( Set<RoleKey> roles )
     {
-        Map<String, RoleIdentifier> results = new HashMap<String, RoleIdentifier>();
+        Map<String, RoleKey> results = new HashMap<String, RoleKey>();
 
-        for ( RoleIdentifier plexusRole : roles )
+        for ( RoleKey plexusRole : roles )
         {
             results.put( plexusRole.getRoleId(), plexusRole );
         }

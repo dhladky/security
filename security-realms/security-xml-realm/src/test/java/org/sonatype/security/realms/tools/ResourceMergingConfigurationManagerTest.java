@@ -11,6 +11,7 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 package org.sonatype.security.realms.tools;
+import static org.sonatype.security.util.ModelConversion.toRoleKey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,7 @@ public class ResourceMergingConfigurationManagerTest
     {
         super.setUp();
 
-        manager = (ConfigurationManager) lookup( ConfigurationManager.class, "resourceMerging" );
+        manager = lookup( ConfigurationManager.class, "resourceMerging" );
     }
 
     public void testRoleMerging()
@@ -59,9 +60,9 @@ public class ResourceMergingConfigurationManagerTest
     {
         List<CRole> roles = manager.listRoles();
 
-        CRole anon = manager.readRole( "anon" );
-        assertTrue( "roles: " + anon.getRoles(), anon.getRoles().contains( "other" ) );
-        assertTrue( "roles: " + anon.getRoles(), anon.getRoles().contains( "role2" ) );
+        CRole anon = manager.readRole( "anon", "default" );
+        assertTrue( "roles: " + anon.getRoles(), anon.getRoles().contains( toRoleKey( "other", "default" ) ) );
+        assertTrue( "roles: " + anon.getRoles(), anon.getRoles().contains( toRoleKey( "role2", "default" ) ) );
         assertEquals( "roles: " + anon.getRoles(), 2, anon.getRoles().size() );
 
         assertTrue( anon.getPrivileges().contains( "priv1" ) );
@@ -72,8 +73,8 @@ public class ResourceMergingConfigurationManagerTest
         assertEquals( "Test Anon Role Description", anon.getDescription() );
         assertEquals( 60, anon.getSessionTimeout() );
 
-        CRole other = manager.readRole( "other" );
-        assertTrue( other.getRoles().contains( "role2" ) );
+        CRole other = manager.readRole( "other", "default" );
+        assertTrue( other.getRoles().contains( toRoleKey( "role2", "default" ) ) );
         assertEquals( "roles: " + other.getRoles(), 1, other.getRoles().size() );
 
         assertTrue( other.getPrivileges().contains( "6-test" ) );

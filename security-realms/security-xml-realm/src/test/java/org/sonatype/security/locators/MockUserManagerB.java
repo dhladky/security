@@ -22,6 +22,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.usermanagement.DefaultUser;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserManager;
@@ -114,14 +115,12 @@ public class MockUserManagerB
         Set<Role> roles = new HashSet<Role>();
         
         Role role1 = new Role();
-        role1.setSource( this.getSource() );
         role1.setName( "ExtraRole1" );
-        role1.setRoleId( "ExtraRole1" );
+        role1.setKey( new RoleKey( "ExtraRole1", this.getSource() ) );
         
         Role role2 = new Role();
-        role2.setSource( this.getSource() );
         role2.setName( "ExtraRole2" );
-        role2.setRoleId( "ExtraRole2" );
+        role1.setKey( new RoleKey( "ExtraRole2", this.getSource() ) );
         
         roles.add( role1 );
         roles.add( role2 );

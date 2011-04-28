@@ -17,6 +17,7 @@ import org.sonatype.security.SecuritySystem;
 import org.sonatype.security.authorization.AuthorizationException;
 import org.sonatype.security.authorization.Privilege;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.mock.MockRealm;
 import org.sonatype.security.realms.privileges.application.ApplicationPrivilegeDescriptor;
 import org.sonatype.security.realms.privileges.application.ApplicationPrivilegeMethodPropertyDescriptor;
@@ -53,9 +54,9 @@ public class ExternalRoleMappedTest
                                                                                          "permissionOne",
                                                                                          ApplicationPrivilegeDescriptor.TYPE,
                                                                                          properties, false ) );
-        securitySystem.getAuthorizationManager( "default" ).addRole( new Role( "mockrole1", "mockrole1", "mockrole1",
-                                                                               "default", false, null,
-                                                                               Collections.singleton( "randomId" ) ) );
+        securitySystem.getAuthorizationManager( "default" ).addRole(
+            new Role( new RoleKey( "mockrole1", "default" ), "mockrole1", "default", false, null,
+                Collections.singleton( "randomId" ) ) );
 
         // add MockRealm to config
         List<String> realms = new ArrayList<String>();

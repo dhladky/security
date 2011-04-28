@@ -129,10 +129,10 @@ public class DefaultSecuritySystemTest
             roleMap.put( role.getKey(), role );
         }
 
-        Assert.assertTrue( roleMap.containsKey( new RoleKey( "test-role1", "default" ) ) );
-        Assert.assertTrue( roleMap.containsKey( new RoleKey( "test-role2", "default" ) ) );
+        Assert.assertTrue( roleMap.containsKey( new RoleKey( "test-role-1", "sourceB" ) ) );
+        Assert.assertTrue( roleMap.containsKey( new RoleKey( "test-role-2", "sourceB" ) ) );
 
-        Role role1 = roleMap.get( new RoleKey( "test-role1", "default" ) );
+        Role role1 = roleMap.get( new RoleKey( "test-role-1", "sourceB" ) );
         Assert.assertEquals( "Role 1", role1.getName() );
 
         Assert.assertTrue( role1.getPrivileges().contains( "from-role1:read" ) );

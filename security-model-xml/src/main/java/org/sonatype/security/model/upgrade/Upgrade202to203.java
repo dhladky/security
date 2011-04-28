@@ -15,6 +15,7 @@ package org.sonatype.security.model.upgrade;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Iterator;
 
 import javax.enterprise.inject.Typed;
@@ -44,23 +45,14 @@ public class Upgrade202to203
     private Logger logger;
     
     public Object loadConfiguration( File file )
-        throws IOException,
-            ConfigurationIsCorruptedException
+        throws IOException, ConfigurationIsCorruptedException
     {
         FileReader fr = null;
-
+        // reading without interpolation to preserve user settings as variables
         try
         {
-            // reading without interpolation to preserve user settings as variables
             fr = new FileReader( file );
-
-            SecurityConfigurationXpp3Reader reader = new SecurityConfigurationXpp3Reader();
-
-            return reader.read( fr );
-        }
-        catch ( XmlPullParserException e )
-        {
-            throw new ConfigurationIsCorruptedException( file.getAbsolutePath(), e );
+            return loadConfiguration( fr );
         }
         finally
         {
@@ -68,6 +60,22 @@ public class Upgrade202to203
             {
                 fr.close();
             }
+        }
+    }
+
+    @Override
+    public Object loadConfiguration( Reader fr )
+        throws IOException, ConfigurationIsCorruptedException
+    {
+        try
+        {
+            SecurityConfigurationXpp3Reader reader = new SecurityConfigurationXpp3Reader();
+
+            return reader.read( fr );
+        }
+        catch ( XmlPullParserException e )
+        {
+            throw new ConfigurationIsCorruptedException( fr.toString(), e );
         }
     }
 

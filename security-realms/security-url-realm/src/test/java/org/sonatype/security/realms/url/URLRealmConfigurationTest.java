@@ -9,6 +9,7 @@ import org.codehaus.plexus.util.IOUtil;
 import org.sonatype.security.AbstractSecurityTestCase;
 import org.sonatype.security.SecuritySystem;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.realms.url.config.UrlRealmConfiguration;
 
 import com.sonatype.security.realms.url.config.model.Configuration;
@@ -23,7 +24,9 @@ extends AbstractSecurityTestCase
     {
         
         SecuritySystem securitySystem = this.lookup( SecuritySystem.class );
-        securitySystem.getAuthorizationManager( "default" ).addRole( new Role("defaultRole", "Default Test Role", "Default Test Role Description", "default",  true, null, null ) );
+        securitySystem.getAuthorizationManager( "default" ).addRole(
+            new Role( new RoleKey( "defaultRole", "default" ), "Default Test Role", "Default Test Role Description",
+                true, null, null ) );
         
         UrlRealmConfiguration realmConfiguration = this.lookup( UrlRealmConfiguration.class );
 

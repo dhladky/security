@@ -11,6 +11,7 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 package org.sonatype.security.realms.tools;
+import static org.sonatype.security.util.ModelConversion.toRoleKey;
 
 import java.io.File;
 import java.util.HashSet;
@@ -21,8 +22,10 @@ import junit.framework.Assert;
 
 import org.codehaus.plexus.util.FileUtils;
 import org.sonatype.guice.bean.containers.InjectedTestCase;
+import org.sonatype.security.model.CRoleKey;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.model.CUserRoleMapping;
+import org.sonatype.security.util.ModelConversion;
 
 public class UserRoleMappingTest
     extends InjectedTestCase
@@ -31,7 +34,7 @@ public class UserRoleMappingTest
     public ConfigurationManager getConfigManager()
         throws Exception
     {
-        return (ConfigurationManager) this.lookup( ConfigurationManager.class );
+        return this.lookup( ConfigurationManager.class );
     }
 
     public void testGetUser()
@@ -49,9 +52,9 @@ public class UserRoleMappingTest
 
         CUserRoleMapping mapping = config.readUserRoleMapping( "test-user", "default" );
 
-        Assert.assertTrue( mapping.getRoles().contains( "role1" ) );
-        Assert.assertTrue( mapping.getRoles().contains( "role2" ) );
         Assert.assertEquals( 2, mapping.getRoles().size() );
+        Assert.assertTrue( mapping.getRoles().contains( toRoleKey( "role1", "default" ) ) );
+        Assert.assertTrue( mapping.getRoles().contains( toRoleKey( "role2", "default" ) ) );
     }
 
     public void testUpdateUsersRoles()
@@ -66,11 +69,11 @@ public class UserRoleMappingTest
         CUser user = config.readUser( "test-user" );
 
         CUserRoleMapping roleMapping = config.readUserRoleMapping( "test-user", "default" );
-        List<String> roles = roleMapping.getRoles();
-        roles.add( "role3" );
+        List<CRoleKey> roles = roleMapping.getRoles();
+        roles.add( ModelConversion.toRoleKey( "role3", "default" ) );
 
         // update the user
-        config.updateUser( user, new HashSet<String>( roles ) );
+        config.updateUser( user, new HashSet<CRoleKey>( roles ) );
 
         // make sure we have exactly 4 user role mappings
         Assert.assertEquals( 4, config.listUserRoleMappings().size() );
