@@ -91,6 +91,10 @@ public class ModelConversion
 
     public static CRoleKey toRoleKey( RoleKey key )
     {
+        if ( key == null )
+        {
+            return null;
+        }
         CRoleKey ckey = new CRoleKey();
         ckey.setId( key.getRoleId() );
         ckey.setSource( key.getSource() );

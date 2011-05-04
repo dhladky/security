@@ -35,6 +35,7 @@ import org.sonatype.plexus.rest.resource.PathProtectionDescriptor;
 import org.sonatype.plexus.rest.resource.PlexusResource;
 import org.sonatype.security.authorization.NoSuchAuthorizationManagerException;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.rest.model.PlexusUserListResourceResponse;
 import org.sonatype.security.rest.model.PlexusUserSearchCriteriaResource;
 import org.sonatype.security.rest.model.PlexusUserSearchCriteriaResourceRequest;
@@ -115,7 +116,7 @@ public class UserSearchPlexusResource
         // to get a list of all users of Role 'XYZ'
         if ( criteriaResource.isEffectiveUsers() )
         {
-            Set<String> roleIds = new HashSet<String>();
+            Set<RoleKey> roleIds = new HashSet<RoleKey>();
 
             Set<Role> roles = null;
             try
@@ -132,7 +133,7 @@ public class UserSearchPlexusResource
 
             for ( Role role : roles )
             {
-                roleIds.add( role.getRoleId() );
+                roleIds.add( role.getKey() );
             }
 
             criteria.setOneOfRoleIds( roleIds );

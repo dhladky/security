@@ -39,11 +39,12 @@ import org.sonatype.security.authorization.AuthorizationManager;
 import org.sonatype.security.authorization.NoSuchAuthorizationManagerException;
 import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.rest.model.PlexusRoleResource;
 import org.sonatype.security.rest.model.PlexusUserResource;
+import org.sonatype.security.rest.model.RoleKeyResource;
 import org.sonatype.security.rest.model.UserResource;
 import org.sonatype.security.usermanagement.DefaultUser;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserStatus;
 
@@ -120,12 +121,20 @@ public abstract class AbstractSecurityPlexusResource
         }
         resource.setResourceURI( this.createChildReference( request, resourceId ).toString() );
 
-        for ( RoleIdentifier role : user.getRoles() )
+        for ( RoleKey role : user.getRoles() )
         {
-            resource.addRole( role.getRoleId() );
+            resource.addRole( securityToRestModelKey( role ) );
         }
 
         return resource;
+    }
+
+    protected RoleKeyResource securityToRestModelKey( RoleKey role )
+    {
+        RoleKeyResource key = new RoleKeyResource();
+        key.setId( role.getRoleId() );
+        key.setSource( role.getSource() );
+        return key;
     }
 
     protected User restToSecurityModel( User user, UserResource resource )
@@ -148,15 +157,24 @@ public abstract class AbstractSecurityPlexusResource
         // set the users source
         user.setSource( DEFAULT_SOURCE );
 
-        Set<RoleIdentifier> roles = new HashSet<RoleIdentifier>();
-        for ( String roleId : (List<String>) resource.getRoles() )
+        Set<RoleKey> roles = new HashSet<RoleKey>();
+        for ( RoleKeyResource roleId : resource.getRoles() )
         {
-            roles.add( new RoleIdentifier( DEFAULT_SOURCE, roleId ) );
+            roles.add( restToSecurityModel( roleId ) );
         }
 
         user.setRoles( roles );
 
         return user;
+    }
+
+    protected RoleKey restToSecurityModel( RoleKeyResource key )
+    {
+        if ( key == null )
+        {
+            return null;
+        }
+        return new RoleKey( key.getId(), key.getSource() );
     }
 
     protected PlexusUserResource securityToRestModel( User user )
@@ -169,7 +187,7 @@ public abstract class AbstractSecurityPlexusResource
         resource.setLastName( user.getLastName() );
         resource.setEmail( user.getEmailAddress() );
 
-        for ( RoleIdentifier role : user.getRoles() )
+        for ( RoleKey role : user.getRoles() )
         {
             resource.addRole( this.securityToRestModel( role ) );
         }
@@ -180,9 +198,9 @@ public abstract class AbstractSecurityPlexusResource
     protected PlexusRoleResource securityToRestModel( Role role )
     {
         PlexusRoleResource roleResource = new PlexusRoleResource();
-        roleResource.setRoleId( role.getRoleId() );
+        roleResource.setRoleId( role.getKey().getRoleId() );
         roleResource.setName( role.getName() );
-        roleResource.setSource( role.getSource() );
+        roleResource.setSource( role.getKey().getSource() );
 
         return roleResource;
     }
@@ -199,7 +217,7 @@ public abstract class AbstractSecurityPlexusResource
     }
 
     // TODO: come back to this, we need to change the PlexusRoleResource
-    protected PlexusRoleResource securityToRestModel( RoleIdentifier role )
+    protected PlexusRoleResource securityToRestModel( RoleKey role )
     {
         // TODO: We shouldn't be looking up the role name here anyway... this should get pushed up to the
         // SecuritySystem.
@@ -210,7 +228,7 @@ public abstract class AbstractSecurityPlexusResource
         try
         {
             AuthorizationManager authzManager = securitySystem.getAuthorizationManager( DEFAULT_SOURCE );
-            roleName = authzManager.getRole( role.getRoleId(), source ).getName();
+            roleName = authzManager.getRole( role.getRoleId(), role.getSource() ).getName();
         }
         catch ( NoSuchAuthorizationManagerException e )
         {

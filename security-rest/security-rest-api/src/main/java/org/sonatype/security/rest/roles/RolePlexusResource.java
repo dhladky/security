@@ -58,7 +58,9 @@ public class RolePlexusResource
 
     public static final String ROLE_ID_KEY = "roleId";
 
-    public static final String RESOURCE_URI = "/roles/{" + ROLE_ID_KEY + "}";
+    public static final String SOURCE_KEY = "source";
+
+    public static final String RESOURCE_URI = "/roles/{" + ROLE_ID_KEY + "}/{" + SOURCE_KEY + "}";
     
     public RolePlexusResource()
     {
@@ -80,12 +82,17 @@ public class RolePlexusResource
     @Override
     public PathProtectionDescriptor getResourceProtection()
     {
-        return new PathProtectionDescriptor( "/roles/*", "authcBasic,perms[security:roles]" );
+        return new PathProtectionDescriptor( "/roles/*/*", "authcBasic,perms[security:roles]" );
     }
 
     protected String getRoleId( Request request )
     {
         return getRequestAttribute( request, ROLE_ID_KEY );
+    }
+
+    protected String getSource( Request request )
+    {
+        return getRequestAttribute( request, SOURCE_KEY );
     }
 
     /**
@@ -103,7 +110,8 @@ public class RolePlexusResource
         try
         {
             AuthorizationManager authzManager = getSecuritySystem().getAuthorizationManager( ROLE_SOURCE );
-            result.setData( securityToRestModel( authzManager.getRole( getRoleId( request ), source ), request, false ) );
+            result.setData( securityToRestModel( authzManager.getRole( getRoleId( request ), getSource( request ) ),
+                request, false ) );
 
         }
         catch ( NoSuchRoleException e )
@@ -140,7 +148,9 @@ public class RolePlexusResource
             try
             {
                 AuthorizationManager authzManager = getSecuritySystem().getAuthorizationManager( ROLE_SOURCE );
-                Role role = restToSecurityModel( authzManager.getRole( resource.getId(), source ), resource );
+                Role role =
+                    restToSecurityModel(
+                        authzManager.getRole( resource.getKey().getId(), resource.getKey().getSource() ), resource );
 
                 validateRoleContainment( role );
 
@@ -153,7 +163,7 @@ public class RolePlexusResource
                 resourceResponse.getData().setUserManaged( !role.isReadOnly() );
 
                 resourceResponse.getData().setResourceURI(
-                    createChildReference( request, resource.getId() ).toString() );
+                    createChildReference( request, resource.getKey().getId() ).toString() );
 
             }
             catch ( NoSuchRoleException e )
@@ -189,7 +199,7 @@ public class RolePlexusResource
         try
         {
             AuthorizationManager authzManager = getSecuritySystem().getAuthorizationManager( ROLE_SOURCE );
-            authzManager.deleteRole( getRoleId( request ) );
+            authzManager.deleteRole( getRoleId( request ), getSource( request ) );
         }
         catch ( NoSuchRoleException e )
         {

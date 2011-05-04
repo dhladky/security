@@ -23,10 +23,10 @@ import org.sonatype.security.authorization.NoSuchPrivilegeException;
 import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.authorization.Privilege;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.rest.AbstractSecurityPlexusResource;
 import org.sonatype.security.rest.model.RoleTreeResource;
 import org.sonatype.security.rest.model.RoleTreeResourceResponse;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserNotFoundException;
 
@@ -42,9 +42,11 @@ import org.sonatype.security.usermanagement.UserNotFoundException;
 public class UserRoleTreePlexusResource
     extends AbstractSecurityPlexusResource
 {
-    public static final String USER_ID_KEY = "userId";
+    public static final String ROLE_ID_KEY = "roleId";
 
-    public static final String RESOURCE_URI = "/role_tree/{" + USER_ID_KEY + "}";
+    public static final String SOURCE_KEY = "source";
+
+    public static final String RESOURCE_URI = "/role_tree/{" + ROLE_ID_KEY + "}/{" + SOURCE_KEY + "}";
 
     @Override
     public Object getPayloadInstance()
@@ -73,7 +75,8 @@ public class UserRoleTreePlexusResource
     public Object get( Context context, Request request, Response response, Variant variant )
         throws ResourceException
     {
-        String userId = getUserId( request );
+        String roleId = getRoleId( request );
+        String source = getSource( request );
 
         try
         {
@@ -83,13 +86,13 @@ public class UserRoleTreePlexusResource
 
             if ( Boolean.parseBoolean( request.getResourceRef().getQueryAsForm().getFirstValue( "isRole" ) ) )
             {
-                Role role = authzManager.getRole( userId, source );
+                Role role = authzManager.getRole( roleId, source );
 
                 handleRole( role, authzManager, responseResource, null );
             }
             else
             {
-                User user = getSecuritySystem().getUser( userId );
+                User user = getSecuritySystem().getUser( roleId );
 
                 handleUser( user, authzManager, responseResource );
             }
@@ -98,7 +101,7 @@ public class UserRoleTreePlexusResource
         }
         catch ( UserNotFoundException e )
         {
-            throw new ResourceException( Status.CLIENT_ERROR_BAD_REQUEST, "User: " + userId + " could not be found." );
+            throw new ResourceException( Status.CLIENT_ERROR_BAD_REQUEST, "User: " + roleId + " could not be found." );
         }
         catch ( NoSuchAuthorizationManagerException e )
         {
@@ -106,20 +109,21 @@ public class UserRoleTreePlexusResource
         }
         catch ( NoSuchRoleException e )
         {
-            throw new ResourceException( Status.CLIENT_ERROR_BAD_REQUEST, "Role: " + userId + " could not be found." );
+            throw new ResourceException( Status.CLIENT_ERROR_BAD_REQUEST, "Role: " + roleId + " could not be found." );
         }
     }
 
     protected void handleUser( User user, AuthorizationManager authzManager, RoleTreeResourceResponse response )
     {
-        for ( RoleIdentifier roleIdentifier : user.getRoles() )
+        for ( RoleKey roleKey : user.getRoles() )
         {
             try
             {
-                Role role = authzManager.getRole( roleIdentifier.getRoleId(), source );
+                Role role = authzManager.getRole( roleKey.getRoleId(), roleKey.getSource() );
 
                 RoleTreeResource resource = new RoleTreeResource();
-                resource.setId( role.getRoleId() );
+                resource.setId( role.getKey().getRoleId() );
+                resource.setSource( role.getKey().getSource() );
                 resource.setName( role.getName() );
                 resource.setType( "role" );
                 response.addData( resource );
@@ -129,7 +133,7 @@ public class UserRoleTreePlexusResource
             catch ( NoSuchRoleException e )
             {
                 getLogger().debug(
-                    "Invalid roleId: " + roleIdentifier.getRoleId() + " from source: " + roleIdentifier.getSource()
+                    "Invalid roleId: " + roleKey.getRoleId() + " from source: " + roleKey.getSource()
                         + " not found." );
             }
         }
@@ -138,13 +142,14 @@ public class UserRoleTreePlexusResource
     protected void handleRole( Role role, AuthorizationManager authzManager, RoleTreeResourceResponse response,
                                RoleTreeResource resource )
     {
-        for ( String roleId : role.getRoles() )
+        for ( RoleKey roleId : role.getRoles() )
         {
             try
             {
-                Role childRole = authzManager.getRole( roleId, source );
+                Role childRole = authzManager.getRole( roleId.getRoleId(), roleId.getSource() );
                 RoleTreeResource childResource = new RoleTreeResource();
-                childResource.setId( childRole.getRoleId() );
+                childResource.setId( childRole.getKey().getRoleId() );
+                childResource.setSource( childRole.getKey().getSource() );
                 childResource.setName( childRole.getName() );
                 childResource.setType( "role" );
                 if ( resource != null )
@@ -172,6 +177,7 @@ public class UserRoleTreePlexusResource
                 childResource.setId( childPrivilege.getId() );
                 childResource.setName( childPrivilege.getName() );
                 childResource.setType( "privilege" );
+                childResource.setSource( "default" );
                 if ( resource != null )
                 {
                     resource.addChildren( childResource );
@@ -188,8 +194,13 @@ public class UserRoleTreePlexusResource
         }
     }
 
-    protected String getUserId( Request request )
+    protected String getRoleId( Request request )
     {
-        return getRequestAttribute( request, USER_ID_KEY );
+        return getRequestAttribute( request, ROLE_ID_KEY );
+    }
+
+    protected String getSource( Request request )
+    {
+        return getRequestAttribute( request, SOURCE_KEY );
     }
 }

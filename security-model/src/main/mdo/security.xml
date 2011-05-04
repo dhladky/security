@@ -270,7 +270,27 @@
         else if ( !source.equals( other.source ) )
             return false;
         return true;
-    }                    
+    }       
+
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append( "CRoleKey [" );
+        if ( id != null )
+        {
+            builder.append( "id=" );
+            builder.append( id );
+            builder.append( ", " );
+        }
+        if ( source != null )
+        {
+            builder.append( "source=" );
+            builder.append( source );
+        }
+        builder.append( "]" );
+        return builder.toString();
+    }
                     </code>
                 </codeSegment>
             </codeSegments>

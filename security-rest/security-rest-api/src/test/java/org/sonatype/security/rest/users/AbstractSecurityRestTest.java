@@ -8,6 +8,7 @@ import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.util.FileUtils;
 import org.sonatype.security.SecuritySystem;
+import org.sonatype.security.rest.model.RoleKeyResource;
 
 public abstract class AbstractSecurityRestTest
     extends PlexusTestCase
@@ -50,4 +51,13 @@ public abstract class AbstractSecurityRestTest
         context.put( "security-xml-file", WORK_DIR + "/conf/security.xml" );
         context.put( "application-conf", WORK_DIR + "/conf/" );
     }
+
+    protected RoleKeyResource newRole( String roleId )
+    {
+        RoleKeyResource key = new RoleKeyResource();
+        key.setId( roleId );
+        key.setSource( "default" );
+        return key;
+    }
+
 }

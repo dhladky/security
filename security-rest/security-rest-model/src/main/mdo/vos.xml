@@ -145,6 +145,93 @@
         <!-- Response Data Contents -->
 
         <class>
+            <name>RoleKeyResource</name>
+            <version>1.0.0+</version>
+            <description>Role Key configuration.</description>
+            <annotations>
+                <annotation>@javax.xml.bind.annotation.XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.FIELD)</annotation>
+            </annotations>
+            <fields>
+                <field>
+                    <name>id</name>
+                    <version>1.0.0+</version>
+                    <type>String</type>
+                    <required>true</required>
+                    <description>The id of the role.</description>
+                </field>
+                <field>
+                    <name>source</name>
+                    <version>1.0.0+</version>
+                    <type>String</type>
+                    <required>true</required>
+                    <description>The source realm of the role.</description>
+                </field>
+                </fields>
+            <codeSegments>
+                <codeSegment>
+                    <version>1.0.0+</version>
+                    <code>
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ( ( id == null ) ? 0 : id.hashCode() );
+        result = prime * result + ( ( source == null ) ? 0 : source.hashCode() );
+        return result;
+    }
+
+    @Override
+    public boolean equals( Object obj )
+    {
+        if ( this == obj )
+            return true;
+        if ( obj == null )
+            return false;
+        if ( getClass() != obj.getClass() )
+            return false;
+        RoleKeyResource other = (RoleKeyResource) obj;
+        if ( id == null )
+        {
+            if ( other.id != null )
+                return false;
+        }
+        else if ( !id.equals( other.id ) )
+            return false;
+        if ( source == null )
+        {
+            if ( other.source != null )
+                return false;
+        }
+        else if ( !source.equals( other.source ) )
+            return false;
+        return true;
+    }       
+
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append( "RoleKeyResource [" );
+        if ( id != null )
+        {
+            builder.append( "id=" );
+            builder.append( id );
+            builder.append( ", " );
+        }
+        if ( source != null )
+        {
+            builder.append( "source=" );
+            builder.append( source );
+        }
+        builder.append( "]" );
+        return builder.toString();
+    }
+                    </code>
+                </codeSegment>
+            </codeSegments>
+        </class>
+        <class>
             <name>RoleResource</name>
             <version>1.0.0+</version>
             <description>Role configuration.</description>
@@ -160,11 +247,13 @@
                     <description>The URI of the role.</description>
                 </field>
                 <field>
-                    <name>id</name>
+                    <name>key</name>
                     <version>1.0.0+</version>
-                    <type>String</type>
+                    <association>
+                        <type>RoleKeyResource</type>
+                    </association>
                     <required>true</required>
-                    <description>The id of the role.</description>
+                    <description>The role key.</description>
                 </field>
                 <field>
                     <name>name</name>
@@ -194,7 +283,7 @@
                     <name>roles</name>
                     <version>1.0.0+</version>
                     <association>
-                        <type>String</type>
+                        <type>RoleKeyResource</type>
                         <multiplicity>*</multiplicity>
                     </association>
                     <required>true</required>
@@ -497,7 +586,7 @@
                     <name>roles</name>
                     <version>1.0.0+</version>
                     <association>
-                        <type>String</type>
+                        <type>RoleKeyResource</type>
                         <multiplicity>*</multiplicity>
                     </association>
                     <required>true</required>
@@ -1223,6 +1312,13 @@
                     <description>The id of the role or privilege.</description>
                 </field>
                 <field>
+                    <name>source</name>
+                    <description>The source realm of the role.</description>
+                    <version>1.0.0+</version>
+                    <type>String</type>
+                    <required>true</required>
+                </field>                
+                <field>
                     <name>name</name>
                     <version>1.0.0+</version>
                     <type>String</type>
@@ -1471,6 +1567,12 @@
                     <description>The id of the privilege or role.</description>
                 </field>
                 <field>
+                    <name>source</name>
+                    <version>1.0.0+</version>
+                    <type>String</type>
+                    <description>The source realm of the privilege or role.</description>
+                </field>
+                <field>
                     <name>name</name>
                     <version>1.0.0+</version>
                     <type>String</type>
@@ -1531,6 +1633,12 @@
                     <version>1.0.0+</version>
                     <type>String</type>
                     <description>The id of the privilege or role.</description>
+                </field>
+                <field>
+                    <name>source</name>
+                    <version>1.0.0+</version>
+                    <type>String</type>
+                    <description>The source realm of a role.</description>
                 </field>
                 <field>
                     <name>name</name>

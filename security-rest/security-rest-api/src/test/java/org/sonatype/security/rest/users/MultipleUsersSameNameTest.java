@@ -10,13 +10,13 @@ import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.sonatype.plexus.rest.resource.PlexusResource;
 import org.sonatype.security.SecuritySystem;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.locators.MockUserManagerA;
 import org.sonatype.security.rest.model.PlexusUserListResourceResponse;
 import org.sonatype.security.rest.model.PlexusUserResource;
 import org.sonatype.security.rest.model.UserToRoleResource;
 import org.sonatype.security.rest.model.UserToRoleResourceRequest;
 import org.sonatype.security.usermanagement.DefaultUser;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserStatus;
 import org.sonatype.security.usermanagement.xml.SecurityXmlUserManager;
@@ -98,13 +98,13 @@ public class MultipleUsersSameNameTest
         User jcoderMock = securitySystem.getUser( "jcoder", MockUserManagerA.SOURCE );
         
         List<String> jcoderXMLOriginalRoles = new ArrayList<String>();
-        for ( RoleIdentifier role : jcoderXML.getRoles() )
+        for ( RoleKey role : jcoderXML.getRoles() )
         {
             jcoderXMLOriginalRoles.add( role.getRoleId() );    
         }
         
         List<String> jcoderMockOriginalRoles = new ArrayList<String>();
-        for ( RoleIdentifier role : jcoderMock.getRoles() )
+        for ( RoleKey role : jcoderMock.getRoles() )
         {
             jcoderMockOriginalRoles.add( role.getRoleId() );    
         }
@@ -132,13 +132,13 @@ public class MultipleUsersSameNameTest
         jcoderMock = securitySystem.getUser( "jcoder", MockUserManagerA.SOURCE );
         
         List<String> jcoderXMLNewRoles = new ArrayList<String>();
-        for ( RoleIdentifier role : jcoderXML.getRoles() )
+        for ( RoleKey role : jcoderXML.getRoles() )
         {
             jcoderXMLNewRoles.add( role.getRoleId() );    
         }
         
         List<String> jcoderMockNewRoles = new ArrayList<String>();
-        for ( RoleIdentifier role : jcoderMock.getRoles() )
+        for ( RoleKey role : jcoderMock.getRoles() )
         {
             jcoderMockNewRoles.add( role.getRoleId() );    
         }

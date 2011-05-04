@@ -26,11 +26,11 @@ import org.sonatype.security.authorization.NoSuchPrivilegeException;
 import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.authorization.Privilege;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.rest.AbstractSecurityPlexusResource;
 import org.sonatype.security.rest.model.AssignedPrivilegeListResource;
 import org.sonatype.security.rest.model.AssignedPrivilegeListResourceResponse;
 import org.sonatype.security.rest.model.ParentNode;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserNotFoundException;
 
@@ -88,17 +88,17 @@ public class AssignedPrivilegesPlexusResource
 
             AuthorizationManager authzManager = getSecuritySystem().getAuthorizationManager( "default" );
 
-            for ( RoleIdentifier roleIdentifier : user.getRoles() )
+            for ( RoleKey roleKey : user.getRoles() )
             {
                 try
                 {
-                    handleRole( authzManager.getRole( roleIdentifier.getRoleId(), source ), null, authzManager,
+                    handleRole( authzManager.getRole( roleKey.getRoleId(), roleKey.getSource() ), null, authzManager,
                         responseResource );
                 }
                 catch ( NoSuchRoleException e )
                 {
                     getLogger().debug(
-                        "Invalid roleId: " + roleIdentifier.getRoleId() + " from source: " + roleIdentifier.getSource()
+                        "Invalid roleId: " + roleKey.getRoleId() + " from source: " + roleKey.getSource()
                             + " not found." );
                 }
             }
@@ -126,15 +126,16 @@ public class AssignedPrivilegesPlexusResource
 
         newParentList.add( 0, role );
 
-        for ( String roleId : role.getRoles() )
+        for ( RoleKey key : role.getRoles() )
         {
             try
             {
-                handleRole( authzManager.getRole( roleId, source ), newParentList, authzManager, response );
+                handleRole( authzManager.getRole( key.getRoleId(), key.getSource() ), newParentList, authzManager,
+                    response );
             }
             catch ( NoSuchRoleException e )
             {
-                getLogger().debug( "handleRole() failed, roleId: " + roleId + " not found" );
+                getLogger().debug( "handleRole() failed, roleId: " + key + " not found" );
             }
         }
 
@@ -182,7 +183,8 @@ public class AssignedPrivilegesPlexusResource
         for ( Role role : parentList )
         {
             ParentNode newParent = new ParentNode();
-            newParent.setId( role.getRoleId() );
+            newParent.setId( role.getKey().getRoleId() );
+            newParent.setSource( role.getKey().getSource() );
             newParent.setName( role.getName() );
 
             // if we dont yet have a root, we are on first item

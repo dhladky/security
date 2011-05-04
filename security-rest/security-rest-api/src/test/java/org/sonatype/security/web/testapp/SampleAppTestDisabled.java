@@ -1,7 +1,6 @@
 package org.sonatype.security.web.testapp;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,12 +19,11 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.sonatype.jettytestsuite.ServletServer;
-import org.sonatype.security.SecuritySystem;
+import org.sonatype.security.model.CRoleKey;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.realms.tools.ConfigurationManager;
-import org.sonatype.security.usermanagement.DefaultUser;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.UserStatus;
+import org.sonatype.security.util.ModelConversion;
 
 public class SampleAppTestDisabled
     extends PlexusTestCase
@@ -154,8 +152,8 @@ public class SampleAppTestDisabled
             user.setLastName( userId );
             user.setStatus( UserStatus.active.toString() );
             
-            Set<String> roles = new HashSet<String>();
-            roles.add( "role1" );
+            Set<CRoleKey> roles = new HashSet<CRoleKey>();
+            roles.add( ModelConversion.toRoleKey( "role1", "default" ) );
             
             // add each user
 //            System.out.println( "creating user: " + userId );

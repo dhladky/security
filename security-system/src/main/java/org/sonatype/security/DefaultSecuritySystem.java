@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,7 @@ import org.sonatype.security.authentication.AuthenticationException;
 import org.sonatype.security.authorization.AuthorizationException;
 import org.sonatype.security.authorization.AuthorizationManager;
 import org.sonatype.security.authorization.NoSuchAuthorizationManagerException;
+import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.authorization.Privilege;
 import org.sonatype.security.authorization.Role;
 import org.sonatype.security.authorization.RoleKey;
@@ -905,5 +907,29 @@ public class DefaultSecuritySystem
     public RealmSecurityManager getSecurityManager()
     {
         return this.securityManagers.get( this.securityConfiguration.getSecurityManager() );
+    }
+
+    @Override
+    @Deprecated
+    public Set<RoleKey> getRoleKeysForAllRealms( Set<String> roles )
+    {
+        Set<RoleKey> keys = new LinkedHashSet<RoleKey>();
+
+        for ( AuthorizationManager authzManager : this.authorizationManagers.values() )
+        {
+            for ( String role : roles )
+            {
+                try
+                {
+                    RoleKey key = authzManager.getRole( role, authzManager.getSource() ).getKey();
+                    keys.add( key );
+                }
+                catch ( NoSuchRoleException e )
+                {
+                    // ignore
+                }
+            }
+        }
+        return keys;
     }
 }

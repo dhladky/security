@@ -27,6 +27,7 @@ import org.sonatype.security.realms.tools.ConfigurationManager;
 import org.sonatype.security.realms.tools.NoSuchRoleMappingException;
 import org.sonatype.security.rest.model.UserToRoleResource;
 import org.sonatype.security.rest.model.UserToRoleResourceRequest;
+import org.sonatype.security.util.ModelConversion;
 
 public class UserToRolePRTest
     extends AbstractSecurityRestTest
@@ -172,7 +173,8 @@ public class UserToRolePRTest
         // check config
         CUserRoleMapping mapping = this.getConfig().readUserRoleMapping( "jcoder", REALM_KEY );
         Assert.assertEquals( 1, mapping.getRoles().size() );
-        Assert.assertTrue( mapping.getRoles().contains( "developer" ) );
+        Assert.assertTrue( "Not found " + mapping.getRoles(),
+            mapping.getRoles().contains( ModelConversion.toRoleKey( "developer", "default" ) ) );
 
         // now delete
         resource.delete( null, request, response );
@@ -212,7 +214,7 @@ public class UserToRolePRTest
         // check config
         CUserRoleMapping mapping = this.getConfig().readUserRoleMapping( "cdugas", REALM_KEY );
         Assert.assertEquals( 1, mapping.getRoles().size() );
-        Assert.assertTrue( mapping.getRoles().contains( "developer" ) );
+        Assert.assertTrue( mapping.getRoles().contains( ModelConversion.toRoleKey( "developer", "default" ) ) );
 
         // now delete
         resource.delete( null, request, response );

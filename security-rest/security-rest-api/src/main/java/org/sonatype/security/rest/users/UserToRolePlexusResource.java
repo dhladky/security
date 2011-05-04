@@ -39,10 +39,10 @@ import org.sonatype.configuration.validation.InvalidConfigurationException;
 import org.sonatype.plexus.rest.resource.PathProtectionDescriptor;
 import org.sonatype.plexus.rest.resource.PlexusResource;
 import org.sonatype.plexus.rest.resource.PlexusResourceException;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.rest.model.UserToRoleResource;
 import org.sonatype.security.rest.model.UserToRoleResourceRequest;
 import org.sonatype.security.usermanagement.NoSuchUserManagerException;
-import org.sonatype.security.usermanagement.RoleIdentifier;
 import org.sonatype.security.usermanagement.UserNotFoundException;
 
 /**
@@ -146,9 +146,9 @@ public class UserToRolePlexusResource
         // get the dto
         UserToRoleResource userToRole = mappingRequest.getData();
 
-        Set<RoleIdentifier> roleIdentifiers = this.restToSecurityModel( userToRole );
+        Set<RoleKey> RoleKeys = this.restToSecurityModel( userToRole );
 
-        if ( roleIdentifiers.size() == 0 )
+        if ( RoleKeys.size() == 0 )
         {
             throw new PlexusResourceException(
                 Status.CLIENT_ERROR_BAD_REQUEST,
@@ -159,7 +159,7 @@ public class UserToRolePlexusResource
         try
         {
             // this will throw if we cannot find the user, in that case we will create one.
-            getSecuritySystem().setUsersRoles( userToRole.getUserId(), userToRole.getSource(), roleIdentifiers );
+            getSecuritySystem().setUsersRoles( userToRole.getUserId(), userToRole.getSource(), RoleKeys );
         }
         catch ( InvalidConfigurationException e )
         {
@@ -194,7 +194,7 @@ public class UserToRolePlexusResource
 
         try
         {
-            Set<RoleIdentifier> roleIds = getSecuritySystem().getUsersRoles( userId, sourceId );
+            Set<RoleKey> roleIds = getSecuritySystem().getUsersRoles( userId, sourceId );
 
             UserToRoleResourceRequest resp = new UserToRoleResourceRequest();
 
@@ -245,21 +245,21 @@ public class UserToRolePlexusResource
         }
     }
 
-    private Set<RoleIdentifier> restToSecurityModel( UserToRoleResource restRoleMapping )
+    private Set<RoleKey> restToSecurityModel( UserToRoleResource restRoleMapping )
     {
         // FIXME: loss of roles source, currently we only support CRUDS on the XML realm but, that is temporary.
 
-        Set<RoleIdentifier> roleIdentifiers = new HashSet<RoleIdentifier>();
+        Set<RoleKey> roleKeys = new HashSet<RoleKey>();
 
-        for ( String roleId : (List<String>) restRoleMapping.getRoles() )
+        for ( String roleId : restRoleMapping.getRoles() )
         {
-            roleIdentifiers.add( new RoleIdentifier( DEFAULT_SOURCE, roleId ) );
+            roleKeys.add( new RoleKey( roleId, DEFAULT_SOURCE ) );
         }
 
-        return roleIdentifiers;
+        return roleKeys;
     }
 
-    private UserToRoleResource securityToRestModel( String userId, String source, Set<RoleIdentifier> roleIds )
+    private UserToRoleResource securityToRestModel( String userId, String source, Set<RoleKey> roleIds )
     {
         UserToRoleResource resource = new UserToRoleResource();
 
@@ -269,7 +269,7 @@ public class UserToRolePlexusResource
 
         List<String> roles = new ArrayList<String>();
 
-        for ( RoleIdentifier roleId : roleIds )
+        for ( RoleKey roleId : roleIds )
         {
             roles.add( roleId.getRoleId() );
         }

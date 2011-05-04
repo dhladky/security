@@ -12,14 +12,14 @@
  */
 package org.sonatype.security.rest.roles;
 
-import java.util.List;
-
 import org.restlet.data.Request;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
 import org.sonatype.plexus.rest.resource.PlexusResourceException;
 import org.sonatype.security.authorization.Role;
+import org.sonatype.security.authorization.RoleKey;
 import org.sonatype.security.rest.AbstractSecurityPlexusResource;
+import org.sonatype.security.rest.model.RoleKeyResource;
 import org.sonatype.security.rest.model.RoleResource;
 
 public abstract class AbstractRolePlexusResource
@@ -34,21 +34,21 @@ public abstract class AbstractRolePlexusResource
         RoleResource resource = new RoleResource();
 
         resource.setDescription( role.getDescription() );
-        resource.setId( role.getRoleId() );
+        resource.setKey( securityToRestModelKey( role.getKey() ) );
         resource.setName( role.getName() );
 
         String resourceId = "";
         if ( appendResourceId )
         {
-            resourceId = resource.getId();
+            resourceId = resource.getKey().getId();
         }
         resource.setResourceURI( this.createChildReference( request, resourceId ).toString() );
 
         resource.setUserManaged( !role.isReadOnly() );
 
-        for ( String roleId : role.getRoles() )
+        for ( RoleKey roleId : role.getRoles() )
         {
-            resource.addRole( roleId );
+            resource.addRole( securityToRestModelKey( roleId ) );
         }
 
         for ( String privId : role.getPrivileges() )
@@ -59,6 +59,15 @@ public abstract class AbstractRolePlexusResource
         return resource;
     }
 
+    @Override
+    protected RoleKeyResource securityToRestModelKey( RoleKey key )
+    {
+        RoleKeyResource r = new RoleKeyResource();
+        r.setId( key.getRoleId() );
+        r.setSource( key.getSource() );
+        return r;
+    }
+
     public Role restToSecurityModel( Role role, RoleResource resource )
     {
         if ( role == null )
@@ -66,26 +75,27 @@ public abstract class AbstractRolePlexusResource
             role = new Role();
         }
 
-        role.setRoleId( resource.getId() );
+        role.setKey( restToSecurityModel( resource.getKey() ) );
         
         role.setDescription( resource.getDescription() );
         role.setName( resource.getName() );
 
         role.getRoles().clear();
-        for ( String roleId : (List<String>) resource.getRoles() )
+        for ( RoleKeyResource roleId : resource.getRoles() )
         {
-            role.addRole( roleId );
+            role.addRole( restToSecurityModel( roleId ) );
         }
 
         role.getPrivileges().clear();
-        for ( String privId : (List<String>) resource.getPrivileges() )
+        for ( String privId : resource.getPrivileges() )
         {
             role.addPrivilege( privId );
         }
 
         return role;
     }
-    
+
+
     public void validateRoleContainment( Role role )
         throws ResourceException
     {

@@ -450,4 +450,12 @@ public interface SecuritySystem
      */
     public RealmSecurityManager getSecurityManager();
 
+    /**
+     * @param targetRoles
+     * @return this is just a compatibility approach, it will search for this roles on all realms and return the key for
+     *         all realms. This may have duplicated entries.
+     */
+    @Deprecated
+    Set<RoleKey> getRoleKeysForAllRealms( Set<String> roles );
+
 }

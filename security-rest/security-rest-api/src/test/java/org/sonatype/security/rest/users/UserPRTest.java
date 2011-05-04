@@ -28,7 +28,7 @@ public class UserPRTest
         userResource.setFirstName( "firstAddUser" );
         userResource.setStatus( "active" );
         userResource.setUserId( "testAddUser" );
-        userResource.addRole( "admin" );
+        userResource.addRole( newRole( "admin" ) );
 
         // try
         // {
@@ -61,7 +61,7 @@ public class UserPRTest
         userResource.setLastName( "firstTestInvalidEmailAddUser" );
         userResource.setStatus( "active" );
         userResource.setUserId( "testInvalidEmailAddUser" );
-        userResource.addRole( "admin" );
+        userResource.addRole( newRole( "admin" ) );
 
         try
         {
@@ -94,7 +94,7 @@ public class UserPRTest
         userResource.setLastName( "Last Name testUserIdWithSpace" );
         userResource.setStatus( "active" );
         userResource.setUserId( "test User Id With Space" );
-        userResource.addRole( "admin" );
+        userResource.addRole( newRole( "admin" ) );
     
         try
         {
@@ -134,7 +134,7 @@ public class UserPRTest
         userResource.setLastName( "testUpdateUserValidation" );
         userResource.setStatus( "active" );
         userResource.setUserId( "testUpdateUserValidation" );
-        userResource.addRole( "admin" );
+        userResource.addRole( newRole( "admin" ) );
 
         resource.post( null, this.buildRequest(), null, resourceRequest );
 
@@ -169,7 +169,7 @@ public class UserPRTest
         userResource.setLastName( "testInvalidEmailUpdateUserValidation" );
         userResource.setStatus( "active" );
         userResource.setUserId( "testInvalidEmailUpdateUserValidation" );
-        userResource.addRole( "admin" );
+        userResource.addRole( newRole( "admin" ) );
 
         resource.post( null, this.buildRequest(), null, resourceRequest );
 

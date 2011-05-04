@@ -138,11 +138,11 @@ public class RoleListPlexusResource
 
                 result = new RoleResourceResponse();
 
-                resource.setId( role.getRoleId() );
+                resource.setKey( securityToRestModelKey( role.getKey() ) );
 
                 resource.setUserManaged( true );
 
-                resource.setResourceURI( createChildReference( request, resource.getId() ).toString() );
+                resource.setResourceURI( createChildReference( request, resource.getKey().getId() ).toString() );
 
                 result.setData( resource );
             }

@@ -162,7 +162,8 @@ public class RoleAndPrivilegeListPlexusResource
     {
         RoleAndPrivilegeListResource resource = new RoleAndPrivilegeListResource();
 
-        resource.setId( role.getRoleId() );
+        resource.setId( role.getKey().getRoleId() );
+        resource.setSource( role.getKey().getSource() );
         resource.setName( role.getName() );
         resource.setDescription( role.getDescription() );
         resource.setType( "role" );
@@ -178,6 +179,7 @@ public class RoleAndPrivilegeListPlexusResource
         resource.setName( privilege.getName() );
         resource.setDescription( privilege.getDescription() );
         resource.setType( "privilege" );
+        resource.setSource( "default" );
 
         return resource;
     }
@@ -192,6 +194,7 @@ public class RoleAndPrivilegeListPlexusResource
             + " realm, this role cannot be removed." );
         resource.setType( "role" );
         resource.setExternal( true );
+        resource.setSource( roleResource.getSource() );
 
         return resource;
     }
