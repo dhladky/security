@@ -40,6 +40,7 @@ import org.sonatype.plexus.rest.resource.PathProtectionDescriptor;
 import org.sonatype.plexus.rest.resource.PlexusResource;
 import org.sonatype.plexus.rest.resource.PlexusResourceException;
 import org.sonatype.security.authorization.RoleKey;
+import org.sonatype.security.rest.model.RoleKeyResource;
 import org.sonatype.security.rest.model.UserToRoleResource;
 import org.sonatype.security.rest.model.UserToRoleResourceRequest;
 import org.sonatype.security.usermanagement.NoSuchUserManagerException;
@@ -251,9 +252,9 @@ public class UserToRolePlexusResource
 
         Set<RoleKey> roleKeys = new HashSet<RoleKey>();
 
-        for ( String roleId : restRoleMapping.getRoles() )
+        for ( RoleKeyResource roleId : restRoleMapping.getRoles() )
         {
-            roleKeys.add( new RoleKey( roleId, DEFAULT_SOURCE ) );
+            roleKeys.add( restToSecurityModel( roleId ) );
         }
 
         return roleKeys;
@@ -267,11 +268,11 @@ public class UserToRolePlexusResource
 
         resource.setSource( source );
 
-        List<String> roles = new ArrayList<String>();
+        List<RoleKeyResource> roles = new ArrayList<RoleKeyResource>();
 
         for ( RoleKey roleId : roleIds )
         {
-            roles.add( roleId.getRoleId() );
+            roles.add( securityToRestModelKey( roleId ) );
         }
 
         resource.setRoles( roles );

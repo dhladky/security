@@ -1,5 +1,6 @@
 package org.sonatype.security;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -456,6 +457,6 @@ public interface SecuritySystem
      *         all realms. This may have duplicated entries.
      */
     @Deprecated
-    Set<RoleKey> getRoleKeysForAllRealms( Set<String> roles );
+    Set<RoleKey> getRoleKeysForAllRealms( Collection<String> roles );
 
 }

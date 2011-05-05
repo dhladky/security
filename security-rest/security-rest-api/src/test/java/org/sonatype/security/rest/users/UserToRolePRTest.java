@@ -60,7 +60,7 @@ public class UserToRolePRTest
         requestRequest.setData( jcoderBefore );
         jcoderBefore.setUserId( "jcoder" );
         jcoderBefore.setSource( REALM_KEY );
-        jcoderBefore.addRole( "developer" );
+        jcoderBefore.addRole( newRole( "developer" ) );
 
         Assert.assertNull( resource.put( null, request, response, requestRequest ) );
     }
@@ -110,7 +110,7 @@ public class UserToRolePRTest
         requestRequest.setData( cdugasBefore );
         cdugasBefore.setUserId( "cdugas" );
         cdugasBefore.setSource( REALM_KEY );
-        cdugasBefore.addRole( "developer" );
+        cdugasBefore.addRole( newRole( "developer" ) );
 
         Assert.assertNull( resource.put( null, request, response, requestRequest ) );
     }
@@ -131,8 +131,8 @@ public class UserToRolePRTest
         requestRequest.setData( cdugasBefore );
         cdugasBefore.setUserId( "cdugas" );
         cdugasBefore.setSource( REALM_KEY );
-        cdugasBefore.addRole( "developerINVALID" );
-        cdugasBefore.addRole( "repomaintainerINVALID" );
+        cdugasBefore.addRole( newRole( "developerINVALID" ) );
+        cdugasBefore.addRole( newRole( "repomaintainerINVALID" ) );
 
         try
         {
@@ -166,7 +166,7 @@ public class UserToRolePRTest
         requestRequest.setData( jcoderBefore );
         jcoderBefore.setUserId( "jcoder" );
         jcoderBefore.setSource( REALM_KEY );
-        jcoderBefore.addRole( "developer" );
+        jcoderBefore.addRole( newRole( "developer" ) );
 
         Assert.assertNull( resource.put( null, request, response, requestRequest ) );
 
@@ -207,7 +207,7 @@ public class UserToRolePRTest
         requestRequest.setData( cdugasBefore );
         cdugasBefore.setUserId( "cdugas" );
         cdugasBefore.setSource( REALM_KEY );
-        cdugasBefore.addRole( "developer" );
+        cdugasBefore.addRole( newRole( "developer" ) );
 
         Assert.assertNull( resource.put( null, request, response, requestRequest ) );
 
@@ -248,7 +248,7 @@ public class UserToRolePRTest
         requestRequest.setData( cdugasBefore );
         cdugasBefore.setUserId( "FOO-USER" );
         cdugasBefore.setSource( REALM_KEY );
-        cdugasBefore.addRole( "developer" );
+        cdugasBefore.addRole( newRole( "developer" ) );
 
         try
         {

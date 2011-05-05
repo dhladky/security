@@ -122,7 +122,7 @@ public class MultipleUsersSameNameTest
         payload.setData( new UserToRoleResource() );
         payload.getData().setUserId( "jcoder" );
         payload.getData().setSource( MockUserManagerA.SOURCE );
-        payload.getData().getRoles().add( "admin" );
+        payload.getData().getRoles().add( newRole( "admin" ) );
         
         userToRoleResource.put( null, request, response, null );
         

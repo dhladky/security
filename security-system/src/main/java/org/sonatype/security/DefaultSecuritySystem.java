@@ -911,7 +911,7 @@ public class DefaultSecuritySystem
 
     @Override
     @Deprecated
-    public Set<RoleKey> getRoleKeysForAllRealms( Set<String> roles )
+    public Set<RoleKey> getRoleKeysForAllRealms( Collection<String> roles )
     {
         Set<RoleKey> keys = new LinkedHashSet<RoleKey>();
 
