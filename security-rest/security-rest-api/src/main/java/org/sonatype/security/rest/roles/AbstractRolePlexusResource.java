@@ -12,6 +12,7 @@
  */
 package org.sonatype.security.rest.roles;
 
+import org.restlet.data.Reference;
 import org.restlet.data.Request;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
@@ -37,12 +38,14 @@ public abstract class AbstractRolePlexusResource
         resource.setKey( securityToRestModelKey( role.getKey() ) );
         resource.setName( role.getName() );
 
-        String resourceId = "";
         if ( appendResourceId )
         {
-            resourceId = resource.getKey().getId();
+            resource.setResourceURI( this.createChildReference( request, resource.getKey() ).toString() );
         }
-        resource.setResourceURI( this.createChildReference( request, resourceId ).toString() );
+        else
+        {
+            resource.setResourceURI( this.createChildReference( request, "" ).toString() );
+        }
 
         resource.setUserManaged( !role.isReadOnly() );
 
@@ -57,6 +60,11 @@ public abstract class AbstractRolePlexusResource
         }
 
         return resource;
+    }
+
+    protected Reference createChildReference( Request request, RoleKeyResource key )
+    {
+        return this.createChildReference( request, key.getId() ).addSegment( key.getSource() );
     }
 
     @Override

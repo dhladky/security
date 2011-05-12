@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.codehaus.plexus.util.StringUtils;
 import org.sonatype.security.rest.model.RoleAndPrivilegeListFilterResourceRequest;
 import org.sonatype.security.rest.model.RoleAndPrivilegeListResource;
+import org.sonatype.security.rest.model.RoleKeyResource;
 
 public class FilterRequest
 {
@@ -19,11 +20,11 @@ public class FilterRequest
 
     private final String text;
 
-    private final List<String> roleIds;
+    private final List<RoleKeyResource> roleIds;
 
     private final List<String> privilegeIds;
 
-    private final List<String> hiddenRoleIds;
+    private final List<RoleKeyResource> hiddenRoleIds;
 
     private final List<String> hiddenPrivilegeIds;
 
@@ -68,7 +69,7 @@ public class FilterRequest
         return text;
     }
 
-    public List<String> getRoleIds()
+    public List<RoleKeyResource> getRoleIds()
     {
         return roleIds;
     }
@@ -78,7 +79,7 @@ public class FilterRequest
         return privilegeIds;
     }
 
-    public List<String> getHiddenRoleIds()
+    public List<RoleKeyResource> getHiddenRoleIds()
     {
         return hiddenRoleIds;
     }
@@ -100,9 +101,9 @@ public class FilterRequest
             if ( resource.getType().equals( "role" ) )
             {
                 if ( ( ( isShowRoles() && !resource.isExternal() && !( getUserId() != null && getRoleIds().isEmpty() ) ) || ( isShowExternalRoles() && resource.isExternal() ) )
-                    && ( !getHiddenRoleIds().contains( resource.getId() ) )
+                    && ( !getHiddenRoleIds().contains( toRoleKey( resource.getId(), resource.getSource() ) ) )
                     && ( resource.isExternal() || ( ( ( getRoleIds().isEmpty() && !isOnlySelected() ) || getRoleIds().contains(
-                        resource.getId() ) ) ) )
+                        toRoleKey( resource.getId(), resource.getSource() ) ) ) ) )
                     && ( StringUtils.isEmpty( getText() ) || Pattern.compile( Pattern.quote( getText() ), Pattern.CASE_INSENSITIVE ).matcher( resource.getName() ).find() ) )
                 {
                     return true;
@@ -122,5 +123,13 @@ public class FilterRequest
         }
 
         return false;
+    }
+
+    private RoleKeyResource toRoleKey( String id, String source )
+    {
+        RoleKeyResource r = new RoleKeyResource();
+        r.setId( id );
+        r.setSource( source );
+        return r;
     }
 }

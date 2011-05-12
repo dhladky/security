@@ -142,7 +142,7 @@ public class RoleListPlexusResource
 
                 resource.setUserManaged( true );
 
-                resource.setResourceURI( createChildReference( request, resource.getKey().getId() ).toString() );
+                resource.setResourceURI( createChildReference( request, resource.getKey() ).toString() );
 
                 result.setData( resource );
             }

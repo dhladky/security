@@ -1429,7 +1429,7 @@
                     <name>selectedRoleIds</name>
                     <version>1.0.0+</version>
                     <association>
-                        <type>String</type>
+                        <type>RoleKeyResource</type>
                         <multiplicity>*</multiplicity>
                     </association>
                     <required>true</required>
@@ -1457,7 +1457,7 @@
                     <name>hiddenRoleIds</name>
                     <version>1.0.0+</version>
                     <association>
-                        <type>String</type>
+                        <type>RoleKeyResource</type>
                         <multiplicity>*</multiplicity>
                     </association>
                     <required>true</required>
