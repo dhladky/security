@@ -29,6 +29,11 @@
       <artifactId>security-model</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.sonatype.security</groupId>
+      <artifactId>security-system</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!--  testing -->
     <dependency>
       <groupId>junit</groupId>

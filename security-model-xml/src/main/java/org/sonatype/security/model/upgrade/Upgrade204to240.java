@@ -17,19 +17,26 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.enterprise.inject.Typed;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
 import org.sonatype.configuration.upgrade.ConfigurationIsCorruptedException;
 import org.sonatype.configuration.upgrade.UpgradeMessage;
+import org.sonatype.security.authorization.AuthorizationManager;
+import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.model.CRole;
 import org.sonatype.security.model.CRoleKey;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.model.v2_0_4.io.xpp3.SecurityConfigurationXpp3Reader;
 import org.sonatype.security.model.v2_4_0.upgrade.BasicVersionUpgrade;
+
 
 @Singleton
 @Typed( value = SecurityUpgrader.class )
@@ -37,6 +44,12 @@ import org.sonatype.security.model.v2_4_0.upgrade.BasicVersionUpgrade;
 public class Upgrade204to240
     implements SecurityUpgrader
 {
+    @Inject
+    private Map<String, AuthorizationManager> authorizationManagers;
+
+    @Inject
+    private Logger log;
+
     public Object loadConfiguration( File file )
         throws IOException, ConfigurationIsCorruptedException
     {
@@ -124,7 +137,27 @@ public class Upgrade204to240
 
         private String getSource( String roleId )
         {
-            // TODO Auto-generated method stub
+            for ( Entry<String, AuthorizationManager> entry : authorizationManagers.entrySet() )
+            {
+                String source = entry.getKey();
+                if ( "default".equals( source ) )
+                {
+                    // the whole point here is to check if this role is anything but default
+                    continue;
+                }
+                AuthorizationManager am = entry.getValue();
+                try
+                {
+                    am.getRole( roleId, source );
+                    return source;
+                }
+                catch ( NoSuchRoleException e )
+                {
+                    // expected
+                    log.debug( "Role: " + roleId + " not available for realm: " + source );
+                    continue;
+                }
+            }
             return "default";
         }
     }

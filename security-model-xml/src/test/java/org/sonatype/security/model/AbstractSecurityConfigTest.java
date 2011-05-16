@@ -16,11 +16,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Properties;
 
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.sonatype.guice.bean.containers.InjectedTestCase;
+import org.sonatype.security.model.io.xpp3.SecurityConfigurationXpp3Writer;
 
 public abstract class AbstractSecurityConfigTest
     extends InjectedTestCase
@@ -72,10 +74,10 @@ public abstract class AbstractSecurityConfigTest
         copyFromClasspathToFile( path, new File( outputFilename ) );
     }
 
-    protected void copyFromClasspathToFile( String path, File output )
+    public static void copyFromClasspathToFile( String path, File output )
         throws IOException
     {
-        copyFromStreamToFile( getClass().getResourceAsStream( path ), output );
+        copyFromStreamToFile( AbstractSecurityConfigTest.class.getResourceAsStream( path ), output );
     }
 
     // this one may find its way back to plexus-utils, copied from IOUtil In nexus
@@ -111,4 +113,18 @@ public abstract class AbstractSecurityConfigTest
         CONF_HOME.mkdirs();
     }
 
+    public static void resultIsFine( String path, Configuration configuration )
+        throws Exception
+    {
+        SecurityConfigurationXpp3Writer w = new SecurityConfigurationXpp3Writer();
+
+        StringWriter sw = new StringWriter();
+
+        w.write( sw, configuration );
+
+        String shouldBe = IOUtil.toString( AbstractSecurityConfigTest.class.getResourceAsStream( path + ".result" ) );
+        shouldBe = shouldBe.replace( "\r\n", "\n" );
+
+        assertEquals( shouldBe, sw.toString() );
+    }
 }

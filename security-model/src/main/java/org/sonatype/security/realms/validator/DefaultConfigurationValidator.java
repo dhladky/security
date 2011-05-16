@@ -215,6 +215,10 @@ public class DefaultConfigurationValidator
             {
                 continue;
             }
+            if ( !roleId.getSource().equals( role.getKey().getSource() ) )
+            {
+                continue;
+            }
             if ( existingRoleNameMap.get( roleId ).equals( role.getName() ) )
             {
                 return true;
