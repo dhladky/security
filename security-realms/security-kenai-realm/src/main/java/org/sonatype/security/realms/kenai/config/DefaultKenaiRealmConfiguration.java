@@ -186,7 +186,7 @@ public class DefaultKenaiRealmConfiguration
             // check that this is a valid role
             try
             {
-                this.securitySystem.getAuthorizationManager( "default" ).getRole( config.getDefaultRole() );
+                this.securitySystem.getAuthorizationManager( "default" ).getRole( config.getDefaultRole(), "default" );
             }
             catch ( Exception e )
             {
