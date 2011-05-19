@@ -101,7 +101,7 @@ public class XmlAuthorizingRealm
         }
 
         String username = principals.getPrimaryPrincipal().toString();
-        Set<String> roles = new HashSet<String>();
+        Set<RoleKey> roles = new HashSet<RoleKey>();
 
         Set<String> realmNames = new HashSet<String>( principals.getRealmNames() );
 
@@ -139,7 +139,7 @@ public class XmlAuthorizingRealm
                     for ( RoleKey roleIdentifier : ( (RoleMappingUserManager) userManager ).getUsersRoles( username,
                                                                                                                   realmName ) )
                     {
-                        roles.add( roleIdentifier.getRoleId() );
+                        roles.add( roleIdentifier );
                     }
                 }
                 catch ( UserNotFoundException e )
@@ -158,7 +158,7 @@ public class XmlAuthorizingRealm
             {
                 for ( RoleKey roleIdentifier : userManager.getUser( username ).getRoles() )
                 {
-                    roles.add( roleIdentifier.getRoleId() );
+                    roles.add( roleIdentifier );
                 }
             }
             catch ( UserNotFoundException e )
@@ -179,6 +179,16 @@ public class XmlAuthorizingRealm
 
         return info;
     }
+
+    // private Set<String> toPlainRoles( Set<RoleKey> roles )
+    // {
+    // Set<String> pr = new LinkedHashSet<String>();
+    // for ( RoleKey roleKey : roles )
+    // {
+    // pr.add( roleKey.getRoleId() + ":" + roleKey.getSource() );
+    // }
+    // return pr;
+    // }
 
     private void cleanUpRealmList( Set<String> realmNames )
     {   
