@@ -15,6 +15,7 @@ import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.security.authentication.FirstSuccessfulModularRealmAuthenticator;
 import org.sonatype.security.authorization.ExceptionCatchingModularRealmAuthorizer;
 
@@ -29,16 +30,15 @@ import org.sonatype.security.authorization.ExceptionCatchingModularRealmAuthoriz
 @Named( value = "web" )
 public class WebRealmSecurityManager
     extends DefaultWebSecurityManager
-    implements org.apache.shiro.util.Initializable
+//    implements org.apache.shiro.util.Initializable
 {
     private Map<String, RolePermissionResolver> rolePermissionResolverMap;
 
-    private Logger logger;
+    private Logger logger  = LoggerFactory.getLogger( getClass() );
 
     @Inject
-    public WebRealmSecurityManager( Logger logger, Map<String, RolePermissionResolver> rolePermissionResolverMap )
+    public WebRealmSecurityManager( Map<String, RolePermissionResolver> rolePermissionResolverMap )
     {
-        this.logger = logger;
         this.rolePermissionResolverMap = rolePermissionResolverMap;
 
         // set the realm authenticator, that will automatically deligate the authentication to all the realms.
@@ -78,12 +78,12 @@ public class WebRealmSecurityManager
         this.setAuthorizer( authorizer );
     }
 
-    public void init()
-        throws ShiroException
-    {
-        // use cacheing for the sessions, we can tune this with a props file per application if needed
-        DefaultWebSessionManager webSessionManager = new DefaultWebSessionManager();
-        webSessionManager.setSessionDAO( new EnterpriseCacheSessionDAO() );
-        this.setSessionManager( webSessionManager );
-    }
+//    public void init()
+//        throws ShiroException
+//    {
+//        // use cacheing for the sessions, we can tune this with a props file per application if needed
+//        DefaultWebSessionManager webSessionManager = new DefaultWebSessionManager();
+//        webSessionManager.setSessionDAO( new EnterpriseCacheSessionDAO() );
+//        this.setSessionManager( webSessionManager );
+//    }
 }

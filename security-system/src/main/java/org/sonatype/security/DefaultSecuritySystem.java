@@ -1,5 +1,6 @@
 package org.sonatype.security;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import net.sf.ehcache.CacheManager;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -21,17 +23,19 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.mgt.RealmSecurityManager;
+import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.configuration.validation.InvalidConfigurationException;
 import org.sonatype.plexus.appevents.ApplicationEventMulticaster;
 import org.sonatype.plexus.appevents.Event;
 import org.sonatype.plexus.appevents.EventListener;
-import org.sonatype.plexus.components.ehcache.PlexusEhCacheWrapper;
 import org.sonatype.security.authentication.AuthenticationException;
 import org.sonatype.security.authorization.AuthorizationException;
 import org.sonatype.security.authorization.AuthorizationManager;
@@ -54,6 +58,8 @@ import org.sonatype.security.usermanagement.UserManagerFacade;
 import org.sonatype.security.usermanagement.UserNotFoundException;
 import org.sonatype.security.usermanagement.UserSearchCriteria;
 import org.sonatype.security.usermanagement.UserStatus;
+import org.sonatype.sisu.ehcache.CacheManagerComponent;
+import org.sonatype.sisu.ehcache.CacheManagerComponentImpl;
 
 /**
  * This implementation wraps a Shiro SecurityManager, and adds user management.
@@ -68,7 +74,7 @@ public class DefaultSecuritySystem
 
     private Map<String, RealmSecurityManager> securityManagers;
 
-    private PlexusEhCacheWrapper cacheWrapper;
+    private CacheManagerComponentImpl cacheManagerComponent;
 
     private UserManagerFacade userManagerFacade;
 
@@ -80,7 +86,7 @@ public class DefaultSecuritySystem
 
     private ApplicationEventMulticaster eventMulticaster;
 
-    private Logger logger;
+    private Logger logger = LoggerFactory.getLogger( getClass() );
 
     private List<SecurityEmailer> securityEmailers;
 
@@ -89,22 +95,21 @@ public class DefaultSecuritySystem
     private static final String ALL_ROLES_KEY = "all";
 
     @Inject
-    public DefaultSecuritySystem( List<SecurityEmailer> securityEmailers, Logger logger,
+    public DefaultSecuritySystem( List<SecurityEmailer> securityEmailers,
                                   ApplicationEventMulticaster eventMulticaster, PasswordGenerator passwordGenerator,
                                   Map<String, AuthorizationManager> authorizationManagers, Map<String, Realm> realmMap,
                                   SecurityConfigurationManager securityConfiguration,
                                   Map<String, RealmSecurityManager> securityManagers,
-                                  PlexusEhCacheWrapper cacheWrapper, UserManagerFacade userManagerFacade )
+                                  CacheManagerComponentImpl cacheManagerComponent, UserManagerFacade userManagerFacade )
     {
         this.securityEmailers = securityEmailers;
-        this.logger = logger;
         this.eventMulticaster = eventMulticaster;
         this.passwordGenerator = passwordGenerator;
         this.authorizationManagers = authorizationManagers;
         this.realmMap = realmMap;
         this.securityConfiguration = securityConfiguration;
         this.securityManagers = securityManagers;
-        this.cacheWrapper = cacheWrapper;
+        this.cacheManagerComponent = cacheManagerComponent;
 
         this.eventMulticaster.addEventListener( this );
         this.userManagerFacade = userManagerFacade;
@@ -116,11 +121,8 @@ public class DefaultSecuritySystem
     {
         try
         {
-            Subject subject = new Subject.Builder( getSecurityManager() ).buildSubject();
-            // TODO: consider doing something else here, read the javadoc for the login method
+            Subject subject = this.getSubject();
             subject.login( token );
-            // Subject subject = this.getApplicationSecurityManager().login( null, token );
-            // ThreadContext.bind( subject );
             return subject;
         }
         catch ( org.apache.shiro.authc.AuthenticationException e )
@@ -846,10 +848,26 @@ public class DefaultSecuritySystem
         // reload the config
         this.securityConfiguration.clearCache();
 
+        // if we are restarting this component the getCacheManager will be null
+        // TODO: need better lifecycle management of cache
+        CacheManager cacheManager = this.cacheManagerComponent.getCacheManager();
+        if( cacheManager == null)
+        {
+            try
+            {
+                this.cacheManagerComponent.startup( null );
+                cacheManager = this.cacheManagerComponent.getCacheManager();
+            }
+            catch ( IOException e )
+            {
+                throw new IllegalStateException( "Failed to restart CacheManagerComponent" );
+            }
+        }
+
         // setup the CacheManager ( this could be injected if we where less coupled with ehcache)
         // The plexus wrapper can interpolate the config
         EhCacheManager ehCacheManager = new EhCacheManager();
-        ehCacheManager.setCacheManager( this.cacheWrapper.getEhCacheManager() );
+        ehCacheManager.setCacheManager( cacheManager );
         this.getSecurityManager().setCacheManager( ehCacheManager );
 
         if ( org.apache.shiro.util.Initializable.class.isInstance( this.getSecurityManager() ) )
@@ -861,8 +879,24 @@ public class DefaultSecuritySystem
 
     public void stop()
     {
+        if( getSecurityManager().getRealms() != null )
+        {
+            for( Realm realm : getSecurityManager().getRealms() )
+            {
+                if( AuthenticatingRealm.class.isInstance( realm ) )
+                {
+                    ((AuthenticatingRealm)realm).setAuthenticationCache( null );
+                }
+                if( AuthorizingRealm.class.isInstance( realm ) )
+                {
+                    ((AuthorizingRealm)realm).setAuthorizationCache( null );
+                }
+            }
+        }
+        
         // we need to kill caches on stop
         getSecurityManager().destroy();
+        cacheManagerComponent.shutdown();
     }
 
     private void setSecurityManagerRealms()
@@ -911,6 +945,6 @@ public class DefaultSecuritySystem
 
     public RealmSecurityManager getSecurityManager()
     {
-        return this.securityManagers.get( this.securityConfiguration.getSecurityManager() );
+        return this.securityManagers.get( securityConfiguration.getSecurityManager() );
     }
 }

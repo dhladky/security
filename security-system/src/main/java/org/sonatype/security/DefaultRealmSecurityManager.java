@@ -7,15 +7,21 @@ import javax.inject.Singleton;
 
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.authc.pam.FirstSuccessfulStrategy;
+import org.apache.shiro.authz.ModularRealmAuthorizer;
 import org.apache.shiro.authz.permission.RolePermissionResolver;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.RealmSecurityManager;
+import org.apache.shiro.realm.CachingRealm;
+import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.util.Initializable;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.inject.Nullable;
 import org.sonatype.security.authentication.FirstSuccessfulModularRealmAuthenticator;
 import org.sonatype.security.authorization.ExceptionCatchingModularRealmAuthorizer;
+
+import java.util.Collection;
 
 /**
  * Componentize the Shiro DefaultSecurityManager, and sets up caching.
@@ -29,19 +35,17 @@ public class DefaultRealmSecurityManager
     extends DefaultSecurityManager
     implements Initializable
 {
-    private Logger logger;
+    private Logger logger = LoggerFactory.getLogger( getClass() );
     private RolePermissionResolver rolePermissionResolver;
     
     @Inject
-    public DefaultRealmSecurityManager( Logger logger, @Nullable RolePermissionResolver rolePermissionResolver )
+    public DefaultRealmSecurityManager( @Nullable RolePermissionResolver rolePermissionResolver )
     {
         super();
-        this.logger = logger;
         this.rolePermissionResolver = rolePermissionResolver;
         init();
     }
     
-    @Override
     public void init()
         throws ShiroException
     {

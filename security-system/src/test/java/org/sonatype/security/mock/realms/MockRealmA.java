@@ -14,8 +14,10 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationException;
+import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.realm.AuthenticatingRealm;
+import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.sonatype.security.usermanagement.RoleIdentifier;
@@ -27,7 +29,7 @@ import org.sonatype.security.usermanagement.UserNotFoundException;
 @Typed( value = Realm.class )
 @Named( value = "MockRealmA" )
 public class MockRealmA
-    extends AuthenticatingRealm
+    extends AuthorizingRealm
 {
 
     @Inject
@@ -181,5 +183,12 @@ public class MockRealmA
     {
         // TODO Auto-generated method stub
         
+    }
+
+    @Override
+    protected AuthorizationInfo doGetAuthorizationInfo( PrincipalCollection principals )
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

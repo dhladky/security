@@ -33,6 +33,7 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.inject.Description;
 import org.sonatype.security.SecuritySystem;
 import org.sonatype.security.usermanagement.RoleIdentifier;
@@ -62,8 +63,7 @@ public class XmlAuthorizingRealm
     @Inject
     private Map<String, UserManager> userManagerMap;
 
-    @Inject
-    private Logger logger;
+    private Logger logger = LoggerFactory.getLogger( getClass() );
     
     @Inject 
     private SecuritySystem securitySystem;

@@ -9,6 +9,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @Typed( value = UserManagerFacade.class )
@@ -18,8 +19,7 @@ public class UserManagerFacade
     @Inject
     Map<String, UserManager> userManagers;
 
-    @Inject
-    Logger logger;
+    Logger logger = LoggerFactory.getLogger( getClass() );
 
     public User getUser( String userId, String source )
         throws UserNotFoundException, NoSuchUserManagerException

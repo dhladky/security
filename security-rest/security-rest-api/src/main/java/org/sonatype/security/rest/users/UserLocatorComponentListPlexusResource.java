@@ -23,9 +23,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import com.google.inject.Key;
 import org.codehaus.enunciate.contract.jaxrs.ResourceMethodSignature;
-import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.util.StringUtils;
 import org.restlet.Context;
 import org.restlet.data.Request;
@@ -33,6 +32,8 @@ import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
+import org.sonatype.guice.bean.locators.BeanLocator;
+import org.sonatype.inject.BeanEntry;
 import org.sonatype.plexus.rest.resource.AbstractPlexusResource;
 import org.sonatype.plexus.rest.resource.PathProtectionDescriptor;
 import org.sonatype.plexus.rest.resource.PlexusResource;
@@ -59,10 +60,10 @@ public class UserLocatorComponentListPlexusResource
     public static final String RESOURCE_URI = "/components/userLocators";
 
     @Inject
-    private PlexusContainer container;
+    private Map<String, UserManager> userManagers;
 
     @Inject
-    private Map<String, UserManager> userManagers;
+    private BeanLocator beanLocator;
 
     @Override
     public Object getPayloadInstance()
@@ -97,16 +98,15 @@ public class UserLocatorComponentListPlexusResource
             throw new ResourceException( Status.CLIENT_ERROR_NOT_FOUND );
         }
 
-        for ( String hint : userManagers.keySet() )
+        
+        for( BeanEntry<?, UserManager> entry : beanLocator.locate( Key.get( UserManager.class ) ) )
         {
-            ComponentDescriptor<?> componentDescriptor =
-                container.getComponentDescriptor( UserManager.class, UserManager.class.getName(), hint );
+            String hint = entry.getValue().getSource();
+            String description = entry.getDescription();
 
             PlexusComponentListResource resource = new PlexusComponentListResource();
-
-            resource.setRoleHint( componentDescriptor.getRoleHint() );
-            resource.setDescription( ( StringUtils.isNotEmpty( componentDescriptor.getDescription() ) ) ? componentDescriptor.getDescription()
-                            : componentDescriptor.getRoleHint() );
+            resource.setRoleHint( hint );
+            resource.setDescription( ( StringUtils.isNotEmpty( description ) ) ? description : hint );
 
             // add it to the collection
             result.addData( resource );

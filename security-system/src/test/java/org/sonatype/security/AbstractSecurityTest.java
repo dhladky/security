@@ -3,6 +3,7 @@ package org.sonatype.security;
 import java.io.File;
 import java.util.Properties;
 
+import org.apache.shiro.util.ThreadContext;
 import org.codehaus.plexus.util.FileUtils;
 import org.sonatype.guice.bean.containers.InjectedTestCase;
 
@@ -31,6 +32,15 @@ public abstract class AbstractSecurityTest
         FileUtils.deleteDirectory( PLEXUS_HOME );
 
         this.getSecuritySystem().start();
+    }
+    
+    @Override
+    protected void tearDown()
+        throws Exception
+    {
+        this.getSecuritySystem().stop();
+        super.tearDown();
+        ThreadContext.remove();
     }
 
     protected SecuritySystem getSecuritySystem()

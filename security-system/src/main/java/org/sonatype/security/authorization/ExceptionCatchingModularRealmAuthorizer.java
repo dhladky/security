@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.shiro.authz.ModularRealmAuthorizer;
 import org.apache.shiro.authz.Permission;
+import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
@@ -111,7 +112,7 @@ public class ExceptionCatchingModularRealmAuthorizer
             // need to catch an AuthorizationException, the user might only belong to on of the realms
             try
             {
-                if ( realm.hasRole( subjectPrincipal, roleIdentifier ) )
+                if ( ( /*FIXME fix cast hack*/(AuthorizingRealm) realm).hasRole( subjectPrincipal, roleIdentifier ) )
                 {
                     return true;
                 }
@@ -134,7 +135,7 @@ public class ExceptionCatchingModularRealmAuthorizer
         {
             try
             {
-                boolean[] result = realm.hasRoles( subjectPrincipal, roleIdentifiers );
+                boolean[] result = ( /*FIXME fix cast hack*/(AuthorizingRealm) realm).hasRoles( subjectPrincipal, roleIdentifiers );
 
                 for ( int i = 0; i < combinedResult.length; i++ )
                 {
@@ -158,7 +159,7 @@ public class ExceptionCatchingModularRealmAuthorizer
         {
             try
             {
-                if ( realm.isPermitted( subjectPrincipal, permission ) )
+                if ( ( /*FIXME fix cast hack*/(AuthorizingRealm) realm).isPermitted( subjectPrincipal, permission ) )
                 {
                     this.logger.trace( "Realm: "+ realm.getName() +" user: "+ subjectPrincipal.iterator().next() +" has permisison: "+ permission );
                     return true;
@@ -185,7 +186,7 @@ public class ExceptionCatchingModularRealmAuthorizer
         {
             try
             {
-                if ( realm.isPermitted( subjectPrincipal, permission ) )
+                if ( ( /*FIXME fix cast hack*/(AuthorizingRealm) realm).isPermitted( subjectPrincipal, permission ) )
                 {
                     return true;
                 }
@@ -208,7 +209,7 @@ public class ExceptionCatchingModularRealmAuthorizer
         {
             try
             {
-                boolean[] result = realm.isPermitted( subjectPrincipal, permissions );
+                boolean[] result = ( /*FIXME fix cast hack*/(AuthorizingRealm) realm).isPermitted( subjectPrincipal, permissions );
 
                 for ( int i = 0; i < combinedResult.length; i++ )
                 {
@@ -233,7 +234,7 @@ public class ExceptionCatchingModularRealmAuthorizer
         {
             try
             {
-                boolean[] result = realm.isPermitted( subjectPrincipal, permissions );
+                boolean[] result = ( /*FIXME fix cast hack*/(AuthorizingRealm) realm).isPermitted( subjectPrincipal, permissions );
 
                 for ( int i = 0; i < combinedResult.length; i++ )
                 {

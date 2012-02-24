@@ -11,6 +11,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.configuration.ConfigurationException;
 import org.sonatype.configuration.validation.InvalidConfigurationException;
 import org.sonatype.configuration.validation.ValidationResponse;
@@ -33,8 +34,7 @@ public class DefaultSecurityConfigurationManager
     @Inject
     private SecurityConfigurationValidator validator;
 
-    @Inject
-    private Logger logger;
+    private Logger logger  = LoggerFactory.getLogger( getClass() );
 
     /**
      * This will hold the current configuration in memory, to reload, will need to set this to null

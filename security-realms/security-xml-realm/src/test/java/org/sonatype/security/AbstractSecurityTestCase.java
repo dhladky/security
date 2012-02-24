@@ -74,6 +74,14 @@ public abstract class AbstractSecurityTestCase
         this.lookup( SecuritySystem.class ).start();
     }
 
+    @Override
+    protected void tearDown()
+        throws Exception
+    {
+        this.lookup( SecuritySystem.class ).stop();
+        super.tearDown();
+    }
+
     protected Configuration getConfigurationFromStream( InputStream is )
         throws Exception
     {

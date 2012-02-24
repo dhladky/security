@@ -42,6 +42,14 @@ public abstract class AbstractSecurityRestTest
     }
 
     @Override
+    protected void tearDown()
+        throws Exception
+    {
+        this.lookup( SecuritySystem.class ).stop();
+        super.tearDown();
+    }
+
+    @Override
     protected void customizeContext( Context context )
     {
         super.customizeContext( context );

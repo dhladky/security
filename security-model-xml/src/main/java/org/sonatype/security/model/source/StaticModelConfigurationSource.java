@@ -21,6 +21,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.configuration.ConfigurationException;
 import org.sonatype.security.model.Configuration;
 
@@ -38,9 +39,8 @@ public class StaticModelConfigurationSource
 {
     
     private static final String STATIC_SECURITY_RESOURCE = "/META-INF/security/security.xml";
-    
-    @Inject
-    private Logger logger;
+
+    private Logger logger = LoggerFactory.getLogger( getClass() );
     
     /**
      * Gets the configuration using getResourceAsStream from "/META-INF/security/security.xml".

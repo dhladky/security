@@ -18,8 +18,6 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.authc.credential.AllowAllCredentialsMatcher;
-import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
@@ -77,21 +75,17 @@ public class KenaiRealm
         return "kenai";
     }
 
+    public KenaiRealm()
+    {
+        super();
+        // TODO: write another test before enabling this
+        //this.setAuthenticationCachingEnabled( true );
+    }
+
     @Override
     public boolean supports( AuthenticationToken token )
     {
         return UsernamePasswordToken.class.isAssignableFrom( token.getClass() );
-    }
-
-    /*
-    * (non-Javadoc)
-    * @see org.jsecurity.realm.AuthenticatingRealm#getCredentialsMatcher()
-    */
-    @Override
-    public CredentialsMatcher getCredentialsMatcher()
-    {
-        // we are managing the authentication ourselfs
-        return new AllowAllCredentialsMatcher();
     }
 
     @Override
@@ -101,7 +95,6 @@ public class KenaiRealm
 
         UsernamePasswordToken upToken = (UsernamePasswordToken) token;
 
-        // check cache
         AuthenticationInfo authInfo = null;
         String username = upToken.getUsername();
         String pass = String.valueOf( upToken.getPassword() );
@@ -109,7 +102,7 @@ public class KenaiRealm
         // if the user can authenticate we are good to go
         if ( this.authenticateViaUrl( username, pass ) )
         {
-            authInfo = buildAuthenticationInfo( username, null );
+            authInfo = buildAuthenticationInfo( username, upToken.getPassword() );
         }
         else
         {

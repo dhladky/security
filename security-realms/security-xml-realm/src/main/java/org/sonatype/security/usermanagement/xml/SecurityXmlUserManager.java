@@ -22,6 +22,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.configuration.validation.InvalidConfigurationException;
 import org.sonatype.inject.Description;
 import org.sonatype.security.SecuritySystem;
@@ -65,8 +66,7 @@ public class SecurityXmlUserManager
     @Inject
     private SecuritySystem securitySystem;
 
-    @Inject
-    private Logger logger;
+    private Logger logger = LoggerFactory.getLogger( getClass() );
 
     protected CUser toUser( User user )
     {
