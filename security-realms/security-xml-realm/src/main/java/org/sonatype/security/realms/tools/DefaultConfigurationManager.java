@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
@@ -49,36 +52,100 @@ import org.sonatype.security.usermanagement.xml.SecurityXmlUserManager;
 public class DefaultConfigurationManager
     extends AbstractConfigurationManager
 {
-    @Inject
-    @Named( value = "file" )
-    private SecurityModelConfigurationSource configurationSource;
+
+    private final SecurityModelConfigurationSource configurationSource;
+
+    private final SecurityConfigurationValidator validator;
+
+    private final List<PrivilegeDescriptor> privilegeDescriptors;
+
+    private final SecurityConfigurationCleaner configCleaner;
+
+    private final List<SecurityConfigurationModifier> configurationModifiers;
+
+    private final ReadWriteLock cfgLock = new ReentrantReadWriteLock();
+
+    private List<CPrivilege> privileges;
+
+    private List<CUser> users;
+
+    private List<CRole> roles;
 
     @Inject
-    private SecurityConfigurationValidator validator;
-
-    @Inject
-    private List<PrivilegeDescriptor> privilegeDescriptors;
-
-    @Inject
-    private SecurityConfigurationCleaner configCleaner;
-
-    @Inject
-    private List<SecurityConfigurationModifier> configurationModifiers;
-
+    public DefaultConfigurationManager( @Named( value = "file" ) SecurityModelConfigurationSource configurationSource,
+                                        SecurityConfigurationValidator validator,
+                                        List<PrivilegeDescriptor> privilegeDescriptors,
+                                        SecurityConfigurationCleaner configCleaner,
+                                        List<SecurityConfigurationModifier> configurationModifiers )
+    {
+        this.configurationSource = configurationSource;
+        this.validator = validator;
+        this.privilegeDescriptors = privilegeDescriptors;
+        this.configCleaner = configCleaner;
+        this.configurationModifiers = configurationModifiers;
+    }
 
     public List<CPrivilege> listPrivileges()
     {
-        return Collections.unmodifiableList( getConfiguration().getPrivileges() );
+        if ( privileges == null )
+        {
+            Lock lock = cfgLock.writeLock();
+            try
+            {
+                lock.lock();
+                if ( privileges == null )
+                {
+                    privileges = getConfiguration().getPrivileges();
+                }
+            }
+            finally
+            {
+                lock.unlock();
+            }
+        }
+        return privileges;
     }
 
     public List<CRole> listRoles()
     {
-        return Collections.unmodifiableList( getConfiguration().getRoles() );
+        if ( roles == null )
+        {
+            Lock lock = cfgLock.writeLock();
+            try
+            {
+                lock.lock();
+                if ( roles == null )
+                {
+                    roles = getConfiguration().getRoles();
+                }
+            }
+            finally
+            {
+                lock.unlock();
+            }
+        }
+        return roles;
     }
 
     public List<CUser> listUsers()
     {
-        return Collections.unmodifiableList( getConfiguration().getUsers() );
+        if ( users == null )
+        {
+            Lock lock = cfgLock.writeLock();
+            try
+            {
+                lock.lock();
+                if ( users == null )
+                {
+                    users = getConfiguration().getUsers();
+                }
+            }
+            finally
+            {
+                lock.unlock();
+            }
+        }
+        return users;
     }
 
     public void createPrivilege( CPrivilege privilege )
@@ -90,20 +157,31 @@ public class DefaultConfigurationManager
     public void createPrivilege( CPrivilege privilege, SecurityValidationContext context )
         throws InvalidConfigurationException
     {
-        if ( context == null )
+        Lock lock = cfgLock.writeLock();
+        try
         {
-            context = initializeContext();
-        }
+            lock.lock();
 
-        ValidationResponse vr = validator.validatePrivilege( context, privilege, false );
+            if ( context == null )
+            {
+                context = initializeContext();
+            }
 
-        if ( vr.isValid() )
-        {
-            getConfiguration().addPrivilege( privilege );
+            ValidationResponse vr = validator.validatePrivilege( context, privilege, false );
+
+            if ( vr.isValid() )
+            {
+                getConfiguration().addPrivilege( privilege );
+                privileges = getConfiguration().getPrivileges();
+            }
+            else
+            {
+                throw new InvalidConfigurationException( vr );
+            }
         }
-        else
+        finally
         {
-            throw new InvalidConfigurationException( vr );
+            lock.unlock();
         }
     }
 
@@ -116,20 +194,31 @@ public class DefaultConfigurationManager
     public void createRole( CRole role, SecurityValidationContext context )
         throws InvalidConfigurationException
     {
-        if ( context == null )
+        Lock lock = cfgLock.writeLock();
+        try
         {
-            context = initializeContext();
-        }
+            lock.lock();
 
-        ValidationResponse vr = validator.validateRole( context, role, false );
+            if ( context == null )
+            {
+                context = initializeContext();
+            }
 
-        if ( vr.isValid() )
-        {
-            getConfiguration().addRole( role );
+            ValidationResponse vr = validator.validateRole( context, role, false );
+
+            if ( vr.isValid() )
+            {
+                getConfiguration().addRole( role );
+                roles = getConfiguration().getRoles();
+            }
+            else
+            {
+                throw new InvalidConfigurationException( vr );
+            }
         }
-        else
+        finally
         {
-            throw new InvalidConfigurationException( vr );
+            lock.unlock();
         }
     }
 
@@ -154,28 +243,39 @@ public class DefaultConfigurationManager
     public void createUser( CUser user, String password, Set<String> roles, SecurityValidationContext context )
         throws InvalidConfigurationException
     {
-        if ( context == null )
+        Lock lock = cfgLock.writeLock();
+        try
         {
-            context = initializeContext();
+            lock.lock();
+
+            if ( context == null )
+            {
+                context = initializeContext();
+            }
+
+            // set the password if its not null
+            if ( password != null && password.trim().length() > 0 )
+            {
+                user.setPassword( StringDigester.getSha1Digest( password ) );
+            }
+
+            ValidationResponse vr = validator.validateUser( context, user, roles, false );
+
+            if ( vr.isValid() )
+            {
+                getConfiguration().addUser( user );
+                createOrUpdateUserRoleMapping( buildUserRoleMapping( user.getId(), roles ) );
+
+                users = getConfiguration().getUsers();
+            }
+            else
+            {
+                throw new InvalidConfigurationException( vr );
+            }
         }
-
-        // set the password if its not null
-        if ( password != null && password.trim().length() > 0 )
+        finally
         {
-            user.setPassword( StringDigester.getSha1Digest( password ) );
-        }
-
-        ValidationResponse vr = validator.validateUser( context, user, roles, false );
-
-        if ( vr.isValid() )
-        {
-            getConfiguration().addUser( user );
-            createOrUpdateUserRoleMapping( buildUserRoleMapping( user.getId(), roles ) );
-
-        }
-        else
-        {
-            throw new InvalidConfigurationException( vr );
+            lock.unlock();
         }
     }
 
@@ -219,16 +319,28 @@ public class DefaultConfigurationManager
     public void deletePrivilege( String id, boolean clean )
         throws NoSuchPrivilegeException
     {
-        boolean found = getConfiguration().removePrivilegeById( id );
-
-        if ( !found )
+        Lock lock = cfgLock.writeLock();
+        try
         {
-            throw new NoSuchPrivilegeException( id );
+            lock.lock();
+
+            boolean found = getConfiguration().removePrivilegeById( id );
+
+            if ( !found )
+            {
+                throw new NoSuchPrivilegeException( id );
+            }
+
+            privileges = getConfiguration().getPrivileges();
+
+            if ( clean )
+            {
+                cleanRemovedPrivilege( id );
+            }
         }
-
-        if ( clean )
+        finally
         {
-            cleanRemovedPrivilege( id );
+            lock.unlock();
         }
     }
 
@@ -241,84 +353,138 @@ public class DefaultConfigurationManager
     protected void deleteRole( String id, boolean clean )
         throws NoSuchRoleException
     {
-        boolean found = getConfiguration().removeRoleById( id );
-
-        if ( !found )
+        Lock lock = cfgLock.writeLock();
+        try
         {
-            throw new NoSuchRoleException( id );
+            lock.lock();
+
+            boolean found = getConfiguration().removeRoleById( id );
+
+            if ( !found )
+            {
+                throw new NoSuchRoleException( id );
+            }
+
+            roles = getConfiguration().getRoles();
+
+            if ( clean )
+            {
+                cleanRemovedRole( id );
+            }
         }
-
-        if ( clean )
+        finally
         {
-            cleanRemovedRole( id );
+            lock.unlock();
         }
     }
 
     public void deleteUser( String id )
         throws UserNotFoundException
     {
-        boolean found = getConfiguration().removeUserById( id );
-
-        if ( !found )
-        {
-            throw new UserNotFoundException( id );
-        }
-
-        // delete the user role mapping for this user too
+        Lock lock = cfgLock.writeLock();
         try
         {
-            deleteUserRoleMapping( id, SecurityXmlUserManager.SOURCE );
+            lock.lock();
+
+            boolean found = getConfiguration().removeUserById( id );
+
+            if ( !found )
+            {
+                throw new UserNotFoundException( id );
+            }
+
+            users = getConfiguration().getUsers();
+
+            // delete the user role mapping for this user too
+            try
+            {
+                deleteUserRoleMapping( id, SecurityXmlUserManager.SOURCE );
+            }
+            catch ( NoSuchRoleMappingException e )
+            {
+                this.getLogger().debug(
+                    "User role mapping for user: " + id + " source: " + SecurityXmlUserManager.SOURCE
+                        + " could not be deleted because it does not exist." );
+            }
         }
-        catch ( NoSuchRoleMappingException e )
+        finally
         {
-            this.getLogger().debug(
-                "User role mapping for user: " + id + " source: " + SecurityXmlUserManager.SOURCE
-                    + " could not be deleted because it does not exist." );
+            lock.unlock();
         }
     }
 
     public CPrivilege readPrivilege( String id )
         throws NoSuchPrivilegeException
     {
-        CPrivilege privilege = getConfiguration().getPrivilegeById( id );
+        Lock lock = cfgLock.readLock();
+        try
+        {
+            lock.lock();
 
-        if ( privilege != null )
-        {
-            return privilege;
+            CPrivilege privilege = getConfiguration().getPrivilegeById( id );
+
+            if ( privilege != null )
+            {
+                return privilege;
+            }
+            else
+            {
+                throw new NoSuchPrivilegeException( id );
+            }
         }
-        else
+        finally
         {
-            throw new NoSuchPrivilegeException( id );
+            lock.unlock();
         }
     }
 
     public CRole readRole( String id )
         throws NoSuchRoleException
     {
-        CRole role = getConfiguration().getRoleById( id );
+        Lock lock = cfgLock.readLock();
+        try
+        {
+            lock.lock();
 
-        if ( role != null )
-        {
-            return role;
+            CRole role = getConfiguration().getRoleById( id );
+
+            if ( role != null )
+            {
+                return role;
+            }
+            else
+            {
+                throw new NoSuchRoleException( id );
+            }
         }
-        else
+        finally
         {
-            throw new NoSuchRoleException( id );
+            lock.unlock();
         }
     }
 
     public CUser readUser( String id )
         throws UserNotFoundException
     {
-        CUser user = getConfiguration().getUserById( id );
+        Lock lock = cfgLock.readLock();
+        try
+        {
+            lock.lock();
 
-        if ( user != null )
-        {
-            return user;
+            CUser user = getConfiguration().getUserById( id );
+
+            if ( user != null )
+            {
+                return user;
+            }
+            else
+            {
+                throw new UserNotFoundException( id );
+            }
         }
-        else
+        finally
         {
-            throw new UserNotFoundException( id );
+            lock.unlock();
         }
     }
 
@@ -331,21 +497,33 @@ public class DefaultConfigurationManager
     public void updatePrivilege( CPrivilege privilege, SecurityValidationContext context )
         throws InvalidConfigurationException, NoSuchPrivilegeException
     {
-        if ( context == null )
+        Lock lock = cfgLock.writeLock();
+        try
         {
-            context = initializeContext();
-        }
+            lock.lock();
 
-        ValidationResponse vr = validator.validatePrivilege( context, privilege, true );
+            if ( context == null )
+            {
+                context = initializeContext();
+            }
 
-        if ( vr.isValid() )
-        {
-            deletePrivilege( privilege.getId(), false );
-            getConfiguration().addPrivilege( privilege );
+            ValidationResponse vr = validator.validatePrivilege( context, privilege, true );
+
+            if ( vr.isValid() )
+            {
+                deletePrivilege( privilege.getId(), false );
+                getConfiguration().addPrivilege( privilege );
+
+                privileges = getConfiguration().getPrivileges();
+            }
+            else
+            {
+                throw new InvalidConfigurationException( vr );
+            }
         }
-        else
+        finally
         {
-            throw new InvalidConfigurationException( vr );
+            lock.unlock();
         }
     }
 
@@ -358,21 +536,33 @@ public class DefaultConfigurationManager
     public void updateRole( CRole role, SecurityValidationContext context )
         throws InvalidConfigurationException, NoSuchRoleException
     {
-        if ( context == null )
+        Lock lock = cfgLock.writeLock();
+        try
         {
-            context = initializeContext();
-        }
+            lock.lock();
 
-        ValidationResponse vr = validator.validateRole( context, role, true );
+            if ( context == null )
+            {
+                context = initializeContext();
+            }
 
-        if ( vr.isValid() )
-        {
-            deleteRole( role.getId(), false );
-            getConfiguration().addRole( role );
+            ValidationResponse vr = validator.validateRole( context, role, true );
+
+            if ( vr.isValid() )
+            {
+                deleteRole( role.getId(), false );
+                getConfiguration().addRole( role );
+
+                roles = getConfiguration().getRoles();
+            }
+            else
+            {
+                throw new InvalidConfigurationException( vr );
+            }
         }
-        else
+        finally
         {
-            throw new InvalidConfigurationException( vr );
+            lock.unlock();
         }
     }
 
@@ -385,22 +575,34 @@ public class DefaultConfigurationManager
     public void updateUser( CUser user, Set<String> roles, SecurityValidationContext context )
         throws InvalidConfigurationException, UserNotFoundException
     {
-        if ( context == null )
+        Lock lock = cfgLock.writeLock();
+        try
         {
-            context = initializeContext();
-        }
+            lock.lock();
 
-        ValidationResponse vr = validator.validateUser( context, user, roles, true );
+            if ( context == null )
+            {
+                context = initializeContext();
+            }
 
-        if ( vr.isValid() )
-        {
-            deleteUser( user.getId() );
-            getConfiguration().addUser( user );
-            this.createOrUpdateUserRoleMapping( this.buildUserRoleMapping( user.getId(), roles ) );
+            ValidationResponse vr = validator.validateUser( context, user, roles, true );
+
+            if ( vr.isValid() )
+            {
+                deleteUser( user.getId() );
+                getConfiguration().addUser( user );
+                this.createOrUpdateUserRoleMapping( this.buildUserRoleMapping( user.getId(), roles ) );
+
+                users = getConfiguration().getUsers();
+            }
+            else
+            {
+                throw new InvalidConfigurationException( vr );
+            }
         }
-        else
+        finally
         {
-            throw new InvalidConfigurationException( vr );
+            lock.unlock();
         }
     }
 
@@ -517,7 +719,7 @@ public class DefaultConfigurationManager
 
     public List<CUserRoleMapping> listUserRoleMappings()
     {
-        return Collections.unmodifiableList( getConfiguration().getUserRoleMappings() );
+        return getConfiguration().getUserRoleMappings();
     }
 
     public void deleteUserRoleMapping( String userId, String source )
@@ -638,5 +840,15 @@ public class DefaultConfigurationManager
     public void cleanRemovedRole( String roleId )
     {
         configCleaner.roleRemoved( getConfiguration(), roleId );
+    }
+
+    @Override
+    public synchronized void clearCache()
+    {
+        super.clearCache();
+
+        this.users = null;
+        this.roles = null;
+        this.privileges = null;
     }
 }

@@ -1,6 +1,5 @@
 package org.sonatype.security.realms.tools;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,6 +8,8 @@ import org.sonatype.security.model.CRole;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.model.CUserRoleMapping;
 import org.sonatype.security.model.Configuration;
+
+import com.google.common.collect.ImmutableList;
 
 @SuppressWarnings( "serial" )
 public class EnhancedConfiguration
@@ -66,28 +67,28 @@ public class EnhancedConfiguration
     {
         // we are intentionally breaking code that will try to _modify_ the list
         // as the old config manager was before we fixed it
-        return Collections.unmodifiableList( delegate.getPrivileges() );
+        return ImmutableList.copyOf( delegate.getPrivileges() );
     }
 
     public List<CRole> getRoles()
     {
         // we are intentionally breaking code that will try to _modify_ the list
         // as the old config manager was before we fixed it
-        return Collections.unmodifiableList( delegate.getRoles() );
+        return ImmutableList.copyOf( delegate.getRoles() );
     }
 
     public List<CUserRoleMapping> getUserRoleMappings()
     {
         // we are intentionally breaking code that will try to _modify_ the list
         // as the old config manager was before we fixed it
-        return Collections.unmodifiableList( delegate.getUserRoleMappings() );
+        return ImmutableList.copyOf( delegate.getUserRoleMappings() );
     }
 
     public List<CUser> getUsers()
     {
         // we are intentionally breaking code that will try to _modify_ the list
         // as the old config manager was before we fixed it
-        return Collections.unmodifiableList( delegate.getUsers() );
+        return ImmutableList.copyOf( delegate.getUsers() );
     }
 
     public String getVersion()
