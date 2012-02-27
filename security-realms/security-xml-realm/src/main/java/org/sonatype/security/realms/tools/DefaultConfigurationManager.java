@@ -65,11 +65,11 @@ public class DefaultConfigurationManager
 
     private final ReadWriteLock cfgLock = new ReentrantReadWriteLock();
 
-    private List<CPrivilege> privileges;
+    private volatile List<CPrivilege> privileges;
 
-    private List<CUser> users;
+    private volatile List<CUser> users;
 
-    private List<CRole> roles;
+    private volatile List<CRole> roles;
 
     @Inject
     public DefaultConfigurationManager( @Named( value = "file" ) SecurityModelConfigurationSource configurationSource,
@@ -93,10 +93,13 @@ public class DefaultConfigurationManager
             try
             {
                 lock.lock();
+
                 if ( privileges == null )
                 {
                     privileges = getConfiguration().getPrivileges();
                 }
+
+                return privileges;
             }
             finally
             {
@@ -114,10 +117,13 @@ public class DefaultConfigurationManager
             try
             {
                 lock.lock();
+
                 if ( roles == null )
                 {
                     roles = getConfiguration().getRoles();
                 }
+
+                return roles;
             }
             finally
             {
@@ -135,10 +141,13 @@ public class DefaultConfigurationManager
             try
             {
                 lock.lock();
+
                 if ( users == null )
                 {
                     users = getConfiguration().getUsers();
                 }
+
+                return users;
             }
             finally
             {
@@ -843,12 +852,22 @@ public class DefaultConfigurationManager
     }
 
     @Override
-    public synchronized void clearCache()
+    public void clearCache()
     {
         super.clearCache();
 
-        this.users = null;
-        this.roles = null;
-        this.privileges = null;
+        Lock lock = cfgLock.writeLock();
+        try
+        {
+            lock.lock();
+
+            this.users = null;
+            this.roles = null;
+            this.privileges = null;
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
 }
