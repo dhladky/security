@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.google.inject.Binder;
 import junit.framework.Assert;
 
 import org.codehaus.plexus.util.FileUtils;
 import org.sonatype.guice.bean.containers.InjectedTestCase;
+import org.sonatype.inject.BeanScanning;
 
 public class SecurityConfigurationManagerTest
     extends InjectedTestCase
@@ -22,6 +24,12 @@ public class SecurityConfigurationManagerTest
     {
         properties.put( "application-conf", APP_CONF.getAbsolutePath() );
         super.configure( properties );
+    }
+
+    @Override
+    public BeanScanning scanning()
+    {
+        return BeanScanning.INDEX;
     }
 
     @Override

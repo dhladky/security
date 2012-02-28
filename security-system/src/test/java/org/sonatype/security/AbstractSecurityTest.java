@@ -6,6 +6,7 @@ import java.util.Properties;
 import org.apache.shiro.util.ThreadContext;
 import org.codehaus.plexus.util.FileUtils;
 import org.sonatype.guice.bean.containers.InjectedTestCase;
+import org.sonatype.inject.BeanScanning;
 
 public abstract class AbstractSecurityTest
     extends InjectedTestCase
@@ -32,6 +33,12 @@ public abstract class AbstractSecurityTest
         FileUtils.deleteDirectory( PLEXUS_HOME );
 
         this.getSecuritySystem().start();
+    }
+
+    @Override
+    public BeanScanning scanning()
+    {
+        return BeanScanning.INDEX;
     }
     
     @Override

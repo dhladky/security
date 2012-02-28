@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 import org.codehaus.plexus.util.FileUtils;
 import org.easymock.EasyMock;
 import org.sonatype.guice.bean.containers.InjectedTestCase;
+import org.sonatype.inject.BeanScanning;
 import org.sonatype.security.SecuritySystem;
 
 public abstract class AbstractWebSecurityTest
@@ -39,6 +40,12 @@ public abstract class AbstractWebSecurityTest
         FileUtils.deleteDirectory( PLEXUS_HOME );
 
         this.getSecuritySystem().start();
+    }
+
+    @Override
+    public BeanScanning scanning()
+    {
+        return BeanScanning.INDEX;
     }
 
     protected SecuritySystem getSecuritySystem()

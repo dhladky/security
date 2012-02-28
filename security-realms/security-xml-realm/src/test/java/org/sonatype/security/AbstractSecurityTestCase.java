@@ -29,6 +29,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.guice.bean.containers.InjectedTestCase;
+import org.sonatype.inject.BeanScanning;
 import org.sonatype.security.configuration.model.SecurityConfiguration;
 import org.sonatype.security.configuration.source.SecurityConfigurationSource;
 import org.sonatype.security.model.Configuration;
@@ -53,6 +54,12 @@ public abstract class AbstractSecurityTestCase
         properties.put( "application-conf", CONFIG_DIR.getAbsolutePath() );
         properties.put( "security-xml-file", CONFIG_DIR.getAbsolutePath() + "/security.xml" );
         super.configure( properties );
+    }
+
+    @Override
+    public BeanScanning scanning()
+    {
+        return BeanScanning.INDEX;
     }
     
     @Override
