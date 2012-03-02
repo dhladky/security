@@ -7,6 +7,7 @@ import org.apache.shiro.util.ThreadContext;
 import org.codehaus.plexus.util.FileUtils;
 import org.sonatype.guice.bean.containers.InjectedTestCase;
 import org.sonatype.inject.BeanScanning;
+import org.sonatype.sisu.ehcache.CacheManagerComponent;
 
 public abstract class AbstractSecurityTest
     extends InjectedTestCase
@@ -28,26 +29,33 @@ public abstract class AbstractSecurityTest
         throws Exception
     {
         super.setUp();
-        
+
         // delete the plexus home dir
         FileUtils.deleteDirectory( PLEXUS_HOME );
 
-        this.getSecuritySystem().start();
+        getSecuritySystem().start();
+    }
+
+    @Override
+    protected void tearDown()
+        throws Exception
+    {
+        try
+        {
+            getSecuritySystem().stop();
+            lookup( CacheManagerComponent.class ).shutdown();
+        }
+        finally
+        {
+            ThreadContext.remove();
+            super.tearDown();
+        }
     }
 
     @Override
     public BeanScanning scanning()
     {
         return BeanScanning.INDEX;
-    }
-    
-    @Override
-    protected void tearDown()
-        throws Exception
-    {
-        this.getSecuritySystem().stop();
-        super.tearDown();
-        ThreadContext.remove();
     }
 
     protected SecuritySystem getSecuritySystem()

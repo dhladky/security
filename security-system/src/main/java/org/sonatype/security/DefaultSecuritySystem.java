@@ -28,7 +28,6 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ThreadContext;
 import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +58,6 @@ import org.sonatype.security.usermanagement.UserNotFoundException;
 import org.sonatype.security.usermanagement.UserSearchCriteria;
 import org.sonatype.security.usermanagement.UserStatus;
 import org.sonatype.sisu.ehcache.CacheManagerComponent;
-import org.sonatype.sisu.ehcache.CacheManagerComponentImpl;
 
 /**
  * This implementation wraps a Shiro SecurityManager, and adds user management.
@@ -74,7 +72,7 @@ public class DefaultSecuritySystem
 
     private Map<String, RealmSecurityManager> securityManagers;
 
-    private CacheManagerComponentImpl cacheManagerComponent;
+    private CacheManagerComponent cacheManagerComponent;
 
     private UserManagerFacade userManagerFacade;
 
@@ -100,7 +98,7 @@ public class DefaultSecuritySystem
                                   Map<String, AuthorizationManager> authorizationManagers, Map<String, Realm> realmMap,
                                   SecurityConfigurationManager securityConfiguration,
                                   Map<String, RealmSecurityManager> securityManagers,
-                                  CacheManagerComponentImpl cacheManagerComponent, UserManagerFacade userManagerFacade )
+                                  CacheManagerComponent cacheManagerComponent, UserManagerFacade userManagerFacade )
     {
         this.securityEmailers = securityEmailers;
         this.eventMulticaster = eventMulticaster;
@@ -849,20 +847,19 @@ public class DefaultSecuritySystem
         this.securityConfiguration.clearCache();
 
         // if we are restarting this component the getCacheManager will be null
-        // TODO: need better lifecycle management of cache
+        // TODO: need better lifecycle management of cache (done), make sure this works with the NEXUS tests before removing comment
         CacheManager cacheManager = this.cacheManagerComponent.getCacheManager();
-        if( cacheManager == null)
-        {
-            try
-            {
-                this.cacheManagerComponent.startup( null );
-                cacheManager = this.cacheManagerComponent.getCacheManager();
-            }
-            catch ( IOException e )
-            {
-                throw new IllegalStateException( "Failed to restart CacheManagerComponent" );
-            }
-        }
+//        if( cacheManager == null)
+//        {
+//            try
+//            {
+//                cacheManager = this.cacheManagerComponent.buildCacheManager( null );
+//            }
+//            catch ( IOException e )
+//            {
+//                throw new IllegalStateException( "Failed to restart CacheManagerComponent" );
+//            }
+//        }
 
         // setup the CacheManager ( this could be injected if we where less coupled with ehcache)
         // The plexus wrapper can interpolate the config
@@ -896,7 +893,7 @@ public class DefaultSecuritySystem
         
         // we need to kill caches on stop
         getSecurityManager().destroy();
-        cacheManagerComponent.shutdown();
+//        cacheManagerComponent.shutdown();
     }
 
     private void setSecurityManagerRealms()

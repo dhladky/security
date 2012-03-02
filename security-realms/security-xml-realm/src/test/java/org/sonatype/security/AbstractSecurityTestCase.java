@@ -34,19 +34,20 @@ import org.sonatype.security.configuration.model.SecurityConfiguration;
 import org.sonatype.security.configuration.source.SecurityConfigurationSource;
 import org.sonatype.security.model.Configuration;
 import org.sonatype.security.model.io.xpp3.SecurityConfigurationXpp3Reader;
+import org.sonatype.sisu.ehcache.CacheManagerComponent;
 
 public abstract class AbstractSecurityTestCase
     extends InjectedTestCase
 {
 
     public static final String PLEXUS_SECURITY_XML_FILE = "security-xml-file";
-    
+
     protected File PLEXUS_HOME = new File( "./target/plexus_home" );
 
     protected File CONFIG_DIR = new File( PLEXUS_HOME, "conf" );
-    
+
     @Inject
-    Map<String,Realm> realmMap;
+    Map<String, Realm> realmMap;
 
     @Override
     public void configure( Properties properties )
@@ -77,16 +78,23 @@ public abstract class AbstractSecurityTestCase
 
         config.setRealms( new ArrayList<String>( realmMap.keySet() ) );
         source.storeConfiguration();
-        
-        this.lookup( SecuritySystem.class ).start();
+
+        lookup( SecuritySystem.class ).start();
     }
 
     @Override
     protected void tearDown()
         throws Exception
     {
-        this.lookup( SecuritySystem.class ).stop();
-        super.tearDown();
+        try
+        {
+            lookup( SecuritySystem.class ).stop();
+            lookup( CacheManagerComponent.class ).shutdown();
+        }
+        finally
+        {
+            super.tearDown();
+        }
     }
 
     protected Configuration getConfigurationFromStream( InputStream is )
