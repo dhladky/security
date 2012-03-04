@@ -70,7 +70,7 @@ public class DefaultSecuritySystem
 {
     private SecurityConfigurationManager securityConfiguration;
 
-    private Map<String, RealmSecurityManager> securityManagers;
+    private RealmSecurityManager securityManager;
 
     private CacheManagerComponent cacheManagerComponent;
 
@@ -94,11 +94,14 @@ public class DefaultSecuritySystem
 
     @Inject
     public DefaultSecuritySystem( List<SecurityEmailer> securityEmailers,
-                                  ApplicationEventMulticaster eventMulticaster, PasswordGenerator passwordGenerator,
-                                  Map<String, AuthorizationManager> authorizationManagers, Map<String, Realm> realmMap,
+                                  ApplicationEventMulticaster eventMulticaster,
+                                  PasswordGenerator passwordGenerator,
+                                  Map<String, AuthorizationManager> authorizationManagers,
+                                  Map<String, Realm> realmMap,
                                   SecurityConfigurationManager securityConfiguration,
-                                  Map<String, RealmSecurityManager> securityManagers,
-                                  CacheManagerComponent cacheManagerComponent, UserManagerFacade userManagerFacade )
+                                  RealmSecurityManager securityManager,
+                                  CacheManagerComponent cacheManagerComponent,
+                                  UserManagerFacade userManagerFacade )
     {
         this.securityEmailers = securityEmailers;
         this.eventMulticaster = eventMulticaster;
@@ -106,7 +109,7 @@ public class DefaultSecuritySystem
         this.authorizationManagers = authorizationManagers;
         this.realmMap = realmMap;
         this.securityConfiguration = securityConfiguration;
-        this.securityManagers = securityManagers;
+        this.securityManager = securityManager;
         this.cacheManagerComponent = cacheManagerComponent;
 
         this.eventMulticaster.addEventListener( this );
@@ -942,6 +945,7 @@ public class DefaultSecuritySystem
 
     public RealmSecurityManager getSecurityManager()
     {
-        return this.securityManagers.get( securityConfiguration.getSecurityManager() );
+//        return this.securityManagers.get( securityConfiguration.getSecurityManager() );
+        return this.securityManager;
     }
 }
