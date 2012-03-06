@@ -50,9 +50,9 @@ import org.sonatype.security.usermanagement.UserStatus;
  * @author Brian Demers
  */
 @Singleton
-@Typed( value = UserManager.class )
-@Named( value = "default" )
-@Description( value = "Default" )
+@Typed( UserManager.class )
+@Named( "default" )
+@Description( "Default" )
 public class SecurityXmlUserManager
     extends AbstractUserManager
     implements RoleMappingUserManager

@@ -28,8 +28,8 @@ import org.sonatype.security.authorization.ExceptionCatchingModularRealmAuthoriz
  * @deprecated use shiro-guice or other injection to wire up a RealmSecurityManager.
  */
 @Singleton
-@Typed( value = RealmSecurityManager.class )
-@Named( value = "web" )
+@Typed( RealmSecurityManager.class )
+@Named( "web" )
 @Deprecated
 public class WebRealmSecurityManager
     extends DefaultWebSecurityManager

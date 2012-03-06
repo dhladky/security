@@ -47,8 +47,8 @@ import org.sonatype.security.rest.model.RoleResourceResponse;
  * @author tstevens
  */
 @Singleton
-@Typed( value = PlexusResource.class )
-@Named( value = "RolePlexusResource" )
+@Typed( PlexusResource.class )
+@Named( "RolePlexusResource" )
 @Produces( { "application/xml", "application/json" } )
 @Consumes( { "application/xml", "application/json" } )
 @Path( RolePlexusResource.RESOURCE_URI )

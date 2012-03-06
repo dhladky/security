@@ -44,8 +44,8 @@ import org.sonatype.security.usermanagement.UserNotFoundException;
 import org.sonatype.security.usermanagement.xml.SecurityXmlUserManager;
 
 @Singleton
-@Typed( value = ConfigurationManager.class )
-@Named( value = "default" )
+@Typed( ConfigurationManager.class )
+@Named( "default" )
 public class DefaultConfigurationManager
     extends AbstractConfigurationManager
 {

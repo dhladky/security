@@ -31,8 +31,8 @@ import org.sonatype.security.realms.tools.StaticSecurityResource;
  * @author Brian Demers
  */
 @Singleton
-@Typed( value = RolePermissionResolver.class )
-@Named( value = "default" )
+@Typed( RolePermissionResolver.class )
+@Named( "default" )
 public class XmlRolePermissionResolver
     implements RolePermissionResolver
 {

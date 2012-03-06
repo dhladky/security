@@ -33,8 +33,8 @@ import org.sonatype.security.model.Configuration;
  * @author Brian Demers
  */
 @Singleton
-@Typed( value = SecurityConfigurationCleaner.class )
-@Named( value = "default" )
+@Typed( SecurityConfigurationCleaner.class )
+@Named( "default" )
 public class DefaultSecurityConfigurationCleaner
     implements SecurityConfigurationCleaner
 {

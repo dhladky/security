@@ -42,9 +42,9 @@ import org.sonatype.security.usermanagement.xml.ConfiguredUsersUserManager;
  * @author Brian Demers
  */
 @Singleton
-@Typed( value = UserManager.class )
-@Named( value = "url" )
-@Description( value = "URL Realm Users" )
+@Typed( UserManager.class )
+@Named( "url" )
+@Description( "URL Realm Users" )
 public class URLUserManager
     extends AbstractReadOnlyUserManager
 {

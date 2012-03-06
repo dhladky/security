@@ -37,8 +37,8 @@ import org.sonatype.security.configuration.model.SecurityConfiguration;
  * @author tstevens
  */
 @Singleton
-@Typed( value = SecurityConfigurationSource.class )
-@Named( value = "file" )
+@Typed( SecurityConfigurationSource.class )
+@Named( "file" )
 public class FileSecurityConfigurationSource
     extends AbstractSecurityConfigurationSource
 {

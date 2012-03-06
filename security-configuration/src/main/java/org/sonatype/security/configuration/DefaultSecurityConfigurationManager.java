@@ -21,8 +21,8 @@ import org.sonatype.security.configuration.validator.SecurityConfigurationValida
 import org.sonatype.security.configuration.validator.SecurityValidationContext;
 
 @Singleton
-@Typed( value = SecurityConfigurationManager.class )
-@Named( value = "default" )
+@Typed( SecurityConfigurationManager.class )
+@Named( "default" )
 public class DefaultSecurityConfigurationManager
     implements SecurityConfigurationManager
 {

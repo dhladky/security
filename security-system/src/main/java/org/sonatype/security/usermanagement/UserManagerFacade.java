@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-@Typed( value = UserManagerFacade.class )
+@Typed( UserManagerFacade.class )
 @Named( "default" )
 public class UserManagerFacade
 {

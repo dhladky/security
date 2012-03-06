@@ -32,8 +32,8 @@ import org.sonatype.security.realms.validator.ConfigurationIdGenerator;
 import org.sonatype.security.realms.validator.SecurityValidationContext;
 
 @Singleton
-@Typed( value = PrivilegeDescriptor.class )
-@Named( value = "ApplicationPrivilegeDescriptor" )
+@Typed( PrivilegeDescriptor.class )
+@Named( "ApplicationPrivilegeDescriptor" )
 public class ApplicationPrivilegeDescriptor
     extends AbstractPrivilegeDescriptor
     implements PrivilegeDescriptor

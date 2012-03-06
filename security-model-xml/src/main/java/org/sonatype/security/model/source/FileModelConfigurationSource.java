@@ -36,8 +36,8 @@ import org.sonatype.security.model.upgrade.SecurityConfigurationUpgrader;
  * @author cstamas
  */
 @Singleton
-@Typed( value = SecurityModelConfigurationSource.class )
-@Named( value = "file" )
+@Typed( SecurityModelConfigurationSource.class )
+@Named( "file" )
 public class FileModelConfigurationSource
     extends AbstractSecurityModelConfigurationSource
 {

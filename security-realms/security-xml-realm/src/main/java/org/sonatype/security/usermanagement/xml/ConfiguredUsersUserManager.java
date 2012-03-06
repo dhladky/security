@@ -45,9 +45,9 @@ import org.sonatype.security.usermanagement.UserSearchCriteria;
  * @author Brian Demers
  */
 @Singleton
-@Typed( value = UserManager.class )
-@Named( value = "allConfigured" )
-@Description( value = "All Configured Users" )
+@Typed( UserManager.class )
+@Named( "allConfigured" )
+@Description( "All Configured Users" )
 public class ConfiguredUsersUserManager
     extends AbstractReadOnlyUserManager
 {

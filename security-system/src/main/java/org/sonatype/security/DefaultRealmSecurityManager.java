@@ -30,8 +30,8 @@ import java.util.Collection;
  * @deprecated use shiro-guice or other injection to wire up a RealmSecurityManager.
  */
 @Singleton
-@Typed( value = RealmSecurityManager.class )
-@Named( value = "default" )
+@Typed( RealmSecurityManager.class )
+@Named( "default" )
 @Deprecated
 public class DefaultRealmSecurityManager
     extends DefaultSecurityManager

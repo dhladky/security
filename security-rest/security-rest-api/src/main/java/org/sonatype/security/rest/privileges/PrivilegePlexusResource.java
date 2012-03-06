@@ -44,8 +44,8 @@ import org.sonatype.security.rest.model.PrivilegeStatusResourceResponse;
  * @author tstevens
  */
 @Singleton
-@Typed( value = PlexusResource.class )
-@Named( value = "PrivilegePlexusResource" )
+@Typed( PlexusResource.class )
+@Named( "PrivilegePlexusResource" )
 @Produces( { "application/xml", "application/json" } )
 @Consumes( { "application/xml", "application/json" } )
 @Path( PrivilegePlexusResource.RESOURCE_URI )

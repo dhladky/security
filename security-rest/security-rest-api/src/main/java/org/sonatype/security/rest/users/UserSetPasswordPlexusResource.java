@@ -40,8 +40,8 @@ import org.sonatype.security.usermanagement.UserNotFoundException;
  *
  */
 @Singleton
-@Typed( value = PlexusResource.class )
-@Named( value = "UserSetPasswordPlexusResource" )
+@Typed( PlexusResource.class )
+@Named( "UserSetPasswordPlexusResource" )
 
 @Produces( { "application/xml", "application/json" } )
 @Consumes( { "application/xml", "application/json" } )
