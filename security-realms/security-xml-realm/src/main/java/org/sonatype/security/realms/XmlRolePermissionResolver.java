@@ -37,12 +37,18 @@ public class XmlRolePermissionResolver
     implements RolePermissionResolver
 {
 
-    @Inject
-    @Named( value = "resourceMerging" )
-    private ConfigurationManager configuration;
+    private final ConfigurationManager configuration;
+
+    private final List<PrivilegeDescriptor> privilegeDescriptors;
 
     @Inject
-    private List<PrivilegeDescriptor> privilegeDescriptors;
+    public XmlRolePermissionResolver( @Named( "resourceMerging" ) ConfigurationManager configuration,
+                                      List<PrivilegeDescriptor> privilegeDescriptors )
+    {
+        this.configuration = configuration;
+        this.privilegeDescriptors = privilegeDescriptors;
+    }
+
 
     public Collection<Permission> resolvePermissionsInRole( String roleString )
     {

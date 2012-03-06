@@ -31,13 +31,12 @@ import org.sonatype.security.usermanagement.UserNotFoundException;
 public class MockRealmA
     extends AuthorizingRealm
 {
+    private final UserManager userManager;
 
     @Inject
-    @Named(value = "MockUserManagerA" )
-    private UserManager userManager;
-    
-    public MockRealmA()
+    public MockRealmA( @Named( "MockUserManagerA" ) UserManager userManager )
     {
+        this.userManager = userManager;
         this.setAuthenticationTokenClass( UsernamePasswordToken.class );
     }
 

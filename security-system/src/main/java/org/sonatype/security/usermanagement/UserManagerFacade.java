@@ -16,10 +16,15 @@ import org.slf4j.LoggerFactory;
 @Named( "default" )
 public class UserManagerFacade
 {
-    @Inject
-    Map<String, UserManager> userManagers;
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    Logger logger = LoggerFactory.getLogger( getClass() );
+    private final Map<String, UserManager> userManagers;
+
+    @Inject
+    public UserManagerFacade( Map<String, UserManager> userManagers )
+    {
+        this.userManagers = userManagers;
+    }
 
     public User getUser( String userId, String source )
         throws UserNotFoundException, NoSuchUserManagerException

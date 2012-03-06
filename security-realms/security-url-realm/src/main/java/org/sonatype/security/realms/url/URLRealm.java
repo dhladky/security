@@ -43,6 +43,7 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.inject.Description;
 import org.sonatype.security.realms.url.config.UrlRealmConfiguration;
 import org.sonatype.security.usermanagement.UserManager;
@@ -62,26 +63,26 @@ import org.sonatype.security.usermanagement.UserNotFoundException;
 public class URLRealm
     extends AuthorizingRealm
 {
-    @Inject
-    @Named( value = "url" )
-    private UserManager userManager;
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
+
+    private final UserManager userManager;
+
+    private final UrlRealmConfiguration urlRealmConfiguration;
+
 
     @Inject
-    private Logger logger;
-
-    @Inject
-    private UrlRealmConfiguration urlRealmConfiguration;
+    public URLRealm( UrlRealmConfiguration urlRealmConfiguration, @Named( "url" )UserManager userManager )
+    {
+        super();
+        this.urlRealmConfiguration = urlRealmConfiguration;
+        this.userManager = userManager;
+        this.setAuthenticationCachingEnabled( true );
+    }
 
     @Override
     public String getName()
     {
         return "url";
-    }
-
-    public URLRealm()
-    {
-        super();
-        this.setAuthenticationCachingEnabled( true );
     }
     
     @Override

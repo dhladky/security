@@ -47,7 +47,7 @@ public abstract class AbstractSecurityTestCase
     protected File CONFIG_DIR = new File( PLEXUS_HOME, "conf" );
 
     @Inject
-    Map<String, Realm> realmMap;
+    private Map<String, Realm> realmMap;
 
     @Override
     public void configure( Properties properties )

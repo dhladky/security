@@ -38,6 +38,7 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.inject.Description;
 import org.sonatype.security.realms.kenai.config.KenaiRealmConfiguration;
 
@@ -61,11 +62,9 @@ import java.util.Set;
 public class KenaiRealm
     extends AuthorizingRealm
 {
-    @Inject
-    private Logger logger;
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    @Inject
-    private KenaiRealmConfiguration kenaiRealmConfiguration;
+    private final KenaiRealmConfiguration kenaiRealmConfiguration;
 
     private static final int PAGE_SIZE = 200;
 
@@ -75,9 +74,12 @@ public class KenaiRealm
         return "kenai";
     }
 
-    public KenaiRealm()
+    @Inject
+    public KenaiRealm( KenaiRealmConfiguration kenaiRealmConfiguration )
     {
         super();
+        this.kenaiRealmConfiguration = kenaiRealmConfiguration;
+
         // TODO: write another test before enabling this
         //this.setAuthenticationCachingEnabled( true );
     }

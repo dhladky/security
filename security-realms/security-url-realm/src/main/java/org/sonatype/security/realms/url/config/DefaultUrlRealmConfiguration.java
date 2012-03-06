@@ -19,6 +19,7 @@ import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.configuration.ConfigurationException;
 import org.sonatype.configuration.validation.InvalidConfigurationException;
 import org.sonatype.configuration.validation.ValidationMessage;
@@ -35,21 +36,25 @@ import com.sonatype.security.realms.url.config.model.io.xpp3.UrlRealmConfigurati
 public class DefaultUrlRealmConfiguration
     implements UrlRealmConfiguration
 {
-    
-    @Inject
-    @Named( value = "${application-conf}/url-realm.xml" )
-    private File configurationFile;
-    
-    @Inject
-    private Logger logger;
-    
-    @Inject
-    private SecuritySystem securitySystem; // used for validation
+
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
+
+    private final File configurationFile;
+
+    private final SecuritySystem securitySystem; // used for validation
 
     private Configuration configuration;
     
     private ReentrantLock lock = new ReentrantLock();
-    
+
+    @Inject
+    public DefaultUrlRealmConfiguration( SecuritySystem securitySystem,
+                                         @Named( "${application-conf}/url-realm.xml" )File configurationFile )
+    {
+        this.securitySystem = securitySystem;
+        this.configurationFile = configurationFile;
+    }
+
     public Configuration getConfiguration()
     {
         Reader fileReader = null;

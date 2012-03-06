@@ -48,15 +48,21 @@ public class ResourceMergingConfigurationManager
     extends AbstractConfigurationManager
 {
     // This will handle all normal security.xml file loading/storing
-    @Inject
-    @Named( value = "default" )
-    private ConfigurationManager manager;
+    private final ConfigurationManager manager;
+
+    private final List<StaticSecurityResource> staticResources;
+    
+    private final List<DynamicSecurityResource> dynamicResources;
 
     @Inject
-    private List<StaticSecurityResource> staticResources;
-    
-    @Inject
-    private List<DynamicSecurityResource> dynamicResources;
+    public ResourceMergingConfigurationManager( List<DynamicSecurityResource> dynamicResources,
+                                                @Named( "default" ) ConfigurationManager manager,
+                                                List<StaticSecurityResource> staticResources )
+    {
+        this.dynamicResources = dynamicResources;
+        this.manager = manager;
+        this.staticResources = staticResources;
+    }
 
     public synchronized void clearCache()
     {

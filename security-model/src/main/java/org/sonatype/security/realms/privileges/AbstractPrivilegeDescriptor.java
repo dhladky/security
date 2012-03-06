@@ -27,8 +27,12 @@ import org.sonatype.security.realms.validator.SecurityValidationContext;
 public abstract class AbstractPrivilegeDescriptor
     implements PrivilegeDescriptor
 {
-    @Inject
-    private ConfigurationIdGenerator idGenerator;
+    private final ConfigurationIdGenerator idGenerator;
+
+    protected AbstractPrivilegeDescriptor( ConfigurationIdGenerator idGenerator )
+    {
+        this.idGenerator = idGenerator;
+    }
 
     protected String getProperty( CPrivilege privilege, String key )
     {

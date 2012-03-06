@@ -27,12 +27,9 @@ public class DefaultSecurityConfigurationManager
     implements SecurityConfigurationManager
 {
 
-    @Inject
-    @Named( value = "file" )
-    private SecurityConfigurationSource configurationSource;
+    private final SecurityConfigurationSource configurationSource;
 
-    @Inject
-    private SecurityConfigurationValidator validator;
+    private final SecurityConfigurationValidator validator;
 
     private Logger logger  = LoggerFactory.getLogger( getClass() );
 
@@ -42,6 +39,15 @@ public class DefaultSecurityConfigurationManager
     private SecurityConfiguration configuration = null;
 
     private ReentrantLock lock = new ReentrantLock();
+
+    @Inject
+    public DefaultSecurityConfigurationManager( @Named( "file" ) SecurityConfigurationSource configurationSource,
+                                                SecurityConfigurationValidator validator )
+    {
+
+        this.configurationSource = configurationSource;
+        this.validator = validator;
+    }
 
     public boolean isEnabled()
     {

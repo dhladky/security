@@ -43,15 +43,21 @@ import org.sonatype.security.realms.privileges.PrivilegeDescriptor;
 public class DefaultConfigurationValidator
     implements SecurityConfigurationValidator
 {
+    private static String DEFAULT_SOURCE = "default";
+
     private Logger logger = LoggerFactory.getLogger( getClass() );
     
-    @Inject
-    private ConfigurationIdGenerator idGenerator;
+    private final ConfigurationIdGenerator idGenerator;
+
+    private final List<PrivilegeDescriptor> privilegeDescriptors;
 
     @Inject
-    private List<PrivilegeDescriptor> privilegeDescriptors;
-
-    private static String DEFAULT_SOURCE = "default";
+    public DefaultConfigurationValidator( List<PrivilegeDescriptor> privilegeDescriptors,
+                                          ConfigurationIdGenerator idGenerator )
+    {
+        this.privilegeDescriptors = privilegeDescriptors;
+        this.idGenerator = idGenerator;
+    }
 
     public ValidationResponse validateModel( ValidationRequest<Configuration> request )
     {

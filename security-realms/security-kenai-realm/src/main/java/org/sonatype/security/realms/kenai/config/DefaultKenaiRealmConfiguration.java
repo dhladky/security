@@ -19,6 +19,7 @@ import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.configuration.ConfigurationException;
 import org.sonatype.configuration.validation.InvalidConfigurationException;
 import org.sonatype.configuration.validation.ValidationMessage;
@@ -35,21 +36,24 @@ import com.sonatype.security.realms.kenai.config.model.io.xpp3.KenaiRealmConfigu
 public class DefaultKenaiRealmConfiguration
     implements KenaiRealmConfiguration
 {
-    
-    @Inject
-    @Named( value = "${application-conf}/kenai-realm.xml" )
-    private File configurationFile;
-    
-    @Inject
-    private Logger logger;
-    
-    @Inject
-    private SecuritySystem securitySystem; // used for validation
+
+    private Logger logger = LoggerFactory.getLogger( getClass() );
+
+    private final File configurationFile;
+
+    private final SecuritySystem securitySystem; // used for validation
 
     private Configuration configuration;
     
     private ReentrantLock lock = new ReentrantLock();
-    
+
+    @Inject
+    public DefaultKenaiRealmConfiguration( @Named( "${application-conf}/kenai-realm.xml" ) File configurationFile, SecuritySystem securitySystem )
+    {
+        this.configurationFile = configurationFile;
+        this.securitySystem = securitySystem;
+    }
+
     public Configuration getConfiguration()
     {
         Reader fileReader = null;

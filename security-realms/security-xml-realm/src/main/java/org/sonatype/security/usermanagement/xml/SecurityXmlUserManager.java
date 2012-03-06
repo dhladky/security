@@ -59,14 +59,20 @@ public class SecurityXmlUserManager
 {
     public static final String SOURCE = "default";
 
-    @Inject
-    @Named( value = "resourceMerging" )
-    private ConfigurationManager configuration;
+    private final ConfigurationManager configuration;
 
-    @Inject
-    private SecuritySystem securitySystem;
+    private final SecuritySystem securitySystem;
 
     private Logger logger = LoggerFactory.getLogger( getClass() );
+
+    @Inject
+    public SecurityXmlUserManager( @Named( "resourceMerging" ) ConfigurationManager configuration,
+                                   SecuritySystem securitySystem )
+    {
+        super();
+        this.configuration = configuration;
+        this.securitySystem = securitySystem;
+    }
 
     protected CUser toUser( User user )
     {

@@ -26,8 +26,13 @@ public class PasswordHelper
 
     private static final String ENC = "CMMDwoV";
 
+    private final PlexusCipher plexusCipher;
+
     @Inject
-    private PlexusCipher plexusCipher;
+    public PasswordHelper( PlexusCipher plexusCipher )
+    {
+        this.plexusCipher = plexusCipher;
+    }
 
     public String encrypt( String password )
         throws PlexusCipherException

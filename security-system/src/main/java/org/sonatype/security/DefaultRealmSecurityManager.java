@@ -27,10 +27,12 @@ import java.util.Collection;
  * Componentize the Shiro DefaultSecurityManager, and sets up caching.
  * 
  * @author Brian Demers
+ * @deprecated use shiro-guice or other injection to wire up a RealmSecurityManager.
  */
 @Singleton
 @Typed( value = RealmSecurityManager.class )
 @Named( value = "default" )
+@Deprecated
 public class DefaultRealmSecurityManager
     extends DefaultSecurityManager
     implements Initializable
