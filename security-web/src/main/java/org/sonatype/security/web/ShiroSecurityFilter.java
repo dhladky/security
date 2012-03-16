@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008 Sonatype, Inc. All rights reserved.
+ * Copyright (c) 2007-2012 Sonatype, Inc. All rights reserved.
  *
  * This program is licensed to you under the Apache License Version 2.0,
  * and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -37,6 +37,7 @@ import com.google.inject.name.Names;
  * configuration, if any role param is given. Otherwise it fallbacks to the standard stuff from JSecurityFilter.
  * 
  * @author cstamas
+ * @deprecated use {@link org.sonatype.security.web.guice.ShiroWebGuiceModule} instead.
  */
 public class ShiroSecurityFilter
     extends IniShiroFilter
