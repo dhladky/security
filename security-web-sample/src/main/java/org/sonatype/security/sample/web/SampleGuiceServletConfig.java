@@ -67,6 +67,7 @@ import com.google.inject.Module;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.sitebricks.SitebricksModule;
 import org.sonatype.security.web.WebRealmSecurityManager;
+import org.sonatype.security.web.guice.ShiroWebGuiceModule;
 
 public class SampleGuiceServletConfig
     extends GuiceServletContextListener
@@ -94,8 +95,6 @@ public class SampleGuiceServletConfig
         servletContextEvent.getServletContext().setAttribute( ShiroSecurityFilter.INJECTORY_KEY, getInjector() );
         super.contextInitialized( servletContextEvent );
 
-//        getInjector().createChildInjector( shiroWebModule );
-
         // start security?
         WebSecurityManager realmSecurityManager = getInjector().getInstance( WebSecurityManager.class );
         SecuritySystem securitySystem = getInjector().getInstance( SecuritySystem.class );
@@ -115,67 +114,15 @@ public class SampleGuiceServletConfig
 
     protected ShiroWebModule getShiroModule( ServletContext servletContext )
     {
-        return new ShiroWebModule( servletContext )
+        return new ShiroWebGuiceModule( servletContext )
         {
-
             @Override
             protected void configureShiroWeb()
             {
-                bindRealm().to( IniRealm.class );
-                bind( SessionDAO.class ).to(EnterpriseCacheSessionDAO.class).asEagerSingleton();
-                bind( PERMS ).to( HttpMethodPermissionFilter.class );
-                
-
+                super.configureShiroWeb();
                 addFilterChain( "/test", AUTHC_BASIC, config( REST, "sample:priv-name" ) );
                 addFilterChain( "/**", AUTHC_BASIC, config( REST, "sample:permToCatchAllUnprotecteds" ) );
 
-
-                try
-                {
-                    bind( Authorizer.class ).toConstructor(
-                        ExceptionCatchingModularRealmAuthorizer.class.getConstructor( Collection.class ) );
-                }
-                catch ( NoSuchMethodException e )
-                {
-                    throw new ConfigurationException("This really shouldn't happen.  Either something has changed in Shiro, or there's a bug in " + ShiroModule.class.getSimpleName(), e);
-                }
-
-
-
-
-                bind( Authenticator.class ).to( FirstSuccessfulModularRealmAuthenticator.class );
-                bindListener( ModularRealmAuthorizerTypeListener.MATCHER, new ModularRealmAuthorizerTypeListener() );
-            }
-
-            @Override
-            protected void bindWebSecurityManager( AnnotatedBindingBuilder<? super WebSecurityManager> bind )
-            {
-                try
-                {
-                    bind( DefaultWebSecurityManager.class ).toConstructor(
-                        DefaultWebSecurityManager.class.getConstructor() ).asEagerSingleton();
-                }
-                catch ( NoSuchMethodException e )
-                {
-                    throw new ConfigurationException(
-                        "This really shouldn't happen.  Either something has changed in Shiro, or there's a bug in "
-                            + ShiroModule.class.getSimpleName(), e );
-                }
-
-                bind.to( DefaultWebSecurityManager.class );
-                bind( RealmSecurityManager.class ).to( DefaultWebSecurityManager.class );
-                expose( RealmSecurityManager.class );
-                expose( WebSecurityManager.class );
-            }
-
-            @Override
-            protected void bindSessionManager( AnnotatedBindingBuilder<SessionManager> bind )
-            {
-                try {
-                    bind.toConstructor(DefaultWebSessionManager.class.getConstructor()).asEagerSingleton();
-                } catch (NoSuchMethodException e) {
-                    throw new ConfigurationException("This really shouldn't happen.  Either something has changed in Shiro, or there's a bug in " + ShiroModule.class.getSimpleName(), e);
-                }
             }
         };
     }
@@ -232,55 +179,5 @@ public class SampleGuiceServletConfig
         }
 
         return properties;
-    }
-
-    static class ModularRealmAuthorizerTypeListener implements TypeListener
-    {
-        private static Class<ModularRealmAuthorizer> clazz = ModularRealmAuthorizer.class;
-        private static com.google.inject.matcher.Matcher MATCHER = new SubClassesOf( clazz );
-
-        private Provider<Injector> injectorProvider;
-
-        @Override
-        public <I> void hear( TypeLiteral<I> type, TypeEncounter<I> encounter )
-        {
-            injectorProvider = encounter.getProvider( Injector.class );
-
-            if( clazz.isAssignableFrom( type.getRawType() ))
-            {
-                encounter.register( new MembersInjector<I>()
-                {
-                    @Override
-                    public void injectMembers( I instance )
-                    {
-                        System.out.println( "Injecting Members: " + instance );
-
-                        RolePermissionResolver rolePermissionResolver =
-                            injectorProvider.get().getInstance( RolePermissionResolver.class );
-
-                        //make sure instance is actually a ModularRealmAuthorizer
-                        if ( clazz.isInstance( instance ) )
-                        {
-                            clazz.cast( instance ).setRolePermissionResolver( rolePermissionResolver );
-                        }
-                    }
-                } );
-            }
-
-        }
-    }
-
-    private static class SubClassesOf extends AbstractMatcher<TypeLiteral<?>>
-    {
-        private final Class<?> baseClass;
-
-        private SubClassesOf(Class<?> baseClass) {
-            this.baseClass = baseClass;
-        }
-
-        @Override
-        public boolean matches(TypeLiteral<?> t) {
-            return baseClass.isAssignableFrom( t.getRawType() );
-        }
     }
 }

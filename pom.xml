@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sonatype.spice</groupId>
     <artifactId>spice-parent</artifactId>
-    <version>16</version>
+    <version>19</version>
   </parent>
   <groupId>org.sonatype.security</groupId>
   <artifactId>security-parent</artifactId>
@@ -18,6 +18,14 @@
     <url>http://github.com/sonatype/security</url>
   </scm>
 
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <properties>
     <shiro.version>1.2.0</shiro.version>
     <sisu-ehcache.version>1.1-SNAPSHOT</sisu-ehcache.version>
@@ -30,6 +38,7 @@
     <slf4j.version>1.6.4</slf4j.version>
     <logback.version>1.0.0</logback.version>
     <plexus.version>1.5.5</plexus.version>
+    <license.header>licenses/header-alv2.txt</license.header>
   </properties>
 
 
@@ -40,8 +49,8 @@
     <module>security-system</module>
     <module>security-configuration</module>
     <module>security-web</module>
-    <module>security-web-sample</module>
     <module>security-rest</module>
+    <module>security-web-sample</module>
   </modules>
 
   <dependencyManagement>
@@ -127,6 +136,32 @@
         <groupId>org.apache.shiro</groupId>
         <artifactId>shiro-web</artifactId>
         <version>${shiro.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.shiro</groupId>
+        <artifactId>shiro-guice</artifactId>
+        <version>${shiro.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-multibindings</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.sisu.inject</groupId>
+        <artifactId>guice-multibindings</artifactId>
+        <version>${sisu-guice.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.sonatype.sisu</groupId>
+            <artifactId>sisu-guice</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>commons-codec</groupId>
