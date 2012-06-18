@@ -52,6 +52,14 @@
 			<artifactId>base-configuration</artifactId>
 		</dependency>
 
+      <!-- Guava is present in nexus core already, but security did not use it -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>10.0.1</version>
+        <scope>compile</scope>
+      </dependency>
+
 		<!-- other security modules -->
 		<dependency>
 			<groupId>org.sonatype.security</groupId>
