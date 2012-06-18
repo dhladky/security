@@ -14,9 +14,9 @@ import javax.inject.Singleton;
 
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.permission.RolePermissionResolver;
-import org.apache.shiro.authz.permission.WildcardPermission;
 import org.sonatype.security.authorization.NoSuchPrivilegeException;
 import org.sonatype.security.authorization.NoSuchRoleException;
+import org.sonatype.security.authorization.PermissionFactory;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CRole;
 import org.sonatype.security.realms.privileges.PrivilegeDescriptor;
@@ -38,8 +38,12 @@ public class XmlRolePermissionResolver
 {
 
     @Inject
-    @Named( value = "resourceMerging" )
+    @Named( "resourceMerging" )
     private ConfigurationManager configuration;
+
+    @Inject
+    @Named( "caching" )
+    private final PermissionFactory permissionFactory;
 
     @Inject
     private List<PrivilegeDescriptor> privilegeDescriptors;
@@ -97,7 +101,7 @@ public class XmlRolePermissionResolver
 
                 if ( permission != null )
                 {
-                    return Collections.singleton( (Permission) new WildcardPermission( permission ) );
+                    return Collections.singleton( permissionFactory.create( permission ) );
                 }
             }
 
@@ -113,5 +117,4 @@ public class XmlRolePermissionResolver
     {
         return configuration;
     }
-
 }
