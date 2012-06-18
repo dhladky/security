@@ -43,7 +43,7 @@ public class XmlRolePermissionResolver
 
     @Inject
     @Named( "caching" )
-    private final PermissionFactory permissionFactory;
+    private PermissionFactory permissionFactory;
 
     @Inject
     private List<PrivilegeDescriptor> privilegeDescriptors;
