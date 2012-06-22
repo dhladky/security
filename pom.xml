@@ -230,6 +230,7 @@
           <configuration>
             <autoVersionSubmodules>true</autoVersionSubmodules>
             <tagNameFormat>security-@{version}</tagNameFormat>
+            <mavenExecutorId>forked-path</mavenExecutorId>
           </configuration>
         </plugin>
         <plugin>
