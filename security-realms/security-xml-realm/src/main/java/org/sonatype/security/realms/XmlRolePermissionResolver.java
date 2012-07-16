@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.permission.RolePermissionResolver;
+import org.apache.shiro.authz.permission.WildcardPermission;
 import org.sonatype.security.authorization.NoSuchPrivilegeException;
 import org.sonatype.security.authorization.NoSuchRoleException;
 import org.sonatype.security.authorization.PermissionFactory;
@@ -39,7 +40,7 @@ import org.sonatype.security.realms.tools.StaticSecurityResource;
  * The default implementation of the RolePermissionResolver which reads roles from {@link StaticSecurityResource}s to
  * resolve a role into a collection of permissions. This class allows Realm implementations to no know what/how there
  * roles are used.
- * 
+ *
  * @author Brian Demers
  */
 @Singleton
@@ -52,16 +53,12 @@ public class XmlRolePermissionResolver
 
     private final List<PrivilegeDescriptor> privilegeDescriptors;
 
-    private final PermissionFactory permissionFactory;
-
     @Inject
     public XmlRolePermissionResolver( @Named( "resourceMerging" ) ConfigurationManager configuration,
-                                      List<PrivilegeDescriptor> privilegeDescriptors,
-                                      @Named( "caching" ) PermissionFactory permissionFactory )
+                                      List<PrivilegeDescriptor> privilegeDescriptors )
     {
         this.configuration = configuration;
         this.privilegeDescriptors = privilegeDescriptors;
-        this.permissionFactory = permissionFactory;
     }
 
     public Collection<Permission> resolvePermissionsInRole( final String roleString )
@@ -109,7 +106,7 @@ public class XmlRolePermissionResolver
                 final String permission = descriptor.buildPermission( privilege );
                 if ( permission != null )
                 {
-                    return Collections.singleton( permissionFactory.create( permission ) );
+                    return Collections.singleton( (Permission) new WildcardPermission( permission ) );
                 }
             }
             return Collections.emptySet();
