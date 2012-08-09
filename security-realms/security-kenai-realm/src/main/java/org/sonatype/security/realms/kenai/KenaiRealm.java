@@ -41,6 +41,8 @@ import org.restlet.Client;
 import org.restlet.Context;
 import org.restlet.data.*;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonatype.appcontext.internal.Preconditions;
 import org.sonatype.inject.Description;
 import org.sonatype.security.realms.kenai.config.KenaiRealmConfiguration;
 
@@ -52,13 +54,17 @@ public class KenaiRealm
     extends AuthorizingRealm
 {
 
-    @Inject
-    private Logger logger;
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    @Inject
-    private KenaiRealmConfiguration kenaiRealmConfiguration;
+    private final KenaiRealmConfiguration kenaiRealmConfiguration;
 
     private static final int PAGE_SIZE = 200;
+
+    @Inject
+    public KenaiRealm( final KenaiRealmConfiguration kenaiRealmConfiguration )
+    {
+        this.kenaiRealmConfiguration = Preconditions.checkNotNull( kenaiRealmConfiguration );
+    }
 
     @Override
     public String getName()
