@@ -64,6 +64,8 @@ public class KenaiRealm
     public KenaiRealm( final KenaiRealmConfiguration kenaiRealmConfiguration )
     {
         this.kenaiRealmConfiguration = Preconditions.checkNotNull( kenaiRealmConfiguration );
+        // TODO: write another test before enabling this
+        // this.setAuthenticationCachingEnabled( true );
     }
 
     @Override
@@ -84,7 +86,7 @@ public class KenaiRealm
 
         if ( authenticateViaUrl( username, pass ) )
         {
-            authInfo = buildAuthenticationInfo( username, null );
+            authInfo = buildAuthenticationInfo( username, upToken.getPassword() );
         }
         else
         {
@@ -245,12 +247,6 @@ public class KenaiRealm
         this.logger.debug( "User: " + username + " url validation status: " + response.getStatus() );
 
         return response;
-    }
-
-    @Override
-    public CredentialsMatcher getCredentialsMatcher()
-    {
-        return new AllowAllCredentialsMatcher();
     }
 
     @Override
