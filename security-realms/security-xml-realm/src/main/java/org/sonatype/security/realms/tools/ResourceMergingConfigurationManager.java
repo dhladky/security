@@ -516,21 +516,17 @@ public class ResourceMergingConfigurationManager
 
     // ==
 
-    protected EnhancedConfiguration getConfiguration()
+    @Override
+    protected boolean shouldRebuildConifuguration()
     {
         for ( DynamicSecurityResource resource : dynamicResources )
         {
             if ( resource.isDirty() )
             {
-                // forcing reload since some of static ones are "dirty"
-                // TODO: is this isDirty() method used at all? I did not find any references to real uses
-                // Note: not this.clearCache() since it would invoke delegate's clearCache too!
-                super.clearCache();
-                break;
+                return true;
             }
         }
-
-        return super.getConfiguration();
+        return false;
     }
 
     protected Configuration doGetConfiguration()
