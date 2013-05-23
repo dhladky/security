@@ -17,7 +17,7 @@
   <parent>
     <artifactId>security-parent</artifactId>
     <groupId>org.sonatype.security</groupId>
-    <version>3.3</version>
+    <version>3.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>security-configuration</artifactId>
