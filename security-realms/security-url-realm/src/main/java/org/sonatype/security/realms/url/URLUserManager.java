@@ -198,6 +198,7 @@ public class URLUserManager
         user.setName( userId );
         user.setSource( SOURCE );
         user.setUserId( userId );
+        user.setStatus(UserStatus.active);
 
         if ( addDefaultRole )
         {
